@@ -1,0 +1,14 @@
+.layout-grid {
+  padding: 8px 12px;
+  gap: 12px;
+  border: 1px solid var(--light-stroke); }
+  .layout-grid a {
+    opacity: 0.4; }
+    .layout-grid a.active {
+      opacity: 1; }
+
+.coupon-banner {
+  padding: 60px 0 60px 60px;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: left bottom; }

@@ -1,0 +1,14 @@
+.breadcrumb-section {
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center right; }
+
+.breadcrumb-text a {
+  margin-right: 4px;
+  color: var(--text-color);
+  display: inline-block; }
+  .breadcrumb-text a:hover {
+    color: var(--secondary-color); }
+
+.breadcrumb-text span {
+  margin-left: 4px; }

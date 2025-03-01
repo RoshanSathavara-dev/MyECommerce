@@ -1,0 +1,16 @@
+.breadcrumb-section {
+    background-color: #F6F6F6;
+}
+.breadcrumb-text {
+    a {
+        margin-right: 4px;
+        color: var(--text-color);
+        display: inline-block;
+        &:hover {
+            color: var(--secondary-color);
+        }       
+    }
+    span {
+        margin-left: 4px;
+    }
+}

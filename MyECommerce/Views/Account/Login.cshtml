@@ -1,0 +1,106 @@
+﻿@{
+    ViewData["Title"] = "Login";
+}
+
+<h2 class="text-center">Login</h2>
+
+<div class="d-flex justify-content-center align-items-center vh-100">
+    <div class="card shadow-lg p-4" style="width: 400px;">
+        <h2 class="text-center mb-4">Login</h2>
+
+        <form id="loginForm">
+            <!-- Login Fields -->
+            <div id="loginFields">
+                <div class="mb-3">
+                    <label class="form-label">Email or Contact No.</label>
+                    <input type="text" id="EmailOrContact" name="EmailOrContact" class="form-control" placeholder="Enter email or contact no." required>
+                </div>
+                <button type="button" id="sendOtpButton" class="btn btn-primary w-100">Send OTP</button>
+            </div>
+
+            <!-- OTP Fields (Hidden Initially) -->
+            <div id="otpSection" style="display: none;">
+                <div class="mb-3">
+                    <label class="form-label">Enter OTP</label>
+                    <input type="text" id="OTP" name="OTP" class="form-control" placeholder="Enter OTP" required>
+                </div>
+                <button type="button" id="verifyLoginOtpButton" class="btn btn-success w-100">Verify OTP & Login</button> <!-- ✅ Add this -->
+            </div>
+
+
+            <p class="text-center mt-3">
+                Don't have an account? <a asp-action="Register" asp-controller="Account">Register here</a>
+            </p>
+        </form>
+    </div>
+</div>
+
+<script>
+
+     document.getElementById("sendOtpButton").addEventListener("click", function () {
+         var emailOrContact = document.getElementById("EmailOrContact").value.trim();
+         if (!emailOrContact) {
+             alert("Please enter your Email or Contact No.");
+             return;
+         }
+
+         // Disable button to prevent duplicate requests
+         var button = document.getElementById("sendOtpButton");
+         button.disabled = true;
+         button.innerText = "Sending OTP...";
+
+         // ✅ Use SendLoginOtp instead of SendOtp
+         fetch('/Account/SendLoginOtp', {
+             method: 'POST',
+             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+             body: new URLSearchParams({ EmailOrContact: emailOrContact })
+         })
+         .then(response => response.json())
+         .then(data => {
+             if (data.success) {
+                 alert("OTP sent successfully!");
+                 document.getElementById("loginFields").style.display = "none";
+                 document.getElementById("otpSection").style.display = "block";
+             } else {
+                 alert("Failed to send OTP: " + data.message);
+                 button.disabled = false;
+                 button.innerText = "Send OTP";
+             }
+         })
+         .catch(error => {
+             console.error("Error sending OTP:", error);
+             button.disabled = false;
+             button.innerText = "Send OTP";
+         });
+     });
+
+
+
+    document.getElementById("verifyLoginOtpButton").addEventListener("click", function () {
+        var otp = document.getElementById("OTP").value.trim();
+
+        if (!otp) {
+            alert("Please enter the OTP.");
+            return;
+        }
+
+        fetch('/Account/VerifyLoginOtp', { // ✅ Use VerifyLoginOtp instead of VerifyOtp
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({ otp: otp })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("Login successful!");
+                window.location.href = "/";
+            } else {
+                alert("Invalid OTP: " + data.message);
+            }
+        })
+        .catch(error => {
+            console.error("Error verifying OTP:", error);
+        });
+    });
+
+</script>

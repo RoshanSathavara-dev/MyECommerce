@@ -1,0 +1,23 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="~/css/admin-style.css" />
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-sidebar">
+            <ul>
+                <li><a href="@Url.Action("Index", "Product", new { area = "Admin" })">Products</a></li>
+                <li><a href="@Url.Action("Index", "Category", new { area = "Admin" })">Categories</a></li>
+                <!-- More links -->
+            </ul>
+        </div>
+        <div class="admin-content">
+            @RenderBody()
+        </div>
+    </div>
+</body>
+</html>

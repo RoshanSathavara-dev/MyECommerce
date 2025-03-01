@@ -1,0 +1,19 @@
+﻿@model MyECommerce.Models.CustomZula
+
+@{
+    ViewData["Title"] = "Custom Zula Details";
+}
+
+<h2>Custom Zula Details</h2>
+
+<div class="card shadow-sm p-3 ">
+    <img src="@Model.ImageUrl" alt="Custom Zula Image" class="img-fluid rounded" width="250" />
+
+    <div class="mt-3 ">
+        <p><strong>Description:</strong> @Model.Description</p>
+        <p><strong>Contact No.:</strong> @Model.ContactNo</p>
+        <p><strong>Created Date:</strong> @Model.CreatedDate.ToString("yyyy-MM-dd")</p>
+    </div>
+
+    <a asp-action="Index" class="btn btn-primary">Back to List</a>
+</div>

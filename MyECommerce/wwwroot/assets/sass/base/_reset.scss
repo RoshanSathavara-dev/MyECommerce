@@ -1,0 +1,32 @@
+body {
+    margin: 0;
+    font-family: var(--template-font);
+    color: var(--text-color);
+    background-color: var(--white-color);
+    font-weight: 400;
+}
+
+input {
+    outline: 0;
+}
+
+select {
+    outline: 0;
+    border: 0;
+}
+
+a {
+    text-decoration: none;
+    transition: var(--transition-base);
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+    margin-bottom: 0;
+}
+
+button {
+    border: 0;
+    background-color: transparent;
+}

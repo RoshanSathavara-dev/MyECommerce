@@ -1,0 +1,220 @@
+/********************************* hero section start *****************************/
+.hm3-hero-section {
+    padding: 220px 0 120px 0;
+    background-size: cover;
+    background-repeat: no-repeat;
+    margin-top: -230px;
+    @include large-screen {
+        padding: 235px 0 120px 0;
+    }
+}
+
+.hm3-hero-slider {
+    .slick-list {
+        margin: 0 -30px;
+        .slick-slide {
+            margin: 0 30px;
+        }
+    }
+    .slick-dots {
+        margin-top: 60px;
+        li {
+            display: inline-block;
+            position: relative;
+            &::before {
+                content: '';
+                position: absolute;
+                left: 30%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                border-radius: 50%;
+                border: 1px solid var(--primary-color);
+                width: 55px;
+                height: 55px;
+                opacity: 0;
+                visibility: hidden;
+            }
+            button {
+                font-size: 14px; 
+                font-family: var(--hm2-font-family);
+                color: var(--primary-color);
+                transition: var(--transition-base);
+                &::after {
+                    content: '';
+                    position: absolute;
+                    width: 0;
+                    height: 1px;
+                    background-color: var(--primary-color);
+                    top: 50%;
+                    left: 40px;
+                    transition: var(--transition-base);
+                }
+            }
+            &.slick-active {
+                &::before {
+                    opacity: 1;
+                    visibility: visible;
+                }
+                button {
+                    margin-right: 60px;
+                    margin-left: 20px;
+                    &::after {
+                        width: 50px;
+                    }
+                }
+            }
+        }
+    }
+    @include screen-1400 {
+        .slick-list {
+            margin: 0 -12px;
+            .slick-slide {
+                margin: 0 12px;
+            }
+        }
+    }
+}
+
+/*********************** search location ***********************/
+.store-search-box {
+    border: 1px solid var(--primary-color);
+    padding: 42px 60px;
+    input[type='text'] {
+        border: 0;
+        font-weight: 300;
+    }
+    button {
+        padding: 0; 
+        width: 45px; 
+        height: 45px;
+        svg {
+            path {
+                transition: var(--transition-base);
+            }
+        }
+        &:hover {
+            svg {
+                path {
+                    fill: var(--white-color);
+                }
+            }
+        }
+    }
+}
+
+/*********************** brand section start ***********************/
+.hm3-brand-section {
+    border-top: 1px solid var(--primary-color);
+    border-bottom: 1px solid var(--primary-color);
+    padding: 60px 0;
+}
+.hm3-brand-slider {
+    .single-item {
+        &:hover {
+            img {
+                animation: 0.3s toTopFromBottom;
+            }
+        }
+    }
+}
+/*********************** filter section start **********************/
+.hm3-filter-nav {
+    gap: 50px;
+    margin-bottom: 60px;
+    li {
+        a {
+            font-size: 30px;
+            color: var(--text-color);
+            transition: var(--transition-base); 
+            position: relative;
+            &::before {
+                content: ''; 
+                position: absolute;
+                right: 0; 
+                bottom: -5px;
+                width: 0; 
+                height: 1px; 
+                background-color: var(--primary-color);
+                transition: var(--transition-base);
+            }
+            &.active {
+                color: var(--primary-color); 
+                &::before {
+                    width: 100%;
+                    right: auto; 
+                    left: 0;
+                }
+            }
+        }
+    }
+    @include portrait-phone {
+        gap: 24px;
+    }
+}
+
+/*********************** blog section start ***********************/
+.hm3-blog-slider {
+    .prev-arrow, 
+    .next-arrow {
+        position: absolute;
+        top: -112px; 
+        right: 0; 
+        color: var(--primary-color); 
+        font-size: 18px;
+        transition: var(--transition-base);
+        &:hover {
+            color: var(--secondary-color);
+        }
+    }
+    .prev-arrow {
+        right: 100px;
+    }
+    @include screen-768 {
+        .prev-arrow, .next-arrow {
+            display: none !important;
+        }
+    }
+}
+
+/***************** subscribe area start *******************/
+.hm3-subscribe-box {
+    padding: 100px;
+    border: 10px solid var(--primary-color);
+    h3 {
+        font-size: 40px; 
+        line-height: 50px;
+    }
+    @include portrait-phone {
+        padding: 70px 40px;
+    }
+}
+
+.hm3-sb-form {
+    display: inline-flex;
+    align-items: center;
+    width: 100%;
+    border: 1px solid #E4E4E4;
+    padding: 20px 30px;
+    label {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        input {
+            width: 100%;
+            border: 0;
+        }
+    }
+    button {
+        flex-shrink: 0;
+        font-weight: 500; 
+        color: var(--primary-color);
+        transition: var(--transition-base); 
+        background-color: var(--white-color);
+        padding-left: 10px;
+        &:hover {
+            color: var(--text-color);
+        }
+    }
+}
+

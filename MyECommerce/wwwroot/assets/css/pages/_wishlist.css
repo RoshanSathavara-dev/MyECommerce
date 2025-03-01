@@ -1,0 +1,29 @@
+/*************** wishlist table *****************/
+.wishlist-table table {
+  border: 1px solid var(--border-color);
+  border-top: 0; }
+
+.wishlist-table tr {
+  border-top: 1px solid var(--border-color); }
+  .wishlist-table tr th {
+    color: var(--primary-color);
+    padding: 24px 32px;
+    font-weight: 400; }
+  .wishlist-table tr td {
+    padding: 30px 40px;
+    vertical-align: middle; }
+    .wishlist-table tr td .product-box {
+      min-width: 340px; }
+    .wishlist-table tr td .stock-status {
+      min-width: 290px;
+      gap: 10px; }
+    .wishlist-table tr td .remove_product {
+      -webkit-transition: var(--transition-base);
+      -o-transition: var(--transition-base);
+      transition: var(--transition-base); }
+      .wishlist-table tr td .remove_product:hover {
+        color: var(--secondary-color); }
+    .wishlist-table tr td .feature-image {
+      width: 80px;
+      height: 80px;
+      padding: 15px; }

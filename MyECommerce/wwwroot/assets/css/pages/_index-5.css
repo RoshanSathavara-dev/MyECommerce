@@ -1,0 +1,125 @@
+/********************************** hero section start ****************************/
+.vr5-hero-section {
+  background-color: #F2F2F0; }
+  .vr5-hero-section .flower-shape {
+    mix-blend-mode: multiply; }
+  .vr5-hero-section .vr5-hero-banner {
+    height: 800px;
+    border-right: 1px solid var(--primary-color);
+    background-repeat: no-repeat;
+    background-size: cover; }
+
+.vr5-hero-content-slider {
+  max-width: 640px;
+  padding: 150px 0 120px 100px; }
+  .vr5-hero-content-slider h1 {
+    font-size: 60px;
+    line-height: 70px; }
+  .vr5-hero-content-slider .slick-dots {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 60px; }
+    .vr5-hero-content-slider .slick-dots li button {
+      font-size: 0;
+      padding: 0;
+      width: 8px;
+      height: 8px;
+      background-color: #D3D3D3;
+      border-radius: 50%;
+      -webkit-transition: var(--transition-base);
+      -o-transition: var(--transition-base);
+      transition: var(--transition-base); }
+    .vr5-hero-content-slider .slick-dots li.slick-active button {
+      background-color: var(--primary-color); }
+
+/******************* ticker section start *****************/
+.vr5-ticker-area {
+  border-top: 1px solid var(--primary-color);
+  border-bottom: 1px solid var(--primary-color); }
+
+.ticker-wrapper .ticker.vr5-ticker span + span::before {
+  background-color: var(--primary-color); }
+
+/******************* category section start *****************/
+.vr5-ct-single-box {
+  border: 1px solid var(--primary-color);
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  overflow: hidden; }
+  .vr5-ct-single-box img {
+    -webkit-transition: var(--transition-base);
+    -o-transition: var(--transition-base);
+    transition: var(--transition-base); }
+  .vr5-ct-single-box .explore-btn {
+    width: 200px;
+    height: 55px;
+    background-color: var(--white-color);
+    color: var(--primary-color);
+    text-align: center;
+    line-height: 55px;
+    font-size: 20px;
+    font-weight: 600;
+    text-transform: uppercase;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%); }
+  .vr5-ct-single-box:hover img {
+    -webkit-transform: scale(1.06);
+    -ms-transform: scale(1.06);
+    transform: scale(1.06); }
+
+/******************** filter section start *******************/
+.vr5-filter-nav {
+  gap: 20px; }
+  .vr5-filter-nav li a {
+    color: var(--primary-color);
+    text-transform: uppercase;
+    font-size: 14px;
+    font-weight: 700;
+    position: relative; }
+    .vr5-filter-nav li a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -5px;
+      width: 0;
+      height: 1px;
+      background-color: var(--primary-color);
+      -webkit-transition: var(--transition-base);
+      -o-transition: var(--transition-base);
+      transition: var(--transition-base); }
+    .vr5-filter-nav li a.active::before {
+      width: 100%; }
+
+/**************** action products start *****************/
+.vr5-action-area {
+  height: 850px;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center; }
+
+/***************** blog section *************/
+.vr5-blog-card {
+  padding: 30px;
+  background-color: var(--light-bg-2);
+  border: 1px solid #E7E7E7;
+  -webkit-transition: var(--transition-base);
+  -o-transition: var(--transition-base);
+  transition: var(--transition-base); }
+  .vr5-blog-card:hover {
+    border-color: var(--primary-color); }
+
+/************************* feature section start *************************/
+.vr5-feature-box {
+  border-top: 1px solid var(--primary-color);
+  border-bottom: 1px solid var(--primary-color); }
+  .vr5-feature-box .icon-box.border-right::after {
+    background-color: var(--primary-color); }

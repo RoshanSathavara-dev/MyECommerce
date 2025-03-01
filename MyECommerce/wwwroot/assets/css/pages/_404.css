@@ -1,0 +1,25 @@
+.notfound-area {
+  padding: 60px 0; }
+
+.notfound-content .outline-btn {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  position: relative;
+  z-index: 1; }
+  .notfound-content .outline-btn::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 0;
+    background-color: var(--secondary-color);
+    z-index: -1;
+    -webkit-transition: var(--transition-base);
+    -o-transition: var(--transition-base);
+    transition: var(--transition-base); }
+  .notfound-content .outline-btn:hover {
+    border-color: var(--secondary-color);
+    color: var(--white-color); }
+    .notfound-content .outline-btn:hover::before {
+      height: 100%; }

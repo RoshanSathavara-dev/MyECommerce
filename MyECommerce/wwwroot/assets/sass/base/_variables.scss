@@ -1,0 +1,27 @@
+@import url('https://fonts.googleapis.com/css2?family=Albert+Sans:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=McLaren&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&display=swap');
+
+:root {
+    --template-font:      'Albert Sans', sans-serif;
+    --heading-font:       'Albert Sans', sans-serif;
+
+    --hm2-font-family:    'McLaren', cursive;
+
+    --subtitle-font:      'Covered By Your Grace', cursive;
+    
+    --primary-color:      #121111;
+    --secondary-color:    #761818;
+    --text-color:         #74787C;
+    --headings-color:     #121111;
+    --white-color:        #ffffff;
+    --danger-color:       #9F1111;
+
+    --transition-base:    0.3s;
+    --border-color:       #E9E9E9;
+    --light-bg:           #F5F4F2;
+    --light-bg-2:         #F6F6F6;
+
+    --box-shadow:         0px 4px 40px #E2E2E2;
+
+}

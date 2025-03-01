@@ -1,0 +1,40 @@
+/*************** wishlist table *****************/
+.wishlist-table {
+    table {
+        border: 1px solid var(--border-color);
+        border-top: 0;
+    }
+    tr {
+        border-top: 1px solid var(--border-color);
+        th {
+            color: var(--primary-color);
+            padding: 24px 32px;
+            font-weight: 400;
+        }
+        td {
+            padding: 30px 40px;
+            vertical-align: middle;
+            .product-box {
+                min-width: 340px;
+            }
+            .stock-status {
+                min-width: 290px;
+                gap: 10px;
+            }
+            .remove_product {
+                transition: var(--transition-base);
+                &:hover {
+                    color: var(--secondary-color);
+                }
+            }
+            .feature-image {
+                width: 80px;
+                height: 80px;
+                padding: 15px;
+                img {
+                    
+                }
+            }
+        }
+    }
+}

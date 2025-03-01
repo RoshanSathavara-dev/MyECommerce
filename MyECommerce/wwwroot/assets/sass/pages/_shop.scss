@@ -1,0 +1,43 @@
+.layout-grid {
+    padding: 8px 12px;
+    gap: 12px;
+    border: 1px solid var(--light-stroke);
+    a {
+        opacity: 0.4;
+        &.active {
+            opacity: 1;
+        }
+    }
+}
+
+.coupon-banner {
+    padding: 60px 0 60px 60px;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: left bottom;
+}
+
+.vrs-product-card {
+    .feature-thumb {
+        height: 300px;
+        .circle-badge {
+            border: 1px solid var(--primary-color);
+            background-color: transparent;
+            color: var(--primary-color);
+        }
+        img {
+            max-width: 70%;
+        }
+    }
+    h5 {
+        font-size: 20px;
+    }
+}
+
+.sidebar-products {
+    li {
+        h6 {
+            font-size: 18px;
+        }
+    }
+}

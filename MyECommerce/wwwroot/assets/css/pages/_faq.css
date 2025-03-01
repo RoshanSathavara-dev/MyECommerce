@@ -1,0 +1,23 @@
+/**************** faq page ************/
+.faq-form {
+  border: 1px solid var(--border-color);
+  padding: 40px;
+  background-color: var(--light-bg-2); }
+  .faq-form input, .faq-form textarea {
+    background-color: transparent;
+    border: 1px solid #D4D4D4;
+    margin-bottom: 20px; }
+    .faq-form input:focus, .faq-form textarea:focus {
+      border-color: var(--primary-color); }
+
+.faq-accordion .accordion-item {
+  border: 0;
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  padding: 30px 0; }
+  .faq-accordion .accordion-item + .accordion-item {
+    border-top: 0; }
+  .faq-accordion .accordion-item .accordion-header a {
+    font-size: 18px;
+    color: var(--primary-color);
+    font-weight: 500; }

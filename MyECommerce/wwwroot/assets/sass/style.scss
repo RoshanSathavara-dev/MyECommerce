@@ -1,0 +1,48 @@
+/*
+Theme Name: Venturi - Furniture Store Figma Template
+Author: Mate_Themes
+Author URI: https://themeforest.net/user/mate_themes/
+Tags: furniture, ecommerce, furniture-store, store, online-store, html5 template
+Description: Crete - Personal Portfolio HTML5 Template. 
+Version: 1.0.0
+*/
+
+/************************************** base css **************************************/
+@import 'base/variables';
+@import 'base/mixin';
+@import 'base/reset';
+@import 'base/typography';
+@import 'base/spacing';
+
+
+/******************************* theme css **********************************/
+@import 'theme/theme-class';
+@import 'theme/animations';
+
+
+/******************************** components ******************************/
+@import 'components/header';
+@import 'components/preloader';
+@import 'components/buttons';
+@import 'components/footer';
+@import 'components/product-cards';
+@import 'components/breadcrumb';
+@import 'components/sidebar';
+
+/****************************** page styles ******************************/
+@import 'pages/index-1';
+@import 'pages/index-2';
+@import 'pages/index-3';
+@import 'pages/cart'; 
+@import 'pages/checkout'; 
+@import 'pages/faq';
+@import 'pages/wishlist';
+@import 'pages/contact';
+@import 'pages/blog';
+@import 'pages/shop';
+@import 'pages/about';
+@import 'pages/product-details';
+@import 'pages/index-4';
+@import 'pages/index-5';
+@import 'pages/index-6';
+@import 'pages/404';

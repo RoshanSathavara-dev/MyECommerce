@@ -1,0 +1,44 @@
+﻿@model MyECommerce.Models.CustomZula
+
+@{
+    ViewData["Title"] = "Edit Custom Zula";
+}
+
+<h2>Edit Custom Zula</h2>
+
+<form asp-action="Edit" method="post" enctype="multipart/form-data">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="mb-3">
+        <label asp-for="Description" class="form-label"></label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="ContactNo" class="form-label"></label>
+        <input asp-for="ContactNo" class="form-control" />
+        <span asp-validation-for="ContactNo" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Current Image</label><br />
+        <img src="@Model.ImageUrl" alt="Current Image" style="max-width: 200px;" />
+        <br />
+        <!-- Download Image Button -->
+        @* <a href="@Model.ImageUrl" download class="btn btn-secondary mt-2">Download Image</a> *@
+        <a href="@Model.ImageUrl" download="zula.jpg" class="btn btn-secondary mt-2">Download Image</a>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Upload New Image</label>
+        <input type="file" name="imageFile" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Update</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

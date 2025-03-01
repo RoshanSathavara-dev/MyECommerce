@@ -1,0 +1,121 @@
+﻿@{
+    ViewData["Title"] = "Register";
+}
+
+<h2>Register</h2>
+
+<div class="d-flex justify-content-center align-items-center vh-100">
+    <div class="card shadow-lg p-4" style="width: 400px;">
+        <h2 class="text-center mb-4">Register</h2>
+
+        <form id="registerForm" asp-controller="Account" asp-action="SendOtp" method="post">
+            <div id="registerFields">
+                <div class="mb-3">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" id="Name" name="Name" class="form-control" placeholder="Enter your name" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" id="Email" name="Email" class="form-control" placeholder="Enter your email" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Contact No.</label>
+                    <input type="text" id="ContactNo" name="ContactNo" class="form-control" placeholder="Enter your contact number" required>
+                </div>
+                <button type="button" id="sendOtpButton" class="btn btn-primary w-100">Register</button>
+            </div>
+
+            <!-- OTP Field (Initially Hidden) -->
+            <!-- OTP Field (Initially Hidden) -->
+            <div id="otpSection" style="display: none;">
+                <div class="mb-3">
+                    <label class="form-label">Enter OTP</label>
+                    <input type="text" id="otp" name="otp" class="form-control" placeholder="Enter OTP" required>
+                </div>
+                <button type="button" id="verifyOtpButton" class="btn btn-success w-100">Verify & Complete Registration</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<script>
+    document.getElementById("sendOtpButton").addEventListener("click", function () {
+        var name = document.getElementById("Name").value;
+        var email = document.getElementById("Email").value;
+        var contactNo = document.getElementById("ContactNo").value;
+        var button = document.getElementById("sendOtpButton");
+
+        if (!name.trim() || !email.trim() || !contactNo.trim()) {
+            alert("Please fill in all details before proceeding.");
+            return;
+        }
+
+        // Disable button to prevent duplicate requests
+        button.disabled = true;
+        button.innerText = "Sending OTP...";
+
+        fetch('/Account/SendOtp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({ Name: name, Email: email, ContactNo: contactNo })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("OTP sent successfully!");
+                document.getElementById("registerFields").style.display = "none";
+                document.getElementById("otpSection").style.display = "block";
+            } else {
+                alert("Failed to send OTP: " + data.message);
+                button.disabled = false;
+                button.innerText = "Register";
+            }
+        })
+        .catch(error => {
+            console.error("Error sending OTP:", error);
+            button.disabled = false;
+            button.innerText = "Register";
+        });
+    });
+
+    // ✅ FIXED: Verify OTP Logic
+    document.getElementById("verifyOtpButton").addEventListener("click", function () {
+        var otp = document.getElementById("otp").value;
+        var button = document.getElementById("verifyOtpButton");
+
+        if (!otp.trim()) {
+            alert("Please enter the OTP.");
+            return;
+        }
+
+        button.disabled = true;
+        button.innerText = "Verifying...";
+
+        fetch('/Account/VerifyOtp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({ otp: otp })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("OTP verified successfully!");
+                window.location.href = "/";
+            } else {
+                alert("Invalid OTP: " + data.message);
+                button.disabled = false;
+                button.innerText = "Verify OTP";
+            }
+        })
+        .catch(error => {
+            console.error("Error verifying OTP:", error);
+            button.disabled = false;
+            button.innerText = "Verify OTP";
+        });
+    });
+</script>
+
+    
+
+
