@@ -1,64 +1,89 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyECommerce.Data;
+using MyECommerce.Models;
 using System.Linq;
 
 namespace MyECommerce.Controllers
 {
+
+    
     public class AdminController : Controller
     {
-        private readonly ApplicationDbContext _context;
 
-        public AdminController(ApplicationDbContext context)
+        private readonly ApplicationDbContext _context;
+        private readonly UserManager<User> _userManager;
+
+        public AdminController(ApplicationDbContext context, UserManager<User> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
-        // Dashboard view
-        public IActionResult Dashboard()
+        public IActionResult Index()
         {
-            var categoryCount = _context.Categories.Count();
-            var productCount = _context.Products.Count();
-            var orderCount = _context.Orders.Count();
-            var paymentCount = _context.Payments.Count();
-
-            var dashboardData = new
+            var model = new AdminDashboardViewModel
             {
-                CategoryCount = categoryCount,
-                ProductCount = productCount,
-                OrderCount = orderCount,
-                PaymentCount = paymentCount
+                TotalProducts = _context.Products.Count(),
+                TotalOrders = _context.Orders.Count(),
+                TotalUsers = _userManager.Users.Count() // ✅ Use UserManager for users
             };
-
-            return View(dashboardData);
+            return View(model);
         }
+        //private readonly ApplicationDbContext _context;
 
-        // Orders page
-        public IActionResult Orders()
-        {
-            var orders = _context.Orders.ToList();
-            return View(orders);
-        }
+        //public AdminController(ApplicationDbContext context)
+        //{
+        //    _context = context;
+        //}
 
-        // Staff page
-        public IActionResult Staff()
-        {
-            // Fetch staff or admin data if needed
-            return View();
-        }
+        //// Dashboard view
+        //public IActionResult Dashboard()
+        //{
+        //    var categoryCount = _context.Categories.Count();
+        //    var productCount = _context.Products.Count();
+        //    var orderCount = _context.Orders.Count();
+        //    var paymentCount = _context.Payments.Count();
 
-        // Products page
-        public IActionResult ProductIndex()
-        {
-            var products = _context.Products.Include(p => p.Category).ToList();
-            return View("Product/Index", products);
-        }
+        //    var dashboardData = new
+        //    {
+        //        CategoryCount = categoryCount,
+        //        ProductCount = productCount,
+        //        OrderCount = orderCount,
+        //        PaymentCount = paymentCount
+        //    };
 
-        // Admin Categories
-        public IActionResult CategoryIndex()
-        {
-            var categories = _context.Categories.ToList();
-            return View("Category/Index", categories);
-        }
+        //    return View(dashboardData);
+        //}
+
+        //// Orders page
+        //public IActionResult Orders()
+        //{
+        //    var orders = _context.Orders.ToList();
+        //    return View(orders);
+        //}
+
+        //// Staff page
+        //public IActionResult Staff()
+        //{
+        //    // Fetch staff or admin data if needed
+        //    return View();
+        //}
+
+        //// Products page
+        //public IActionResult ProductIndex()
+        //{
+        //    var products = _context.Products.Include(p => p.Category).ToList();
+        //    return View("Product/Index", products);
+        //}
+
+        //// Admin Categories
+        //public IActionResult CategoryIndex()
+        //{
+        //    var categories = _context.Categories.ToList();
+        //    return View("Category/Index", categories);
+        //}
     }
 }

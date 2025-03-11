@@ -7,18 +7,20 @@
     <title>Venturi - Furniture Store HTML Template</title>
 
     <!--Essential css files-->
-    <link rel="stylesheet" href="assets/css/all.css">
-    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
-    <link rel="stylesheet" href="assets/css/slick.css">
-    <link rel="stylesheet" href="assets/css/jquery-ui.css">
-    <link rel="stylesheet" href="assets/css/nice-select.css">
-    <link rel="stylesheet" href="assets/css/fancybox.css">
-    <link rel="stylesheet" href="assets/css/animate.css">
-    <link rel="stylesheet" href="assets/css/magnific-popup.css">
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="~/assets/css/all.css">
+    <link rel="stylesheet" href="~/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="~/assets/css/slick.css">
+    <link rel="stylesheet" href="~/assets/css/jquery-ui.css">
+    <link rel="stylesheet" href="~/assets/css/nice-select.css">
+    <link rel="stylesheet" href="~/assets/css/fancybox.css">
+    <link rel="stylesheet" href="~/assets/css/animate.css">
+    <link rel="stylesheet" href="~/assets/css/magnific-popup.css">
+    <link rel="stylesheet" href="~/assets/css/style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <!--favicon-->
-    <link rel="icon" href="assets/images/favicon.png">
+    <link rel="icon" href="~/assets/images/favicon.png">
+
 
 </head>
 <body>
@@ -26,7 +28,7 @@
 
     <!--preloader start-->
     <div class="preloader">
-        <h1 class="display-1">Venturi</h1>
+        <h1 class="display-1">Hinchko.com</h1>
         <div class="preload-progress">
             <span></span>
         </div>
@@ -45,13 +47,22 @@
                                         <path d="M12.9062 4.3125C12.9062 3.85547 12.5547 3.46875 12.0625 3.46875C11.6055 3.46875 11.2188 3.85547 11.2188 4.3125C11.2188 4.80469 11.6055 5.15625 12.0625 5.15625C12.5547 5.15625 12.9062 4.80469 12.9062 4.3125ZM16 2.0625C16 1.14844 15.2617 0.375 14.3125 0.375H9.07422C8.47656 0.375 7.91406 0.621094 7.49219 1.04297L1.30469 7.23047C0.425781 8.10938 0.425781 9.55078 1.30469 10.4297L5.98047 15.1055C6.85938 15.9844 8.30078 15.9844 9.17969 15.1055L15.3672 8.91797C15.7891 8.49609 16 7.93359 16 7.33594V2.0625ZM14.5586 8.14453L8.37109 14.332C7.94922 14.7539 7.21094 14.7539 6.78906 14.332L2.07812 9.62109C1.65625 9.19922 1.65625 8.46094 2.07812 8.03906L8.26562 1.85156C8.47656 1.64062 8.79297 1.5 9.07422 1.5H14.3125C14.6289 1.5 14.875 1.78125 14.875 2.0625V7.33594C14.875 7.61719 14.7695 7.93359 14.5586 8.14453ZM14.5586 8.14453L15.3672 8.91797L14.5586 8.14453Z" fill="#121111" />
                                     </svg>
                                 </span>
-                                <a href="signup.html" class="text-white">Sign up for get 15% off your first purchase!</a>
+                                <a href="/Account/Register" class="text-white">Sign up for get 15% off your first purchase!</a>
                             </p>
                         </div>
                     </div>
                     <div class="col-lg-6 col-md-5">
                         <div class="d-flex align-items-center justify-content-end gap-60">
-                            <a href="#" class="infobar-link text-uppercase fs-sm fw-semibold">My Account</a>
+                            @if (User.Identity != null && User.Identity.IsAuthenticated)
+                            {
+                                <a href="@Url.Action("Logout", "Account")" class="infobar-link text-uppercase fs-sm fw-semibold">Logout</a>
+                            }
+                            else
+                            {
+                                <a href="@Url.Action("Login", "Account")" class="infobar-link text-uppercase fs-sm fw-semibold">My Account</a>
+                            }
+
+
                             <div class="header-socials d-flex align-items-center justify-content-end gap-4">
                                 <a href="#">IG</a>
                                 <a href="#">FB</a>
@@ -59,6 +70,7 @@
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
@@ -67,72 +79,14 @@
                 <div class="row align-items-center">
                     <div class="col-xl-3 col-5">
                         <div class="logo-wrapper">
-                            <a href="index.html"><img src="assets/images/logo-white.png" class="img-fluid" alt="logo" /></a>
+                            <a href="index.html"><img src="~/assets/images/logo-white.png" class="img-fluid" alt="logo" /></a>
                         </div>
                     </div>
                     <div class="col-xl-6 col-lg-7 d-none d-xl-block">
                         <nav class="header-navigation text-center text-xl-start">
                             <ul>
-                                <li class="has-submenu">
-                                    <a href="javascript:void(0)">Home</a>
-                                    <ul class="submenu-wrapper">
-                                        <li><a href="index.html">Home One</a></li>
-                                        <li><a href="index-2.html">Home Two</a></li>
-                                        <li><a href="index-3.html">Home Three</a></li>
-                                        <li><a href="index-4.html">Home Four</a></li>
-                                        <li><a href="index-5.html">Home Five</a></li>
-                                        <li><a href="index-6.html">Home Six</a></li>
-                                    </ul>
-                                </li>
-                                <li class="has-submenu">
-                                    <a href="javascript:void(0)">Pages</a>
-                                    <div class="ur-megamenu">
-                                        <div class="megamenu-row">
-                                            <div class="megamenu-column border-r">
-                                                <h6 class="column-title">Product Pages</h6>
-                                                <ul class="pages-list">
-                                                    <li><a href="shop.html">Shop Page</a></li>
-                                                    <li><a href="shop-list.html">Shop List</a></li>
-                                                    <li><a href="product-details.html">Product Details</a></li>
-                                                    <li><a href="#">Shop Layout 04</a></li>
-                                                </ul>
-                                            </div>
-                                            <div class="megamenu-column border-r">
-                                                <h6 class="column-title">Filter Layout</h6>
-                                                <ul class="pages-list">
-                                                    <li><a href="shop-list.html">Filter Sidebar</a></li>
-                                                    <li><a href="#">Filter On Top</a></li>
-                                                    <li><a href="shop.html">Filter Side Out</a></li>
-                                                    <li><a href="product-details.html">Modal Filter</a></li>
-                                                </ul>
-                                            </div>
-                                            <div class="megamenu-column border-r">
-                                                <h6 class="column-title">Product Type</h6>
-                                                <ul class="pages-list">
-                                                    <li><a href="shop-list.html">Filter Sidebar</a></li>
-                                                    <li><a href="#">Filter On Top</a></li>
-                                                    <li><a href="shop.html">Filter Side Out</a></li>
-                                                    <li><a href="product-details.html">Modal Filter</a></li>
-                                                </ul>
-                                            </div>
-                                            <div class="megamenu-column">
-                                                <h6 class="column-title">Shop Pages</h6>
-                                                <ul class="pages-list">
-                                                    <li><a href="login.html">My Account</a></li>
-                                                    <li><a href="cart.html">Cart</a></li>
-                                                    <li><a href="checkout.html">Checkout</a></li>
-                                                    <li><a href="wishlist.html">Wishlist</a></li>
-                                                    <li><a href="order-tracking.html">Order Tracking</a></li>
-                                                </ul>
-                                            </div>
-                                            <div class="megamenu-column banner">
-                                                <div class="megamenu-banner">
-                                                    <a href="product-details.html" class="p-0"><img src="assets/images/banner/banner-1.jpg" alt="not found" class="img-fluid"></a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
+                                <li><a asp-controller="Home" asp-action="Index">Home</a></li>
+                                <li><a asp-controller="Shop" asp-action="Index">Shop</a></li> 
                                 <li class="fullwidth-megamenu">
                                     <a href="javascript:void(0)">Shop <i class="fas fa-angle-down"></i></a>
                                     <div class="megamenu-3">
@@ -227,65 +181,13 @@
                                 <li class="has-submenu">
                                     <a href="javascript:void(0)">Products</a>
                                     <ul class="submenu-wrapper">
-                                        <li><a href="product-details.html">Product layout 01</a></li>
+                                        <li><a href="/Product/Details">Product layout 01</a></li>
                                         <li><a href="product-details-v2.html">Product layout 02</a></li>
                                         <li><a href="product-details-v3.html">Product layout 03</a></li>
                                     </ul>
                                 </li>
-                                <li class="has-submenu">
-                                    <a href="javascript:void(0)">Blog</a>
-                                    <div class="megamenu-2 shadow-none">
-                                        <div class="row">
-                                            <div class="col-xl-3">
-                                                <div class="megamenu-column border-r">
-                                                    <h6 class="column-title">Filter Layout</h6>
-                                                    <ul class="pages-list">
-                                                        <li><a href="blog.html">Blog List</a></li>
-                                                        <li><a href="blog-single.html">Blog Details</a></li>
-                                                        <li><a href="#">Left Sidebar</a></li>
-                                                        <li><a href="#">Right Sidebar</a></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                            <div class="col-xl-3">
-                                                <div class="megamenu-column border-r">
-                                                    <h6 class="column-title">Filter Layout</h6>
-                                                    <ul class="pages-list">
-                                                        <li><a href="blog.html">Blog List</a></li>
-                                                        <li><a href="blog-single.html">Blog Details</a></li>
-                                                        <li><a href="#">Left Sidebar</a></li>
-                                                        <li><a href="#">Right Sidebar</a></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                            <div class="col-xl-6">
-                                                <div class="sidebar-widget">
-                                                    <ul class="latest-posts">
-                                                        <li class="d-flex align-items-center gap-3">
-                                                            <div class="feature-image pe-1">
-                                                                <a href="product-details.html"><img src="assets/images/blog/blog-sidebar-1.jpg" alt="not found" class="img-fluid"></a>
-                                                            </div>
-                                                            <div>
-                                                                <span class="fs-sm fw-light text-color date">Sep 25, 2023</span>
-                                                                <a href="product-details.html"><h6 class="mb-0 mt-3 fw-regular">Deal Going Get The Offer For All Products Today</h6></a>
-                                                            </div>
-                                                        </li>
-                                                        <li class="d-flex align-items-center gap-3">
-                                                            <div class="feature-image pe-1">
-                                                                <a href="product-details.html"><img src="assets/images/blog/blog-sidebar-2.jpg" alt="not found" class="img-fluid"></a>
-                                                            </div>
-                                                            <div>
-                                                                <span class="fs-sm fw-light text-color date">Sep 25, 2023</span>
-                                                                <a href="product-details.html"><h6 class="mb-0 mt-3 fw-regular">Deal Going Get The Offer For All Products Today</h6></a>
-                                                            </div>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li><a href="contact.html">Contact</a></li>
+                                <li><a asp-controller="Contact" asp-action="Index">Contact</a></li>
+
                             </ul>
                         </nav>
                     </div>
@@ -299,13 +201,16 @@
                                         </svg>
                                     </button>
                                 </div>
-                                <div class="header-wishlist d-none d-sm-inline-block">
-                                    <a href="wishlist.html">
+                                <div class="header-wishlist d-none d-sm-inline-block position-relative">
+                                    <a href="@Url.Action("Index", "Wishlist")" class="wishlist-icon">
                                         <svg width="20" height="18" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M9.73861 1.48886C12.026 -0.564802 15.5607 -0.496639 17.7644 1.71088C19.967 3.91938 20.043 7.43661 17.9942 9.7308L9.73667 18L1.4811 9.7308C-0.567698 7.43661 -0.490771 3.91354 1.71091 1.71088C3.91648 -0.493718 7.44443 -0.567724 9.73861 1.48886V1.48886ZM16.3855 3.08681C14.9249 1.62422 12.5684 1.56482 11.0396 2.93783L9.73959 4.10439L8.43864 2.9388C6.90496 1.56384 4.55332 1.62422 3.08878 3.08876C1.63788 4.53967 1.56484 6.86209 2.90182 8.39674L9.73764 15.2433L16.5735 8.39772C17.9114 6.86209 17.8384 4.54259 16.3855 3.08681V3.08681Z" fill="#121111" />
                                         </svg>
+                                        <span class="wishlist-item-count wishlist-count-badge">0</span> <!-- ✅ Wishlist count badge -->
                                     </a>
                                 </div>
+
+
                                 <div class="header-cart">
                                     <span class="cart-icon">
                                         <svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -335,8 +240,148 @@
         </div>
     </header>
     <!--header section end-->
+    <!--header serch box start-->
+    <div class="header-search-box">
+        <form action="#">
+            <label class="position-relative">
+                <i class="fas fa-magnifying-glass"></i>
+                <input type="text" placeholder="Search here....">
+            </label>
+        </form>
+        <a href="javascript:void(0)" class="search-close"><i class="fa-solid fa-xmark"></i></a>
+    </div>
+    <!--header search box end-->
+    <!--mobile menu start-->
+    <div class="mobile-menu">
+        <a href="javascript:void(0)" class="close"><i class="fas fa-xmark"></i></a>
+        <a href="#" class="logo py-3"><img src="~/assets/images/logo.png" alt="logo" class="img-fluid"></a>
+        <ul class="mobile-nav-menu">
+            <li class="has-submenu">
+                <a href="javascript:void(0)">Home</a>
+                <i class="fas fa-angle-down"></i>
+                <ul class="submenu-wrapper">
+                    <li><a href="index.html">Home Page 1</a></li>
+                    <li><a href="index-2.html">Home Page 2</a></li>
+                    <li><a href="index-3.html">Home Page 3</a></li>
+                    <li><a href="index-4.html">Home Page 4</a></li>
+                    <li><a href="index-5.html">Home Page 5</a></li>
+                    <li><a href="index-6.html">Home Page 6</a></li>
+                </ul>
+            </li>
+            <li><a href="about.html">About</a></li>
+            <li class="has-submenu">
+                <a href="javascript:void(0)">Pages</a>
+                <i class="fas fa-angle-down"></i>
+                <ul class="submenu-wrapper">
+                    <li><a href="cart.html">Cart</a></li>
+                    <li><a href="checkout.html">Checkout</a></li>
+                    <li><a href="faq.html">Faq</a></li>
+                    <li><a href="">Wishlist</a></li>
+                    <li><a href="order-tracking.html">Order Tracking</a></li>
+                </ul>
 
-    @RenderBody()
+            </li>
+            <li class="has-submenu">
+                <a href="javascript:void(0)">Blog</a>
+                <i class="fas fa-angle-down"></i>
+                <ul class="submenu-wrapper">
+                    <li><a href="blog.html">Blog List</a></li>
+                    <li><a href="blog-single.html">Blog Details</a></li>
+                </ul>
+            </li>
+            <li class="has-submenu">
+                <a href="javascript:void(0)">Shop</a>
+                <i class="fas fa-angle-down"></i>
+                <ul class="submenu-wrapper">
+                    <li><a href="shop.html">Shop Grid</a></li>
+                    <li><a href="shop-list.html">Shop List</a></li>
+                    <li><a href="product-details.html">Product Details</a></li>
+                </ul>
+            </li>
+            <li><a href="wishlist.html">Wishlist</a></li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
+    </div>
+    <!--mobile menu end-->
+    <!--cart drawer start-->
+    <!--cart drawer start-->
+    <div class="cart-drawer position-fixed">
+        <div class="drawer-close d-flex align-items-center justify-content-between position-absolute start-0 top-0 w-100 px-4 py-4 border-bottom">
+            <h6 class="mb-0 fw-medium">Your Cart (<span id="cart-count">0</span>)</h6>
+            <a href="javascript:void(0)" class="drawer-close"><i class="fas fa-xmark"></i></a>
+        </div>
+        <ul class="cart-list">
+            <!-- ✅ Cart items will be dynamically added here -->
+        </ul>
+        <div class="drawer-bottom border-top">
+            <div class="d-flex align-items-center justify-content-between">
+                <h6 class="mb-0">Total:</h6>
+                <span id="cart-total" class="fw-semibold text-main-color">$0.00</span>
+            </div>
+            <div class="progress-line">
+                <div class="progress-fill">
+                    <span>0%</span>
+                </div>
+            </div>
+            <p class="mt-4 fs-sm">Spend <span class="text-main-color">$125.00</span> to reach <span class="text-main-color">Free Shipping</span></p>
+            <a href="/ShoppingCart/Index" class="template-btn primary-btn text-uppercase fw-semibold w-100 text-center mt-4"><span>View Cart</span></a>
+            <a asp-controller="Order" asp-action="Checkout" class="template-btn outline-btn text-uppercase fw-semibold w-100 text-center mt-3">Checkout</a>
+
+        </div>
+    </div>
+    <!--cart drawer end-->
+    <!--offcanvus start-->
+    <div class="offcanvus-box position-fixed bg-white">
+        <a href="javascript:void(0)" class="offcanvus-close"><i class="fa-solid fa-xmark"></i></a>
+        <div class="content-top">
+            <a href="index.html" class="offcanvus-logo"><img src="~/assets/images/logo.png" alt="logo"></a>
+            <p class="mb-0 mt-32 fw-light">Distrak Street 2SK Line, Germanygalore@inside-support.com (+125) 2156-2145</p>
+        </div>
+        <div class="offcanvus-gallery d-flex align-items-center flex-wrap">
+            <a href="javascript:void(0)"><img src="~/assets/images/gallery/sidebar-item-1.jpg" alt="not found"></a>
+            <a href="javascript:void(0)"><img src="~/assets/images/gallery/sidebar-item-2.jpg" alt="not found"></a>
+            <a href="javascript:void(0)"><img src="~/assets/images/gallery/sidebar-item-3.jpg" alt="not found"></a>
+            <a href="javascript:void(0)"><img src="~/assets/images/gallery/sidebar-item-4.jpg" alt="not found"></a>
+        </div>
+        <div class="offcanvus-newsletter">
+            <h4 class="mb-4 text-center">Newsletter</h4>
+            <form action="#">
+                <input type="email" placeholder="Enter your e-mail" class="theme-input">
+                <button type="submit" class="template-btn primary-btn mt-3 w-100"><span>SUBSCRIBE NOW</span></button>
+            </form>
+        </div>
+        <div class="offcanvus-bottom d-flex align-items-center justify-content-between">
+            <div class="language-switcher">
+                <div class="dropdown">
+                    <button type="button" data-bs-toggle="dropdown">English <span><i class="fas fa-angle-down"></i></span></button>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">Bangla</a></li>
+                        <li><a href="#">Hindi</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="currency-switcher">
+                <select>
+                    <option>USD</option>
+                    <option>BDT</option>
+                    <option>CNY</option>
+                </select>
+            </div>
+            <div class="user-links">
+                <a href="login.html"><span class="me-2"><i class="fa-regular fa-user"></i></span>Account</a>
+            </div>
+        </div>
+    </div>
+    <!--offcanvus end-->
+
+
+
+
+
+    <main>
+        @RenderBody()
+    </main>
+
    
     <!--footer section start-->
     <footer class="footer-style-2 pt-140 overflow-hidden position-relative footer-mobile-accordion">
@@ -411,82 +456,236 @@
         <a href="#" class="hm2-scrolltop">Back To Top<span class="ms-2"><i class="fas fa-arrow-right"></i></span></a>
     </footer>
     <!--footer section end-->
-    <!-- Modal -->
-    <div class="modal fade" id="product_view">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                <div class="row">
-                    <div class="col-xl-6">
-                        <div class="vr-product-double-slider">
-                            <div class="vr-product-thumb position-relative">
-                                <span class="badge sale-badge">Sale</span>
-                                <div class="vr-poroduct-single">
-                                    <img src="assets/images/products/pd-thumb-3.png" alt="product" class="img-fluid mood-multiply d-inline-block">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-6">
-                        <div class="vr-product-details-content mt-5 mt-xl-0">
-                            <h3 class="mb-4 fw-semibold">Stonal Dinning Table Set 6X6 Full Packaged</h3>
-                            <div class="product-rating">
-                                <ul class="rating-star d-inline-flex">
-                                    <li><i class="fas fa-star"></i></li>
-                                    <li><i class="fas fa-star"></i></li>
-                                    <li><i class="fas fa-star"></i></li>
-                                    <li><i class="fas fa-star"></i></li>
-                                    <li><i class="fas fa-star"></i></li>
-                                </ul>
-                                <span class="fs-sm">(3 Customer Reviews)</span>
-                            </div>
-                            <h5 class="mb-0 mt-30">$1530.30</h5>
-                            <p class="mb-40 mt-30">Ac montes elementum proin viverra placerat purus sagittis dui curae, aptent tristi que eget enim rhoncus nostra torquent luctus risus, tincidunt platea semper odio metus himenaeos orciIac uliseu donec lacinia feugiat proin</p>
-                            <div class="color-variant">
-                                <span class="fs-sm text-uppercase text-main-color fw-medium">Color</span>
-                                <ul class="color-list mt-20">
-                                    <li class="red"><a href="#"></a></li>
-                                    <li class="blue"><a href="#"></a></li>
-                                    <li class="green"><a href="#"></a></li>
-                                </ul>
-                            </div>
-                            <div class="d-flex align-items-center mt-30 gap-3">
-                                <div class="quantity-box">
-                                    <button type="button" class="drecrement"><i class="fa-solid fa-minus"></i></button>
-                                    <input type="text" value="1">
-                                    <button type="button" class="drecrement"><i class="fa-solid fa-plus"></i></button>
-                                </div>
-                                <a href="#" class="template-btn primary-btn fs-sm text-uppercase h-40">ADD To Cart</a>
-                            </div>
-                            <a href="#" class="pd-wishlist-btn text-uppercase mt-30"><i class="fa-regular fa-heart"></i>ADD Wishlist</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!--modal End-->
-    <!--Esential Js Files-->
-    <script src="assets/js/jquery.min.js"></script>
-    <script src="assets/js/popper.min.js"></script>
-    <script src="assets/js/bootstrap.min.js"></script>
-    <script src="assets/js/slick.js"></script>
-    <script src="assets/js/jquery-ui.js"></script>
-    <script src="assets/js/nice-select.js"></script>
-    <script src="assets/js/fancybox.js"></script>
-    <script src="assets/js/countdown.min.js"></script>
-    <script src="assets/js/wow.js"></script>
-    <script src="assets/js/progress-bar.js"></script>
-    <script src="assets/js/parallax.js"></script>
-    <script src="assets/js/tilt-js.js"></script>
-    <script src="assets/js/magnific-popup.js"></script>
-    <script src="assets/js/waypoints.js"></script>
-    <script src="assets/js/counterup.min.js"></script>
-    <script src="assets/js/preloader.js"></script>
-    <script src="assets/js/isotop.min.js"></script>
-    <script src="assets/js/jquery.zoom.js"></script>
-    <script src="assets/js/script.js"></script>
 
-    @await RenderSectionAsync("Scripts", required: false)
+    <!--Esential Js Files-->
+    <script src="~/assets/js/jquery.min.js"></script>
+    <script src="~/assets/js/popper.min.js"></script>
+    <script src="~/assets/js/bootstrap.min.js"></script>
+    <script src="~/assets/js/slick.js"></script>
+    <script src="~/assets/js/jquery-ui.js"></script>
+    <script src="~/assets/js/nice-select.js"></script>
+    <script src="~/assets/js/fancybox.js"></script>
+    <script src="~/assets/js/countdown.min.js"></script>
+    <script src="~/assets/js/wow.js"></script>
+    <script src="~/assets/js/progress-bar.js"></script>
+    <script src="~/assets/js/parallax.js"></script>
+    <script src="~/assets/js/tilt-js.js"></script>
+    <script src="~/assets/js/magnific-popup.js"></script>
+    <script src="~/assets/js/waypoints.js"></script>
+    <script src="~/assets/js/counterup.min.js"></script>
+    <script src="~/assets/js/preloader.js"></script>
+    <script src="~/assets/js/isotop.min.js"></script>
+    <script src="~/assets/js/jquery.zoom.js"></script>
+    <script src="~/assets/js/script.js"></script>
+
+    
 </body>
 </html>
+
+
+
+<script>
+    $(document).ready(function () {
+        updateCartCount();
+        fetchCartItems();// ✅ Load cart count on page load
+        updateWishlistCount();
+
+        // ✅ Function to update cart count in header
+            function updateCartCount() {
+        $.get("/ShoppingCart/GetCartSummary", function (response) {
+            if (response.success) {
+                $(".cart-item").text(response.count); // ✅ Update cart item count
+                $(".cart-amount").text("$" + response.totalPrice.toFixed(2)); // ✅ Update total price
+            } else {
+                console.error("Failed to update cart count.");
+            }
+        }).fail(function () {
+            console.error("Error fetching cart summary.");
+        });
+    }
+
+            $(".cart-drawer").on("click", function () {
+        fetchCartItems();
+    });
+
+     function fetchCartItems() {
+        $.get("/ShoppingCart/GetCartItems", function (response) {
+            if (response.success) {
+                updateCartDrawer(response.cartItems, response.totalPrice); // ✅ Update cart drawer with items
+            }
+        }).fail(function () {
+            console.error("Failed to fetch cart items.");
+        });
+    }
+
+        // ✅ Click event for "Add to Cart" (Prevents Redirect)
+      $(document).on("click", ".add-to-cart", function (event) {
+        event.preventDefault(); // ✅ Prevent default link behavior
+
+        let productId = $(this).data("id");
+
+        $.post("/ShoppingCart/AddToCart", { productId: productId }, function (response) {
+            if (response.success) {
+                alert(response.message); // ✅ Show "Added to cart!"
+                updateCartDrawer(response.cartItems, response.totalPrice); // ✅ Update cart drawer
+                $(".cart-drawer").addClass("open"); // ✅ Open the cart drawer
+            } else {
+                alert(response.message || "Something went wrong!"); // ✅ Proper fallback message
+            }
+        }).fail(function () {
+            alert("Error adding product to cart. Please try again!"); // ✅ Handle AJAX errors
+        });
+    });
+
+    // ✅ Function to update the cart drawer dynamically
+    function updateCartDrawer(cartItems, totalPrice) {
+        let cartList = $(".cart-list");
+        let cartCount = $("#cart-count");
+        let totalAmount = $("#cart-total");
+
+        cartList.empty(); // ✅ Clear previous items
+
+        if (cartItems.length === 0) {
+            cartList.append("<li class='text-center py-3'>Your cart is empty</li>");
+            cartCount.text("0");
+            totalAmount.text("$0.00");
+            return;
+        }
+
+        cartCount.text(cartItems.length); // ✅ Update item count in cart header
+        totalAmount.text("$" + totalPrice.toFixed(2)); // ✅ Update total price
+
+        cartItems.forEach(item => {
+            let itemPrice = item.price * item.quantity;
+
+            let cartItemHTML = `
+                <li class="d-flex align-items-center gap-3">
+                    <div class="feature-image light-bg">
+                        <a href="#"><img src="${item.imageUrl}" alt="${item.name}" class="img-fluid"></a>
+                    </div>
+                    <div class="d-flex justify-content-between gap-3 w-100">
+                        <div>
+                            <a href="#"><h6 class="mb-1">${item.name}</h6></a>
+                            <span class="price fw-medium secondary-text-color d-block mb-1 fs-sm">$${itemPrice.toFixed(2)}</span>
+                            <div class="quantity d-flex align-items-center">
+                                <input type="text" value="${item.quantity}" readonly>
+                                <div class="step-btns">
+                                    <button class="increment" data-id="${item.id}"><i class="fa-solid fa-angle-up"></i></button>
+                                    <button class="decrement" data-id="${item.id}"><i class="fa-solid fa-angle-down"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <a href="javascript:void(0)" class="close remove-item" data-id="${item.id}"><i class="fas fa-xmark"></i></a>
+                        </div>
+                    </div>
+                </li>
+            `;
+            cartList.append(cartItemHTML);
+        });
+    }
+
+
+
+     $(document).on("click", ".remove-from-cart", function () {
+        var productId = $(this).data("product-id");
+
+        $.post("/ShoppingCart/RemoveFromCart", { productId: productId }, function (response) {
+            if (response.success) {
+                alert(response.message); // ✅ Show success message
+                updateCartDrawer(response.cartItems, response.totalPrice); // ✅ Update UI dynamically
+            } else {
+                alert("Error: " + response.message); // ✅ Show error only if needed
+            }
+        }).fail(function () {
+            alert("Error removing product from cart. Please try again!"); // ✅ Handle failure case
+        });
+    });
+
+
+        // ✅ Increment & Decrement Quantity
+        $(document).on("click", ".increment", function () {
+            let productId = $(this).data("id");
+
+            $.post("/ShoppingCart/IncreaseQuantity", { productId: productId }, function (response) {
+                if (response.success) {
+                    updateCartDrawer(); // ✅ Refresh cart UI
+                }
+            });
+        });
+
+        $(document).on("click", ".decrement", function () {
+            let productId = $(this).data("id");
+
+            $.post("/ShoppingCart/DecreaseQuantity", { productId: productId }, function (response) {
+                if (response.success) {
+                    updateCartDrawer(); // ✅ Refresh cart UI
+                }
+            });
+        });
+
+        // ✅ Close Cart Drawer
+        $(".drawer-close").click(function () {
+            $(".cart-drawer").removeClass("open");
+        });
+            $(document).on("click", ".remove-item", function (event) {
+        event.preventDefault(); // ✅ Prevent default link behavior
+
+        let productId = $(this).data("id");
+
+        $.post("/ShoppingCart/RemoveFromCart", { productId: productId }, function (response) {
+            if (response.success) {
+                alert(response.message); // ✅ Show "Item removed from cart!"
+                updateCartDrawer(response.cartItems, response.totalPrice); // ✅ Update cart drawer
+            } else {
+                alert(response.message || "Something went wrong!"); // ✅ Proper fallback message
+            }
+        }).fail(function () {
+            alert("Error removing product from cart. Please try again!"); // ✅ Handle AJAX errors
+        });
+    });
+         function updateWishlistCount() {
+            $.get("/Wishlist/GetWishlistCount", function (response) {
+                if (response.success) {
+                    $(".wishlist-item-count").text(response.count); // ✅ Update wishlist count dynamically
+                }
+            }).fail(function () {
+                console.error("Error fetching wishlist count.");
+            });
+        }
+
+    });
+
+
+
+
+</script>
+
+<style>
+    /* Position relative to the wishlist icon */
+    .header-wishlist {
+        position: relative;
+        display: inline-block;
+    }
+
+    /* Wishlist badge styling */
+    .wishlist-count-badge {
+        position: absolute;
+        top: -5px; /* Adjust vertical position */
+        right: -10px; /* Adjust horizontal position */
+        background-color: red; /* Badge color */
+        color: white; /* Text color */
+        font-size: 12px; /* Font size */
+        font-weight: bold;
+        width: 18px; /* Circle size */
+        height: 18px; /* Circle size */
+        line-height: 18px; /* Center text */
+        text-align: center;
+        border-radius: 50%; /* Make it a circle */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); /* Slight shadow for better visibility */
+    }
+
+</style>

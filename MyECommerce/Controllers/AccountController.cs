@@ -1,95 +1,198 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using MyECommerce.Data;
+using MyECommerce.Models;
 using MyECommerce.Services;
 using System;
-using System.Threading.Tasks;
-using MyECommerce.Models;
-using MyECommerce.Data;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authentication;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace MyECommerce.Controllers
 {
     public class AccountController : Controller
     {
+        private readonly UserManager<User> _userManager;
+        private readonly SignInManager<User> _signInManager;
         private readonly ApplicationDbContext _context;
         private readonly SendGridService _sendGridService;
-        private static readonly Random _random = new();
-     
 
-        public AccountController(ApplicationDbContext context, SendGridService sendGridService)
+        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager,
+            ApplicationDbContext context, SendGridService sendGridService)
         {
+            _userManager = userManager;
+            _signInManager = signInManager;
             _context = context;
             _sendGridService = sendGridService;
-            
         }
 
         [HttpGet]
-        public IActionResult Login()
+        public IActionResult Login(string? returnUrl = null)
         {
+            if (string.IsNullOrEmpty(returnUrl))
+            {
+                returnUrl = Url.Action("Index", "Home"); // ✅ Default to Home if returnUrl is null
+            }
+
+            ViewBag.ReturnUrl = returnUrl; // ✅ Store returnUrl for use in the view
             return View();
         }
 
 
-        public async Task<IActionResult> Login(UserLoginModel model)
+        // ✅ Send OTP for Login
+        [HttpPost]
+        public async Task<IActionResult> SendLoginOtp(string EmailOrContact, string? returnUrl = null)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == model.Email);
+            if (string.IsNullOrEmpty(EmailOrContact))
+                return Json(new { success = false, message = "Email or Contact No. is required." });
+
+            var user = await _userManager.Users
+                .FirstOrDefaultAsync(u => u.Email == EmailOrContact || u.ContactNo == EmailOrContact);
+
             if (user == null)
+                return Json(new { success = false, message = "User not found. Please register first." });
+
+            // ✅ Generate Secure OTP
+            string otp = new Random().Next(100000, 999999).ToString();
+
+            // ✅ Ensure returnUrl is stored in session
+            HttpContext.Session.SetString("OTP", otp);
+            HttpContext.Session.SetString("OTP_UserId", user.Id);
+            HttpContext.Session.SetString("OTP_Expiry", DateTime.UtcNow.AddMinutes(5).ToString());
+            // ✅ Ensure returnUrl is always a valid string (never null)
+            returnUrl = returnUrl ?? Url.Action("Index", "Home") ?? "/";
+
+            HttpContext.Session.SetString("ReturnUrl", returnUrl);
+            // ✅ Store returnUrl in session
+
+            await _sendGridService.SendOtpEmailAsync(user.Email ?? string.Empty, otp);
+
+            return Json(new { success = true, message = "OTP sent successfully." });
+        }
+
+
+        // ✅ Verify OTP and Log in
+        [HttpPost]
+        public async Task<IActionResult> VerifyLoginOtp(string otp, string EmailOrContact)
+        {
+            if (string.IsNullOrEmpty(otp))
+                return Json(new { success = false, message = "OTP is required." });
+
+            string? storedOtp = HttpContext.Session.GetString("OTP");
+            string? userId = HttpContext.Session.GetString("OTP_UserId");
+            string? expiryStr = HttpContext.Session.GetString("OTP_Expiry");
+            string? returnUrl = HttpContext.Session.GetString("ReturnUrl") ?? Url.Action("Index", "Home");
+
+            if (string.IsNullOrEmpty(storedOtp) || string.IsNullOrEmpty(expiryStr))
+                return Json(new { success = false, message = "Session expired. Please try again." });
+
+            if (DateTime.UtcNow > DateTime.Parse(expiryStr))
+                return Json(new { success = false, message = "OTP expired. Please request a new OTP." });
+
+            if (otp != storedOtp)
+                return Json(new { success = false, message = "Invalid OTP. Please try again." });
+
+            // ✅ Remove OTP from session after successful login
+            HttpContext.Session.Remove("OTP");
+            HttpContext.Session.Remove("OTP_Expiry");
+            HttpContext.Session.Remove("ReturnUrl");
+
+            // ✅ Retrieve user and sign them in
+            var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null)
+                return Json(new { success = false, message = "User not found." });
+
+            await _signInManager.SignInAsync(user, isPersistent: false);
+
+            // ✅ Merge Guest Cart into User Cart
+            MergeGuestCartIntoUserCart(user.Id);
+
+            return Json(new { success = true, redirectUrl = returnUrl });
+        }
+
+
+        private void MergeGuestCartIntoUserCart(string userId)
+        {
+            string? guestCartId = HttpContext.Session.GetString("CartId"); // ✅ Get Guest Cart ID
+            if (string.IsNullOrEmpty(guestCartId))
+                return; // ✅ No guest cart, nothing to merge
+
+            var guestCartItems = _context.ShoppingCartItems
+                .Where(item => item.CartId == guestCartId && item.UserId == null) // ✅ Only guest cart items
+                .ToList();
+
+            if (!guestCartItems.Any())
+                return; // ✅ No items in guest cart, exit
+
+            var userCartItems = _context.ShoppingCartItems
+                .Where(item => item.UserId == userId) // ✅ Get the user's cart items
+                .ToList();
+
+            foreach (var guestItem in guestCartItems)
             {
-                TempData["Error"] = "Invalid email.";
-                return RedirectToAction("Login");
+                var existingUserItem = userCartItems
+                    .FirstOrDefault(item => item.ProductId == guestItem.ProductId);
+
+                if (existingUserItem != null)
+                {
+                    // ✅ Product exists in user cart, update quantity
+                    existingUserItem.Quantity += guestItem.Quantity;
+                }
+                else
+                {
+                    // ✅ Assign guest cart items to logged-in user
+                    guestItem.UserId = userId;
+
+                    // ✅ If you want to keep `CartId`, remove this line:
+                    // guestItem.CartId = null;
+
+                    _context.ShoppingCartItems.Update(guestItem);
+                }
             }
 
-            // ✅ Retrieve guest CartId from session BEFORE login
-            string? guestCartId = HttpContext.Session.GetString("CartId");
+            _context.SaveChanges(); // ✅ Save changes
 
-            // ✅ Store UserId in session (for session-based operations)
-            HttpContext.Session.SetString("UserId", user.Id.ToString());
-
-            // ✅ Store authentication claims for the logged-in user
-            var claims = new List<Claim>
-    {
-        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-        new Claim(ClaimTypes.Email, user.Email)
-    };
-
-            var claimsIdentity = new ClaimsIdentity(claims, "Cookies");
-            var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-
-            await HttpContext.SignInAsync("Cookies", claimsPrincipal);
-
-            // ✅ Merge Guest Cart into User Cart (if applicable)
-            if (!string.IsNullOrEmpty(guestCartId))
-            {
-                await MergeGuestCartIntoUserCart(user.Id, guestCartId);
-            }
-
-            return RedirectToAction("Index", "Home");
+            // ✅ Clear guest cart session (CartId) since it's no longer needed
+            HttpContext.Session.Remove("CartId");
         }
 
 
 
+
+        [HttpGet]
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync(); // ✅ Properly logs out the user
+            HttpContext.Session.Clear(); // ✅ Clears session
+            Response.Cookies.Delete(".AspNetCore.Cookies"); // ✅ Deletes authentication cookie
+
+            return RedirectToAction("Login", "Account"); // ✅ Redirects to login page
+        }
+
+
+
+
+
+
+        [HttpGet]
         public IActionResult Register()
         {
             return View();
         }
 
-        // ✅ Send OTP Only Once Using This Method
+        // ✅ Send OTP for Registration
         [HttpPost]
         public async Task<IActionResult> SendOtp(string Name, string Email, string ContactNo)
         {
             if (string.IsNullOrEmpty(Email) || string.IsNullOrEmpty(ContactNo))
                 return Json(new { success = false, message = "Email or Contact No. is required." });
 
-            // ✅ Check if user already exists
-            var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == Email || u.ContactNo == ContactNo);
+            var existingUser = await _userManager.Users.FirstOrDefaultAsync(u => u.Email == Email || u.ContactNo == ContactNo);
             if (existingUser != null)
-            {
                 return Json(new { success = false, message = "User already registered. Please log in." });
-            }
 
-            // ✅ Generate OTP
             string otp = new Random().Next(100000, 999999).ToString();
             HttpContext.Session.SetString("UserName", Name);
             HttpContext.Session.SetString("UserEmail", Email);
@@ -97,29 +200,12 @@ namespace MyECommerce.Controllers
             HttpContext.Session.SetString("OTP", otp);
             HttpContext.Session.SetString("OTP_Expiry", DateTime.UtcNow.AddMinutes(5).ToString());
 
-            // ✅ Send OTP via Email
-            bool isSent = await _sendGridService.SendOtpEmailAsync(Email, otp);
+            await _sendGridService.SendOtpEmailAsync(Email, otp);
 
-            if (isSent)
-                return Json(new { success = true });
-            else
-                return Json(new { success = false, message = "Failed to send OTP. Please try again." });
+            return Json(new { success = true });
         }
 
-
-
-
-
-
-        // ✅ Register User (No OTP Sending Here)
-        [HttpPost]
-        public IActionResult Register(string Name, string Email)
-        {
-            // ✅ Call SendOtp Instead of Duplicating Code
-            return RedirectToAction("VerifyOtp");
-        }
-
-        // ✅ Verify OTP
+        // ✅ Verify OTP and Register
         [HttpPost]
         public async Task<IActionResult> VerifyOtp(string otp)
         {
@@ -130,208 +216,37 @@ namespace MyECommerce.Controllers
             var contactNo = HttpContext.Session.GetString("UserContact");
 
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(storedOtp) || string.IsNullOrEmpty(expiryStr))
-            {
                 return Json(new { success = false, message = "Session expired. Please try again." });
-            }
 
             if (DateTime.UtcNow > DateTime.Parse(expiryStr))
-            {
                 return Json(new { success = false, message = "OTP expired. Please request a new OTP." });
-            }
 
             if (otp != storedOtp)
-            {
                 return Json(new { success = false, message = "Invalid OTP. Please try again." });
-            }
 
             // ✅ Remove OTP After Successful Verification
             HttpContext.Session.Remove("OTP");
             HttpContext.Session.Remove("OTP_Expiry");
 
-            // ✅ Ensure session data exists before saving user
-            if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(contactNo))
-            {
-                return Json(new { success = false, message = "Session data is missing. Please try again." });
-            }
-
-            // ✅ Check if user already exists
-            var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == email || u.ContactNo == contactNo);
+            var existingUser = await _userManager.Users.FirstOrDefaultAsync(u => u.Email == email || u.ContactNo == contactNo);
             if (existingUser == null)
             {
                 var newUser = new User
                 {
-                    Name = name,
-                    Email = email,
-                    ContactNo = contactNo,
+                    Name = name ?? "Unknown", // ✅ Provide default value if null
+                    Email = email ?? string.Empty, // ✅ Ensure email is not null
+                    ContactNo = contactNo ?? "N/A", // ✅ Provide default value
+                    UserName = email ?? "defaultuser", // ✅ Identity requires UserName
                     CreatedDate = DateTime.UtcNow
                 };
 
-                _context.Users.Add(newUser);
-                await _context.SaveChangesAsync();
-            }
 
-            // ✅ Set session for logged-in user
-            HttpContext.Session.SetString("User", email);
+                var result = await _userManager.CreateAsync(newUser);
+                if (!result.Succeeded)
+                    return Json(new { success = false, message = "Failed to create user." });
+            }
 
             return Json(new { success = true });
         }
-
-
-        [HttpPost]
-        public async Task<IActionResult> VerifyLoginOtp(string otp)
-        {
-            var emailOrPhone = HttpContext.Session.GetString("UserEmailOrPhone");
-            var storedOtp = HttpContext.Session.GetString("OTP");
-            var expiryStr = HttpContext.Session.GetString("OTP_Expiry");
-
-            if (string.IsNullOrEmpty(emailOrPhone) || string.IsNullOrEmpty(storedOtp) || string.IsNullOrEmpty(expiryStr))
-            {
-                return Json(new { success = false, message = "Session expired. Please try again." });
-            }
-
-            if (DateTime.UtcNow > DateTime.Parse(expiryStr))
-            {
-                return Json(new { success = false, message = "OTP expired. Please request a new OTP." });
-            }
-
-            if (otp != storedOtp)
-            {
-                return Json(new { success = false, message = "Invalid OTP. Please try again." });
-            }
-
-            // ✅ Remove OTP After Successful Verification
-            HttpContext.Session.Remove("OTP");
-            HttpContext.Session.Remove("OTP_Expiry");
-
-            // ✅ Check if user exists (Login should NOT create a new user)
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == emailOrPhone || u.ContactNo == emailOrPhone);
-            if (user == null)
-            {
-                return Json(new { success = false, message = "User not found. Please register first." });
-            }
-
-            // ✅ Retrieve guestCartId from session BEFORE merging carts
-            string? guestCartId = HttpContext.Session.GetString("CartId");
-
-            // ✅ Merge Guest Cart into User Cart manually
-            await MergeGuestCartIntoUserCart(user.Id, guestCartId);
-
-            // ✅ Set session for logged-in user
-            HttpContext.Session.SetString("User", emailOrPhone);
-
-            return Json(new { success = true });
-        }
-
-
-
-        [HttpPost]
-        public async Task<IActionResult> SendLoginOtp(string EmailOrContact)
-        {
-            if (string.IsNullOrEmpty(EmailOrContact))
-                return Json(new { success = false, message = "Email or Contact No. is required." });
-
-            // ✅ Find user by Email or Contact No.
-            var user = await _context.Users
-                .Where(u => u.Email == EmailOrContact || u.ContactNo == EmailOrContact)
-                .FirstOrDefaultAsync();
-
-            if (user == null)
-            {
-                return Json(new { success = false, message = "User not found. Please register first." });
-            }
-
-            // ✅ Generate OTP
-            string otp = new Random().Next(100000, 999999).ToString();
-            HttpContext.Session.SetString("UserEmailOrPhone", EmailOrContact);
-            HttpContext.Session.SetString("OTP", otp);
-            HttpContext.Session.SetString("OTP_Expiry", DateTime.UtcNow.AddMinutes(5).ToString());
-
-            // ✅ Send OTP via Email
-            bool isSent = await _sendGridService.SendOtpEmailAsync(user.Email, otp);
-
-            if (isSent)
-                return Json(new { success = true });
-            else
-                return Json(new { success = false, message = "Failed to send OTP. Please try again." });
-        }
-
-
-
-        [HttpPost]
-        public async Task<IActionResult> Logout()
-        {
-            // ✅ Store current userId before logout
-            var userIdStr = HttpContext.Session.GetString("UserId");
-
-            // ✅ Sign out the authenticated user (if using authentication)
-            await HttpContext.SignOutAsync("Cookies");
-
-            // ✅ Clear all session data EXCEPT CartId
-            HttpContext.Session.Clear();
-            HttpContext.Session.Remove("User");
-
-            // ✅ Restore UserId session to retain cart after logout
-            if (!string.IsNullOrEmpty(userIdStr))
-            {
-                Console.WriteLine($"🔹 Restoring CartId as UserId {userIdStr} after logout.");
-                HttpContext.Session.SetString("CartId", userIdStr);
-            }
-
-            return RedirectToAction("Index", "Home");
-        }
-
-
-
-        private async Task MergeGuestCartIntoUserCart(int userId, string? guestCartId)
-        {
-            if (string.IsNullOrEmpty(guestCartId)) return;
-
-            var guestCartItems = await _context.ShoppingCartItems
-                .Where(item => item.CartId == guestCartId)
-                .ToListAsync();
-
-            foreach (var item in guestCartItems)
-            {
-                var existingCartItem = await _context.ShoppingCartItems
-                    .FirstOrDefaultAsync(c => c.UserId == userId && c.ProductId == item.ProductId);
-
-                if (existingCartItem != null)
-                {
-                    existingCartItem.Quantity += item.Quantity;
-                    _context.ShoppingCartItems.Remove(item); // Remove duplicate guest cart item
-                }
-                else
-                {
-                    item.UserId = userId;
-                    item.CartId = userId.ToString(); // ✅ Assign the logged-in user's CartId
-                }
-            }
-
-            await _context.SaveChangesAsync();
-
-            // ✅ Clear session-based CartId after merging
-            HttpContext.Session.Remove("CartId");
-        }
-
-
-
-        private async Task ClearCart(int userId)
-        {
-            var cartItems = await _context.ShoppingCartItems
-                .Where(c => c.UserId == userId)
-                .ToListAsync();
-
-            if (cartItems.Any())
-            {
-                _context.ShoppingCartItems.RemoveRange(cartItems);
-                await _context.SaveChangesAsync();
-            }
-        }
-
-
-
-
-
-
     }
 }

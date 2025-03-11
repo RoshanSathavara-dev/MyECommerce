@@ -1,12 +1,18 @@
 ﻿@model IEnumerable<MyECommerce.Models.Product>
 
 
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
 
 
 <h2>Product List</h2>
 <div class="mb-3">
     <a asp-action="Create" class="btn btn-success">Add New Product</a>
 </div>
+<a href="@Url.Action("Upload", "Gallery")" class="btn btn-success mb-4">Add New Image</a>
+
 
 <form method="get" class="mb-3">
     <div class="row">
@@ -38,6 +44,8 @@
             <th>Price</th>
             <th>Stock</th>
             <th>Category</th>
+            <th>Color</th>
+            <th>Size</th>
             <th>Image</th>
             <th>Actions</th>
         </tr>
@@ -47,9 +55,11 @@
         {
             <tr>
                 <td>@item.Name</td>
-                <td>$@item.Price</td>
+                <td>₹@item.Price</td>
                 <td>@item.Stock</td>
                 <td>@item.Category?.Name</td>
+                <td>@item.Color</td>
+                <td>@item.Size</td>
                 <td><img src="@item.ImageUrl" alt="Image" width="50" height="50" /></td>
                 <td>
                     <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning">Edit</a>

@@ -1,0 +1,19 @@
+﻿@{
+    ViewData["Title"] = "Upload Image";
+}
+
+<h2>Upload Image</h2>
+
+@if (ViewBag.Message != null)
+{
+    <div class="alert alert-warning">@ViewBag.Message</div>
+}
+
+<form asp-action="Upload" asp-controller="Gallery" method="post" enctype="multipart/form-data">
+    <div class="form-group">
+        <label>Select an Image</label>
+        <input type="file" name="imageFile" class="form-control" required />
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">Upload</button>
+</form>

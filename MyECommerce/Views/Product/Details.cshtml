@@ -6,7 +6,7 @@
 
 <h2>@Model.Name</h2>
 
-<div class="card">
+@* <div class="card">
     <img src="@Model.ImageUrl" alt="@Model.Name" class="card-img-top" style="max-width:300px;" />
     <div class="card-body">
         <h4 class="card-title">@Model.Name</h4>
@@ -133,3 +133,462 @@
         color: gold;
     }
 </style>
+ *@
+
+
+
+<!--header serch box start-->
+<div class="header-search-box">
+    <form action="#">
+        <label class="position-relative">
+            <i class="fas fa-magnifying-glass"></i>
+            <input type="text" placeholder="Search here....">
+        </label>
+    </form>
+    <a href="javascript:void(0)" class="search-close"><i class="fa-solid fa-xmark"></i></a>
+</div>
+<!--header search box end-->
+<!--mobile menu start-->
+<div class="mobile-menu">
+    <a href="javascript:void(0)" class="close"><i class="fas fa-xmark"></i></a>
+    <a href="#" class="logo py-3"><img src="assets/images/logo.png" alt="logo" class="img-fluid"></a>
+    <ul class="mobile-nav-menu">
+        <li class="has-submenu">
+            <a href="javascript:void(0)">Home</a>
+            <i class="fas fa-angle-down"></i>
+            <ul class="submenu-wrapper">
+                <li><a href="index.html">Home Page 1</a></li>
+                <li><a href="index-2.html">Home Page 2</a></li>
+                <li><a href="index-3.html">Home Page 3</a></li>
+                <li><a href="index-4.html">Home Page 4</a></li>
+                <li><a href="index-5.html">Home Page 5</a></li>
+                <li><a href="index-6.html">Home Page 6</a></li>
+            </ul>
+        </li>
+        <li><a href="about.html">About</a></li>
+        <li class="has-submenu">
+            <a href="javascript:void(0)">Pages</a>
+            <i class="fas fa-angle-down"></i>
+            <ul class="submenu-wrapper">
+                <li><a href="cart.html">Cart</a></li>
+                <li><a href="checkout.html">Checkout</a></li>
+                <li><a href="faq.html">Faq</a></li>
+                <li><a href="wishlist.html">Wishlist</a></li>
+                <li><a href="order-tracking.html">Order Tracking</a></li>
+            </ul>
+
+        </li>
+        <li class="has-submenu">
+            <a href="javascript:void(0)">Blog</a>
+            <i class="fas fa-angle-down"></i>
+            <ul class="submenu-wrapper">
+                <li><a href="blog.html">Blog List</a></li>
+                <li><a href="blog-single.html">Blog Details</a></li>
+            </ul>
+        </li>
+        <li class="has-submenu">
+            <a href="javascript:void(0)">Shop</a>
+            <i class="fas fa-angle-down"></i>
+            <ul class="submenu-wrapper">
+                <li><a href="shop.html">Shop Grid</a></li>
+                <li><a href="shop-list.html">Shop List</a></li>
+                <li><a href="product-details.html">Product Details</a></li>
+            </ul>
+        </li>
+        <li><a href="wishlist.html">Wishlist</a></li>
+        <li><a href="contact.html">Contact</a></li>
+    </ul>
+</div>
+<!--mobile menu end-->
+<!--cart drawer start-->
+<div class="cart-drawer position-fixed">
+    <div class="drawer-close d-flex align-items-center justify-content-between position-absolute start-0 top-0 w-100 px-4 py-4 border-bottom">
+        <h6 class="mb-0 fw-medium">Your Cart(03)</h6>
+        <a href="javascript:void(0)" class="drawer-close"><i class="fas fa-xmark"></i></a>
+    </div>
+    <ul class="cart-list">
+        <li class="d-flex align-items-center gap-3">
+            <div class="feature-image light-bg">
+                <a href="product-details.html"><img src="assets/images/products/pds-sm-1.png" alt="feature image" class="img-fluid"></a>
+            </div>
+            <div class="d-flex justify-content-between gap-3 w-100">
+                <div>
+                    <a href="product-details.html"><h6 class="mb-1">Sunsine Table Chairs</h6></a>
+                    <span class="price fw-medium secondary-text-color d-block mb-1 fs-sm">$250.00</span>
+                    <div class="quantity d-flex align-items-center">
+                        <input type="text" value="1">
+                        <div class="step-btns">
+                            <button class="increment"><i class="fa-solid fa-angle-up"></i></button>
+                            <button class="decrement"><i class="fa-solid fa-angle-down"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <a href="javascript:void(0)" class="close"><i class="fas fa-xmark"></i></a>
+                </div>
+            </div>
+        </li>
+        <li class="d-flex align-items-center gap-4">
+            <div class="feature-image light-bg">
+                <a href="product-details.html"><img src="assets/images/products/pds-sm-2.png" alt="feature image" class="img-fluid"></a>
+            </div>
+            <div class="d-flex justify-content-between gap-3 w-100">
+                <div>
+                    <a href="product-details.html"><h6 class="mb-1">Lviano chair</h6></a>
+                    <span class="price fw-medium secondary-text-color d-block mb-1 fs-sm">$250.00</span>
+                    <div class="quantity d-flex align-items-center">
+                        <input type="text" value="1">
+                        <div class="step-btns">
+                            <button class="increment"><i class="fa-solid fa-angle-up"></i></button>
+                            <button class="decrement"><i class="fa-solid fa-angle-down"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <a href="javascript:void(0)" class="close"><i class="fas fa-xmark"></i></a>
+                </div>
+            </div>
+        </li>
+        <li class="d-flex align-items-center gap-4">
+            <div class="feature-image light-bg">
+                <a href="product-details.html"><img src="assets/images/products/pds-sm-3.png" alt="feature image" class="img-fluid"></a>
+            </div>
+            <div class="d-flex justify-content-between gap-3 w-100">
+                <div>
+                    <a href="product-details.html"><h6 class="mb-1">Long table</h6></a>
+                    <span class="price fw-medium secondary-text-color d-block mb-1 fs-sm">$250.00</span>
+                    <div class="quantity d-flex align-items-center">
+                        <input type="text" value="1">
+                        <div class="step-btns">
+                            <button class="increment"><i class="fa-solid fa-angle-up"></i></button>
+                            <button class="decrement"><i class="fa-solid fa-angle-down"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <a href="#" class="close"><i class="fas fa-xmark"></i></a>
+                </div>
+            </div>
+        </li>
+    </ul>
+    <div class="drawer-bottom border-top">
+        <div class="d-flex align-items-center justify-content-between">
+            <h6 class="mb-0">Total:</h6>
+            <span class="fw-semibold text-main-color">$750.00</span>
+        </div>
+        <div class="progress-line">
+            <div class="progress-fill">
+                <span>73%</span>
+            </div>
+        </div>
+        <p class="mt-4 fs-sm">Spend <span class="text-main-color">$125.00</span> to reach <span class="text-main-color">Free Shipping</span></p>
+        <a href="cart.html" class="template-btn primary-btn text-uppercase fw-semibold w-100 text-center mt-4"><span>View Cart</span></a>
+        <a href="checkout.html" class="template-btn outline-btn text-uppercase fw-semibold w-100 text-center mt-3">Checkout</a>
+    </div>
+</div>
+<!--cart drawer end-->
+<!--offcanvus start-->
+<div class="offcanvus-box position-fixed bg-white">
+    <a href="javascript:void(0)" class="offcanvus-close"><i class="fa-solid fa-xmark"></i></a>
+    <div class="content-top">
+        <a href="index.html" class="offcanvus-logo"><img src="assets/images/logo.png" alt="logo"></a>
+        <p class="mb-0 mt-32 fw-light">Distrak Street 2SK Line, Germanygalore@inside-support.com (+125) 2156-2145</p>
+    </div>
+    <div class="offcanvus-gallery d-flex align-items-center flex-wrap">
+        <a href="javascript:void(0)"><img src="assets/images/gallery/sidebar-item-1.jpg" alt="not found"></a>
+        <a href="javascript:void(0)"><img src="assets/images/gallery/sidebar-item-2.jpg" alt="not found"></a>
+        <a href="javascript:void(0)"><img src="assets/images/gallery/sidebar-item-3.jpg" alt="not found"></a>
+        <a href="javascript:void(0)"><img src="assets/images/gallery/sidebar-item-4.jpg" alt="not found"></a>
+    </div>
+    <div class="offcanvus-newsletter">
+        <h4 class="mb-4 text-center">Newsletter</h4>
+        <form action="#">
+            <input type="email" placeholder="Enter your e-mail" class="theme-input">
+            <button type="submit" class="template-btn primary-btn mt-3 w-100"><span>SUBSCRIBE NOW</span></button>
+        </form>
+    </div>
+    <div class="offcanvus-bottom d-flex align-items-center justify-content-between">
+        <div class="language-switcher">
+            <div class="dropdown">
+                <button type="button" data-bs-toggle="dropdown">English <span><i class="fas fa-angle-down"></i></span></button>
+                <ul class="dropdown-menu">
+                    <li><a href="#">Bangla</a></li>
+                    <li><a href="#">Hindi</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="currency-switcher">
+            <select>
+                <option>USD</option>
+                <option>BDT</option>
+                <option>CNY</option>
+            </select>
+        </div>
+        <div class="user-links">
+            <a href="login.html"><span class="me-2"><i class="fa-regular fa-user"></i></span>Account</a>
+        </div>
+    </div>
+</div>
+<!--offcanvus end-->
+<!--breadcrumb section start-->
+<div class="breadcrumb-section pt-40 pb-40">
+    <div class="container-1700">
+        <p class="breadcrumb-text mb-0"><a href="index.html">Home</a> / <span class="text-main-color">Product Details</span></p>
+    </div>
+</div>
+<!--breadcrumb section end-->
+<!--product details start-->
+<section class="vr-prodcuct-details ptb-140">
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-6">
+                <div class="vr-product-double-slider">
+                    <div class="vr-product-thumb position-relative">
+                        <span class="badge sale-badge">Sale</span>
+                        <div class="vr-poroduct-single-slider">
+                            <div class="single-item text-center">
+                                <span class="zoom-on-hover d-inline-block">
+                                    <img src="@Model.ImageUrl" alt="@Model.Name" class="img-fluid mood-multiply d-inline-block">
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-6">
+                <div class="vr-product-details-content mt-5 mt-xl-0">
+                    <h3 class="mb-4 fw-semibold">@Model.Name</h3>
+                    <h5 class="mb-0 mt-30 text-success">$@Model.Price</h5>
+                    <p class="mb-40 mt-30">@Model.Description</p>
+                    <p><strong>Category:</strong> @Model.Category?.Name</p>
+                    <p><strong>Stock:</strong> @Model.Stock</p>
+
+                    <div class="d-flex align-items-center mt-30 gap-3">
+                        <form asp-controller="ShoppingCart" asp-action="AddToCart" method="post">
+                            <input type="hidden" name="productId" value="@Model.Id" />
+                            <div class="quantity-box">
+                                <button type="button" class="decrement"><i class="fa-solid fa-minus"></i></button>
+                                <input type="number" name="quantity" value="1" min="1" class="form-control" />
+                                <button type="button" class="increment"><i class="fa-solid fa-plus"></i></button>
+                            </div>
+                            <button type="submit" class="template-btn primary-btn fs-sm text-uppercase h-40 mt-3">ADD To Cart</button>
+                        </form>
+                    </div>
+
+                    <h4 class="mt-4">Customer Reviews</h4>
+                    <div id="review-list"></div>
+
+                    @if (Context.Session.GetInt32("UserId") != null)
+                    {
+                        <h5>Add Your Review</h5>
+                        <div>
+                            <label>Rating:</label>
+                            <div class="rating">
+                                <input type="radio" name="rating" value="5" id="star5"><label for="star5">★</label>
+                                <input type="radio" name="rating" value="4" id="star4"><label for="star4">★</label>
+                                <input type="radio" name="rating" value="3" id="star3"><label for="star3">★</label>
+                                <input type="radio" name="rating" value="2" id="star2"><label for="star2">★</label>
+                                <input type="radio" name="rating" value="1" id="star1"><label for="star1">★</label>
+                            </div>
+                            <label>Comment:</label>
+                            <textarea id="comment" class="form-control"></textarea>
+                            <button class="btn btn-success mt-2" onclick="submitReview()">Submit Review</button>
+                        </div>
+                    }
+                    else
+                    {
+                        <p><a href="/Account/Login">Login</a> to submit a review.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!--product details end-->
+<!--product single tab start-->
+<section class="single-products-info pb-140">
+    <div class="container">
+        <div class="single-product-tab">
+            <ul class="nav nav-tabs border-bottom" role="tablist">
+                <li><a href="#tab-1" data-bs-toggle="tab" class="active">Description</a></li>
+                <li><a href="#tab-2" data-bs-toggle="tab">Addition information</a></li>
+                <li><a href="#tab-3" data-bs-toggle="tab">Reviews(2)</a></li>
+            </ul>
+            <div class="tab-content mt-32">
+                <div class="tab-pane fade active show" id="tab-1" role="tabpanel">
+                    <div class="d-flex align-items-center justify-content-between gap-4 flex-wrap flex-lg-nowrap">
+                        <div class="product-description">
+                            <p class="mb-0 fw-light">Sed porttitor lectus nibh. Donec sollicitudin molestie malesuada. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus magna justo, lacinia eget consectetur sed, convallis at tellus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus magna justo, lacinia eget consectetur sed, convallis at tellus.</p>
+                            <ul class="single-product-features mt-40">
+                                <li>
+                                    <span class="me-2">
+                                        <svg width="16" height="18" viewBox="0 0 16 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M0.5 6H14.2812L11.125 9.15625C10.9375 9.34375 10.9375 9.6875 11.125 9.875C11.3125 10.0625 11.6562 10.0625 11.8438 9.875L15.8438 5.875C15.9375 5.78125 16 5.65625 16 5.5C16 5.375 15.9375 5.25 15.8438 5.15625L11.8438 1.15625C11.6562 0.96875 11.3125 0.96875 11.125 1.15625C10.9375 1.34375 10.9375 1.6875 11.125 1.875L14.2812 5H0.5C0.21875 5 0 5.25 0 5.5C0 5.78125 0.21875 6 0.5 6ZM15.5 12H1.6875L4.84375 8.875C5.03125 8.6875 5.03125 8.34375 4.84375 8.15625C4.65625 7.96875 4.3125 7.96875 4.125 8.15625L0.125 12.1562C0.03125 12.25 0 12.375 0 12.5C0 12.6562 0.03125 12.7812 0.125 12.875L4.125 16.875C4.3125 17.0625 4.65625 17.0625 4.84375 16.875C5.03125 16.6875 5.03125 16.3438 4.84375 16.1562L1.6875 13H15.5C15.75 13 16 12.7812 16 12.5C16 12.25 15.75 12 15.5 12Z" fill="#121111"></path>
+                                        </svg>
+                                    </span>
+                                    Free returns
+                                </li>
+                                <li>
+                                    <span class="me-2">
+                                        <svg width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M2 13C0.875 13 0 12.125 0 11V2C0 0.90625 0.875 0 2 0H11C12.0938 0 13 0.90625 13 2V3H15.0312C15.4688 3 15.875 3.21875 16.1562 3.53125L18.625 6.40625C18.8438 6.6875 19 7.03125 19 7.375V12H19.5C19.75 12 20 12.25 20 12.5C20 12.7812 19.75 13 19.5 13H18C18 14.6562 16.6562 16 15 16C13.3125 16 12 14.6562 12 13H7.96875C7.96875 14.6562 6.65625 16 4.96875 16C3.3125 16 1.96875 14.6562 1.96875 13H2ZM1 2V11C1 11.5625 1.4375 12 2 12H2.15625C2.5625 10.8438 3.6875 10 5 10C6.28125 10 7.40625 10.8438 7.8125 12H12V2C12 1.46875 11.5312 1 11 1H2C1.4375 1 1 1.46875 1 2ZM17.8125 7L15.4062 4.1875C15.3125 4.0625 15.1562 4 15.0312 4H13V7H17.8125ZM13 8V10.7812C13.5 10.3125 14.2188 10 15 10C16.2812 10 17.4062 10.8438 17.8125 12H18V8H13ZM5 11C3.875 11 3 11.9062 3 13C3 14.125 3.875 15 5 15C6.09375 15 7 14.125 7 13C7 11.9062 6.09375 11 5 11ZM15 15C16.0938 15 17 14.125 17 13C17 11.9062 16.0938 11 15 11C13.875 11 13 11.9062 13 13C13 14.125 13.875 15 15 15Z" fill="#121111"></path>
+                                        </svg>
+                                    </span>
+                                    Free shipping via DHL, fully insured
+                                </li>
+                                <li>
+                                    <span class="me-2">
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M7.34375 10.375C7.15625 10.5625 6.8125 10.5625 6.625 10.375L4.625 8.375C4.4375 8.1875 4.4375 7.84375 4.625 7.65625C4.8125 7.46875 5.15625 7.46875 5.34375 7.65625L7 9.3125L10.625 5.65625C10.8125 5.46875 11.1562 5.46875 11.3438 5.65625C11.5312 5.84375 11.5312 6.1875 11.3438 6.375L7.34375 10.375ZM16 8C16 12.4375 12.4062 16 8 16C3.5625 16 0 12.4375 0 8C0 3.59375 3.5625 0 8 0C12.4062 0 16 3.59375 16 8ZM8 1C4.125 1 1 4.15625 1 8C1 11.875 4.125 15 8 15C11.8438 15 15 11.875 15 8C15 4.15625 11.8438 1 8 1Z" fill="#121111"></path>
+                                        </svg>
+                                    </span>
+                                    All taxes and customer duties included
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="video-content flex-shrink-0 position-relative">
+                            <img src="assets/images/banner/video-banner.jpg" alt="video banner" class="img-fluid">
+                            <a href="https://www.youtube.com/watch?v=6WZOxnYi4Cs" data-fancybox="" class="video-popup-btn"><i class="fas fa-play"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="tab-2" role="tabpanel">
+                    <ul class="product-meta d-flex gap-2 flex-column">
+                        <li>SKU:17</li>
+                        <li>Categories: Light Bulb, Table</li>
+                        <li>Tags: Iluminate, Textured</li>
+                    </ul>
+                </div>
+                <div class="tab-pane fade" id="tab-3" role="tabpanel">
+                    <ul class="prduct-reviews">
+                        <li class="d-flex align-items-center gap-4 flex-wrap flex-sm-nowrap">
+                            <img src="assets/images/clients/client-1.jpg" alt="user" class="user-thumb">
+                            <div>
+                                <span class="date fs-sm fw-light text-color">Sep 25, 2022</span>
+                                <h6 class="mt-1 mb-2">Amalia Genner</h6>
+                                <ul class="fs-sm d-flex align-items-center">
+                                    <li><i class="fas fa-star"></i></li>
+                                    <li><i class="fas fa-star"></i></li>
+                                    <li><i class="fas fa-star"></i></li>
+                                    <li><i class="fas fa-star"></i></li>
+                                    <li><i class="fas fa-star"></i></li>
+                                </ul>
+                                <p class="fs-sm text-color mt-3 mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus magna justo, lacinia eget consectetur sed, convallis at tellus. Vivamus suscipit tortor eget felis porttitor volutpat. Vivamus suscipit tortor eget felis porttitor volutpat. Vivamus magna justo</p>
+                            </div>
+                        </li>
+                        <li class="d-flex align-items-center gap-4 flex-wrap flex-sm-nowrap">
+                            <img src="assets/images/clients/client-2.jpg" alt="user" class="user-thumb">
+                            <div>
+                                <span class="date fs-sm fw-light text-color">Sep 25, 2022</span>
+                                <h6 class="mt-1 mb-2">Emma Watson</h6>
+                                <ul class="fs-sm d-flex align-items-center">
+                                    <li><i class="fas fa-star"></i></li>
+                                    <li><i class="fas fa-star"></i></li>
+                                    <li><i class="fas fa-star"></i></li>
+                                    <li><i class="fas fa-star"></i></li>
+                                    <li><i class="fas fa-star"></i></li>
+                                </ul>
+                                <p class="fs-sm text-color mt-3 mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus magna justo, lacinia eget consectetur sed, convallis at tellus. Vivamus suscipit tortor eget felis porttitor volutpat. Vivamus suscipit tortor eget felis porttitor volutpat. Vivamus magna justo</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!--product single tab end-->
+<!--hm2 feature section start-->
+<section class="hm2-feature-section overflow-hidden light-bg-2 border-0">
+    <div class="container-1400">
+        <div class="row align-items-center g-5">
+            <div class="col-xl-3 col-lg-4 col-sm-6">
+                <div class="hm2-feature-box wow fadeInUp">
+                    <span class="icon-wrapper d-inline-flex align-items-center justify-content-center rounded-circle">
+                        <img src="assets/images/icons/1.svg" alt="not found" class="img-fluid">
+                    </span>
+                    <h6 class="fw-normal hm2-font-family mt-40 mb-4">Free Delivery</h6>
+                    <p class="mb-0">Orci lectus per torquent netusque habitasse mauris inceptos.</p>
+                </div>
+            </div>
+            <div class="col-xl-3 col-lg-4 col-sm-6">
+                <div class="hm2-feature-box wow fadeInUp" data-wow-delay="0.2s">
+                    <span class="icon-wrapper d-inline-flex align-items-center justify-content-center rounded-circle">
+                        <img src="assets/images/icons/2.svg" alt="not found" class="img-fluid">
+                    </span>
+                    <h6 class="fw-normal hm2-font-family mt-40 mb-4">90 Days Returns</h6>
+                    <p class="mb-0">Orci lectus per torquent netusque habitasse mauris inceptos.</p>
+                </div>
+            </div>
+            <div class="col-xl-3 col-lg-4 col-sm-6">
+                <div class="hm2-feature-box wow fadeInUp" data-wow-delay="0.4s">
+                    <span class="icon-wrapper d-inline-flex align-items-center justify-content-center rounded-circle">
+                        <img src="assets/images/icons/3.svg" alt="not found" class="img-fluid">
+                    </span>
+                    <h6 class="fw-normal hm2-font-family mt-40 mb-4">Secure Payment</h6>
+                    <p class="mb-0">Orci lectus per torquent netusque habitasse mauris inceptos.</p>
+                </div>
+            </div>
+            <div class="col-xl-3 col-lg-4 col-sm-6">
+                <div class="hm2-feature-box wow fadeInUp" data-wow-delay="0.6s">
+                    <span class="icon-wrapper d-inline-flex align-items-center justify-content-center rounded-circle">
+                        <img src="assets/images/icons/4.svg" alt="not found" class="img-fluid">
+                    </span>
+                    <h6 class="fw-normal hm2-font-family mt-40 mb-4">100% Free Warranty</h6>
+                    <p class="mb-0">Orci lectus per torquent netusque habitasse mauris inceptos.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!--hm2 feature section end-->
+
+
+<script>
+    function loadReviews() {
+        $.get("/Review/GetReviews?productId=@Model.Id", function (data) {
+            var reviewsHtml = "";
+            if (data.length === 0) {
+                reviewsHtml = "<p>No reviews yet.</p>";
+            } else {
+                data.forEach(function (review) {
+                    reviewsHtml += `
+                        <div class="review-item">
+                            <strong>${review.name}</strong>
+                            <span>(${review.rating} ★)</span>
+                            <p>${review.comment}</p>
+                            <small>${review.createdAt}</small>
+                        </div>
+                        <hr>`;
+                });
+            }
+            $("#review-list").html(reviewsHtml);
+        });
+    }
+
+    function submitReview() {
+        var rating = $("input[name='rating']:checked").val();
+        var comment = $("#comment").val();
+
+        if (!rating) {
+            alert("Please select a rating.");
+            return;
+        }
+
+        $.post("/Review/AddReview", {
+            productId: "@Model.Id",
+            rating: rating,
+            comment: comment
+        }, function (response) {
+            alert(response.message);
+            if (response.success) {
+                loadReviews();
+                $("#comment").val("");
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        loadReviews();
+    });
+</script>

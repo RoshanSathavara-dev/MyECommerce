@@ -32,6 +32,7 @@
         </select>
     </div>
 
+    <!-- ✅ Display Current Image -->
     <div class="form-group">
         <label class="control-label">Current Image</label><br>
         @if (!string.IsNullOrEmpty(Model.ImageUrl))
@@ -44,6 +45,46 @@
         <label class="control-label">Upload New Image</label>
         <input type="file" name="ImageFile" class="form-control-file" />
     </div>
+
+    <!-- ✅ Color Selection -->
+    <div class="form-group">
+        <label asp-for="Color"></label>
+        <select asp-for="Color" class="form-control">
+            <option value="">Select Color</option>
+            <option value="Soft Gold">Soft Gold</option>
+            <option value="Light Pink">Light Pink</option>
+            <option value="Green Touch">Green Touch</option>
+            <option value="Navy Blue">Navy Blue</option>
+            <option value="Gray White">Gray White</option>
+        </select>
+    </div>
+
+    <!-- ✅ Size Selection -->
+    <div class="form-group">
+        <label asp-for="Size"></label>
+        <select asp-for="Size" class="form-control">
+            <option value="">Select Size</option>
+            <option value="S">S</option>
+            <option value="M">M</option>
+            <option value="L">L</option>
+            <option value="XL">XL</option>
+            <option value="XXL">XXL</option>
+        </select>
+    </div>
+
+    <!-- ✅ Show in Hero Section Checkbox -->
+    <div class="form-group form-check">
+        <input asp-for="ShowInHeroSection" class="form-check-input" type="checkbox" />
+        <label asp-for="ShowInHeroSection" class="form-check-label">Show in Home Hero Section</label>
+    </div>
+
+    <!-- ✅ Show in Featured Products Checkbox -->
+    <div class="form-group form-check">
+        <input asp-for="IsFeatured" class="form-check-input" type="checkbox" />
+        <label asp-for="IsFeatured" class="form-check-label">Show in Featured Products</label>
+    </div>
+
+  
 
     <button type="submit" class="btn btn-success">Save</button>
     <a asp-action="Index" class="btn btn-secondary">Back</a>

@@ -1,0 +1,174 @@
+﻿@model List<MyECommerce.Models.WishlistItem>
+
+<!--breadcrumb section start-->
+<div class="breadcrumb-section pt-40 pb-40" data-background="assets/images/shapes/breadcrumb-bg.jpg">
+    <div class="container-1700">
+        <p class="breadcrumb-text mb-0"><a href="index.html">Home</a> / <span class="text-main-color">Wishlist</span></p>
+    </div>
+</div>
+<!--breadcrumb section end-->
+<!--wishlist table start-->
+<div class="ptb-120 bg-white">
+    <div class="container">
+        <div class="wishlist-table table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="text-uppercase">Product Name</th>
+                        <th class="text-uppercase">Price</th>
+                        <th class="text-uppercase">Stock Status</th>
+                        <th class="text-uppercase">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr id="wishlist-item-@item.ProductId">
+                            <td>
+                                <div class="d-flex align-items-center gap-4 product-box">
+                                    <button type="button" class="remove-from-wishlist" data-product-id="@item.ProductId">
+                                        <i class="fas fa-close"></i>
+                                    </button>
+                                    <div class="feature-image light-bg">
+                                        <img src="@item.Product.ImageUrl" class="img-fluid" alt="@item.Product.Name">
+                                    </div>
+                                    <div>
+                                        <span class="fs-sm text-uppercase secondary-text-color d-block">@item.Product.Category?.Name</span>
+                                        <a href="@Url.Action("Details", "Product", new { id = item.ProductId })" class="product-title h6 mt-2 d-block">
+                                            @item.Product.Name
+                                        </a>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>$@item.Product.Price</td>
+                            <td>
+                                <div class="stock-status d-flex align-items-center justify-content-between">
+                                    <span>@(item.Product.Stock > 0 ? "In stock" : "Out of stock")</span>
+                                </div>
+                            </td>
+                            <td>
+                                <button type="button" class="template-btn primary-btn text-uppercase fs-sm add-to-cart"
+                                        data-product-id="@item.ProductId">
+                                    <span>Add to Cart</span>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!--wishlist table end-->
+
+<script>
+    $(document).ready(function () {
+        // ✅ Remove from Wishlist
+        $(document).on("click", ".remove-from-wishlist", function () {
+            var productId = $(this).data("product-id");
+
+            $.post("/Wishlist/RemoveFromWishlist", { productId: productId }, function (response) {
+                if (response.success) {
+                    $("#wishlist-item-" + productId).fadeOut();
+                    updateWishlistCount(); // ✅ Update Wishlist count
+                }
+            });
+        });
+
+        // ✅ Add to Cart from Wishlist (Fix for Product Not Found)
+        $(document).on("click", ".add-to-cart", function () {
+            debugger;
+            var productId = $(this).data("product-id");
+
+            $.post("/ShoppingCart/AddToCart", { productId: productId }, function (response) {
+                if (response.success) {
+                    alert(response.message); // ✅ Show success message
+                    updateCartCount(); // ✅ Update Cart count
+                    updateCartDrawer(response.cartItems, response.totalPrice); // ✅ Update Cart drawer
+
+                    // ✅ Remove from Wishlist after adding to Cart
+                    $.post("/Wishlist/RemoveFromWishlist", { productId: productId }, function (wishlistResponse) {
+                        if (wishlistResponse.success) {
+                            $("#wishlist-item-" + productId).fadeOut(); // ✅ Remove item from UI
+                            updateWishlistCount(); // ✅ Update Wishlist count
+                        }
+                    });
+                } else {
+                    alert(response.message || "Something went wrong!");
+                }
+            }).fail(function () {
+                alert("Error adding product to cart. Please try again!");
+            });
+        });
+
+        // ✅ Function to update Wishlist count in header
+        function updateWishlistCount() {
+            $.get("/Wishlist/GetWishlistCount", function (response) {
+                if (response.success) {
+                    $(".wishlist-item-count").text(response.count); // ✅ Update Wishlist count
+                }
+            }).fail(function () {
+                console.error("Error fetching wishlist count.");
+            });
+        }
+
+        // ✅ Function to update Cart count in header
+        function updateCartCount() {
+            $.get("/ShoppingCart/GetCartSummary", function (response) {
+                if (response.success) {
+                    $(".cart-item").text(response.count); // ✅ Update cart icon count
+                    $(".cart-amount").text("$" + response.totalPrice.toFixed(2)); // ✅ Update cart total price
+                }
+            }).fail(function () {
+                console.error("Error fetching cart summary.");
+            });
+        }
+
+        // ✅ Function to update the Cart Drawer dynamically
+        function updateCartDrawer(cartItems, totalPrice) {
+            let cartList = $(".cart-list");
+            let cartCount = $("#cart-count");
+            let totalAmount = $("#cart-total");
+
+            cartList.empty(); // Clear previous items
+
+            if (cartItems.length === 0) {
+                cartList.append("<li class='text-center py-3'>Your cart is empty</li>");
+                cartCount.text("0");
+                totalAmount.text("$0.00");
+                return;
+            }
+
+            cartCount.text(cartItems.length); // ✅ Update item count in cart header
+            totalAmount.text("$" + totalPrice.toFixed(2)); // ✅ Update total price
+
+            cartItems.forEach(item => {
+                let itemPrice = item.price * item.quantity;
+
+                let cartItemHTML = `
+                    <li class="d-flex align-items-center gap-3">
+                        <div class="feature-image light-bg">
+                            <a href="#"><img src="${item.imageUrl}" alt="${item.name}" class="img-fluid"></a>
+                        </div>
+                        <div class="d-flex justify-content-between gap-3 w-100">
+                            <div>
+                                <a href="#"><h6 class="mb-1">${item.name}</h6></a>
+                                <span class="price fw-medium secondary-text-color d-block mb-1 fs-sm">$${itemPrice.toFixed(2)}</span>
+                            </div>
+                            <div>
+                                <a href="javascript:void(0)" class="close remove-item" data-id="${item.id}"><i class="fas fa-xmark"></i></a>
+                            </div>
+                        </div>
+                    </li>
+                `;
+                cartList.append(cartItemHTML);
+            });
+        }
+    });
+</script>
+
+@* <style>
+    .header-section.original-color {
+        background-color: #6B1717; /* Replace with your original color */
+    }
+</style> *@

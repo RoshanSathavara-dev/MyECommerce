@@ -20,5 +20,16 @@ namespace MyECommerce.Models
 
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedDate { get; set; }
+
+        public string Color { get; set; } = string.Empty;
+        public string Size { get; set; } = string.Empty;
+
+        public bool IsLimitedEdition { get; set; } = false;
+
+        public bool ShowInHeroSection { get; set; } = false; // ✅ New property for Hero Section
+
+        public bool IsFeatured { get; set; }
+
+
     }
 }

@@ -1,10 +1,11 @@
 ﻿using MyECommerce.Models;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace MyECommerce.Data
 {
-    public class ApplicationDbContext : DbContext  // Removed IdentityDbContext<ApplicationUser>
+    public class ApplicationDbContext : IdentityDbContext<User>  // Removed IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
@@ -16,11 +17,20 @@ namespace MyECommerce.Data
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Admin> Admins { get; set; }
        
-        public DbSet<User> Users { get; set; }
+        
         public DbSet<CustomZula> CustomZulas { get; set; }
 
         public DbSet<ShoppingCartItem> ShoppingCartItems { get; set; }
-        public DbSet<Review> Reviews { get; set; }
+
+        public DbSet<Contact> Contacts { get; set; }
+
+        public DbSet<WishlistItem> WishlistItems { get; set; }
+
+        public DbSet<GalleryImage> GalleryImages { get; set; }
+
+
+
+
 
 
 

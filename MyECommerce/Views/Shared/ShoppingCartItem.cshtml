@@ -1,0 +1,45 @@
+﻿@* @model List<MyECommerce.Models.ShoppingCartItem>
+
+<!-- Cart Drawer -->
+<div class="cart-drawer position-fixed">
+    <div class="drawer-close d-flex align-items-center justify-content-between position-absolute start-0 top-0 w-100 px-4 py-4 border-bottom">
+        <h6 class="mb-0 fw-medium">Your Cart (@Model.Count)</h6>
+    </div>
+
+    <ul class="cart-list">
+        @foreach (var item in Model)
+        {
+            <li class="d-flex align-items-center gap-3">
+                <div class="feature-image light-bg">
+                    <a href="#"><img src="@item.Product.ImageUrl" alt="@item.Product.Name" class="img-fluid"></a>
+                </div>
+                <div class="d-flex justify-content-between gap-3 w-100">
+                    <div>
+                        <a href="#"><h6 class="mb-1">@item.Product.Name</h6></a>
+                        <span class="price fw-medium secondary-text-color d-block mb-1 fs-sm">$@item.Product.Price</span>
+                        <div class="quantity d-flex align-items-center">
+                            <input type="text" value="@item.Quantity">
+                            <div class="step-btns">
+                                <button class="increment" onclick="updateQuantity(@item.Id, @item.Quantity + 1)"><i class="fa-solid fa-angle-up"></i></button>
+                                <button class="decrement" onclick="updateQuantity(@item.Id, @item.Quantity - 1)"><i class="fa-solid fa-angle-down"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <a href="javascript:void(0)" class="close" onclick="removeFromCart(@item.Id)"><i class="fas fa-xmark"></i></a>
+                    </div>
+                </div>
+            </li>
+        }
+    </ul>
+
+    <div class="drawer-bottom border-top">
+        <div class="d-flex align-items-center justify-content-between">
+            <h6 class="mb-0">Total:</h6>
+            <span class="fw-semibold text-main-color">$@(Model.Sum(item => item.Product.Price * item.Quantity))</span>
+        </div>
+        <a href="@Url.Action("Index", "ShoppingCart")" class="template-btn primary-btn w-100 text-center mt-4">View Cart</a>
+        <a href="@Url.Action("Checkout", "Order")" class="template-btn outline-btn w-100 text-center mt-3">Checkout</a>
+    </div>
+</div>
+ *@

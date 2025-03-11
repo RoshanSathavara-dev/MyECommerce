@@ -4,50 +4,309 @@
     ViewData["Title"] = "Shopping Cart";
 }
 
-<h2>Shopping Cart</h2>
 
-@if (Model.Any())
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Image</th>
-                <th>Name</th>
-                <th>Price</th>
-                <th>Quantity</th>
-                <th>Subtotal</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
+<!-- Breadcrumb -->
+<div class="breadcrumb-section pt-40 pb-40">
+    <div class="container-1700">
+        <p class="breadcrumb-text mb-0">
+            <a asp-controller="Home" asp-action="Index">Home</a> / <span class="text-main-color">Cart</span>
+        </p>
+    </div>
+</div>
+
+<!-- Cart Table -->
+<div class="ptb-120 bg-white">
+    <div class="container">
+        <div class="cart-table-wrapper table-responsive">
+            @if (Model.Any())
             {
-                <tr>
-                    <td>
-                        <img src="@item.ImageUrl" alt="Product Image" width="50" height="50">
-                    </td>
-                    <td>@item.Name</td>
-                    <td>@item.Price.ToString("C")</td>
-                    <td>
-                        <form asp-action="UpdateQuantity" method="post">
-                            <input type="hidden" name="id" value="@item.Id">
-                            <input type="number" name="quantity" value="@item.Quantity" min="1" class="form-control" style="width: 60px; display: inline;">
-                            <button type="submit" class="btn btn-sm btn-primary">Update</button>
-                        </form>
-                    </td>
-                    <td>@((item.Price * item.Quantity).ToString("C"))</td>
-                    <td>
-                        <a asp-action="RemoveFromCart" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Remove</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+                <table class="cart-table table">
+                    <tr>
+                        <th class="text-center">Products</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th class="text-end">Subtotal</th>
+                    </tr>
 
-    <h4>Total: @Model.Sum(item => item.Price * item.Quantity).ToString("C")</h4>
-    <a href="#" class="btn btn-success">Proceed to Checkout</a>
-}
-else
-{
-    <p>Your cart is empty.</p>
-}
+                    @foreach (var item in Model)
+                    {
+                        <tr data-product-id="@item.ProductId">
+                            <td>
+                                <div class="d-flex align-items-center gap-4 product-box">
+                                    <button type="button" class="remove_product" data-product-id="@item.ProductId">
+                                        <i class="fas fa-close"></i>
+                                    </button>
+                                    <div class="feature-image light-bg">
+                                        <img src="@item.ImageUrl" class="img-fluid" alt="@item.Name">
+                                    </div>
+                                    <div>
+                                        <span class="fs-sm text-uppercase secondary-text-color d-block">@item.Name</span>
+                                        <a href="#" class="product-title h6 mt-2 d-block">@item.Name</a>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="fw-medium text-main-color">$@item.Price.ToString("F2")</span></td>
+                            <td>
+                                <div class="quantity d-flex align-items-center">
+                                    <input type="number" class="quantity-input" value="@item.Quantity" min="1">
+                                    <div class="step-btns">
+                                        <button class="increment" data-product-id="@item.ProductId">
+                                            <i class="fa-solid fa-angle-up"></i>
+                                        </button>
+                                        <button class="decrement" data-product-id="@item.ProductId">
+                                            <i class="fa-solid fa-angle-down"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="text-main-color fw-medium d-block text-end subtotal">$@((item.Price * item.Quantity).ToString("F2"))</span></td>
+                        </tr>
+
+                    }
+
+                    <tr>
+                        <td colspan="4">
+                            <div class="d-flex align-items-center justify-content-between gap-4 flex-wrap">
+                                <form class="cart-coupon-form d-flex align-items-center">
+                                    <input type="text" placeholder="Coupon Code" class="theme-input">
+                                    <button type="submit" class="submit-btn template-btn primary-btn">Apply Coupon</button>
+                                </form>
+                                <button type="button" class="template-btn primary-btn"><span>Update Cart</span></button>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            }
+            else
+            {
+                <p class="text-center">Your cart is empty.</p>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Cart Totals -->
+<section class="pb-140 bg-white">
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-6">
+                <div class="cart-calculator">
+                    <h3 class="mb-40">Cart Totals</h3>
+                    <form class="cart-calculator-form">
+                        <table class="table">
+                            <tr>
+                                <td>Subtotal</td>
+                                <td id="cart-subtotal">$@Model.Sum(item => item.Price * item.Quantity).ToString("F2")</td>
+                            </tr>
+                            <tr>
+                                <td>Total</td>
+                                <td id="cart-total">$@Model.Sum(item => item.Price * item.Quantity).ToString("F2")</td>
+                            </tr>
+                        </table>
+                        <a asp-controller="Order" asp-action="Checkout" class="template-btn primary-btn text-uppercase mt-5">
+                            <span>Proceed to Checkout</span>
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!--hm2 feature section start-->
+<section class="hm2-feature-section overflow-hidden light-bg-2 border-0">
+    <div class="container-1400">
+        <div class="row align-items-center g-5">
+            <div class="col-xl-3 col-lg-4 col-sm-6">
+                <div class="hm2-feature-box">
+                    <span class="icon-wrapper d-inline-flex align-items-center justify-content-center rounded-circle">
+                        <img src="~/assets/images/icons/1.svg" alt="not found" class="img-fluid">
+                    </span>
+                    <h6 class="fw-normal hm2-font-family mt-40 mb-4">Free Delivery</h6>
+                    <p class="mb-0">Orci lectus per torquent netusque habitasse mauris inceptos.</p>
+                </div>
+            </div>
+            <div class="col-xl-3 col-lg-4 col-sm-6">
+                <div class="hm2-feature-box">
+                    <span class="icon-wrapper d-inline-flex align-items-center justify-content-center rounded-circle">
+                        <img src="~/assets/images/icons/2.svg" alt="not found" class="img-fluid">
+                    </span>
+                    <h6 class="fw-normal hm2-font-family mt-40 mb-4">90 Days Returns</h6>
+                    <p class="mb-0">Orci lectus per torquent netusque habitasse mauris inceptos.</p>
+                </div>
+            </div>
+            <div class="col-xl-3 col-lg-4 col-sm-6">
+                <div class="hm2-feature-box">
+                    <span class="icon-wrapper d-inline-flex align-items-center justify-content-center rounded-circle">
+                        <img src="~/assets/images/icons/3.svg" alt="not found" class="img-fluid">
+                    </span>
+                    <h6 class="fw-normal hm2-font-family mt-40 mb-4">Secure Payment</h6>
+                    <p class="mb-0">Orci lectus per torquent netusque habitasse mauris inceptos.</p>
+                </div>
+            </div>
+            <div class="col-xl-3 col-lg-4 col-sm-6">
+                <div class="hm2-feature-box">
+                    <span class="icon-wrapper d-inline-flex align-items-center justify-content-center rounded-circle">
+                        <img src="~/assets/images/icons/4.svg" alt="not found" class="img-fluid">
+                    </span>
+                    <h6 class="fw-normal hm2-font-family mt-40 mb-4">100% Free Warranty</h6>
+                    <p class="mb-0">Orci lectus per torquent netusque habitasse mauris inceptos.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+
+$(document).ready(function () {
+    // ✅ Remove item from cart
+    $(".remove_product").click(function () {
+        var productId = $(this).data("product-id");
+        var row = $(this).closest("tr");
+
+        $.post("/ShoppingCart/RemoveFromCart", { productId: productId }, function (response) {
+            if (response.success) {
+                row.fadeOut(500, function () { $(this).remove(); });
+                updateCart(response);
+            } else {
+                alert(response.message);
+            }
+        }).fail(function () {
+            alert("Error removing product from cart. Please try again!");
+        });
+    });
+
+    // ✅ Update quantity (Increase)
+
+
+
+        // ✅ Increase quantity
+        $(".increment").click(function () {
+            let productId = $(this).data("product-id");
+            let input = $(this).closest(".quantity").find(".quantity-input");
+            let newQuantity = parseInt(input.val()) + 1;
+
+            updateQuantity(productId, newQuantity, input);
+        });
+
+        // ✅ Decrease quantity
+        $(".decrement").click(function () {
+            let productId = $(this).data("product-id");
+            let input = $(this).closest(".quantity").find(".quantity-input");
+            let newQuantity = Math.max(1, parseInt(input.val()) - 1);
+
+            updateQuantity(productId, newQuantity, input);
+        });
+
+
+         $(document).on("click", ".remove-from-cart", function () {
+            var productId = $(this).data("product-id");
+
+            $.post("/ShoppingCart/RemoveFromCart", { productId: productId }, function (response) {
+                if (response.success) {
+                    alert(response.message); // ✅ Show success message
+                    updateCartDrawer(response.cartItems, response.totalPrice); // ✅ Update UI dynamically
+                } else {
+                    alert("Error: " + response.message); // ✅ Show error only if needed
+                }
+            }).fail(function () {
+                alert("Error removing product from cart. Please try again!"); // ✅ Handle failure case
+            });
+        });
+
+        // ✅ Function to update quantity
+          function updateQuantity(productId, quantity, inputField) {
+        $.post("/ShoppingCart/UpdateQuantity", { id: productId, quantity: quantity }, function (response) {
+            console.log("Update Response:", response); // ✅ Debugging log
+
+            if (response.success) {
+                inputField.val(quantity); // ✅ Update input field
+
+                // ✅ Find row and update subtotal
+                let row = inputField.closest("tr");
+                let price = parseFloat(row.find(".fw-medium.text-main-color").text().replace("$", ""));
+                let subtotal = (price * quantity).toFixed(2);
+                row.find(".subtotal").text("$" + subtotal); // ✅ Update subtotal
+
+                updateCart(response); // ✅ Update total price and cart count
+            } else {
+                alert(response.message);
+            }
+        }).fail(function () {
+            alert("Error updating quantity. Please try again!");
+        });
+    }
+
+
+        // ✅ Function to update cart total
+          function updateCart(cartData) {
+        if (!cartData || !cartData.cartItems) {
+            console.error("Invalid cart data:", cartData);
+            return;
+        }
+
+        let totalPrice = cartData.totalPrice ?? 0; // ✅ Ensure totalPrice is not undefined
+        $("#cart-total").text("$" + totalPrice.toFixed(2)); // ✅ Update total cart price
+        $("#cart-subtotal").text("$" + totalPrice.toFixed(2)); // ✅ Update subtotal
+
+        let cartItemsHtml = "";
+        cartData.cartItems.forEach(item => {
+            let itemPrice = item.price ?? 0; // ✅ Ensure item price is valid
+            let subtotal = (itemPrice * item.quantity).toFixed(2); // ✅ Calculate subtotal
+
+            cartItemsHtml += `
+                <tr data-product-id="${item.id}">
+                    <td>
+                        <div class="d-flex align-items-center gap-4 product-box">
+                            <button type="button" class="remove_product" data-product-id="${item.id}">
+                                <i class="fas fa-close"></i>
+                            </button>
+                            <div class="feature-image light-bg">
+                                <img src="${item.imageUrl}" class="img-fluid" alt="${item.name}">
+                            </div>
+                            <div>
+                                <span class="fs-sm text-uppercase secondary-text-color d-block">${item.name}</span>
+                                <a href="#" class="product-title h6 mt-2 d-block">${item.name}</a>
+                            </div>
+                        </div>
+                    </td>
+                    <td><span class="fw-medium text-main-color">$${itemPrice.toFixed(2)}</span></td>
+                    <td>
+                        <div class="quantity d-flex align-items-center">
+                            <input type="number" class="quantity-input" value="${item.quantity}" min="1">
+                            <div class="step-btns">
+                                <button class="increment" data-product-id="${item.id}">
+                                    <i class="fa-solid fa-angle-up"></i>
+                                </button>
+                                <button class="decrement" data-product-id="${item.id}">
+                                    <i class="fa-solid fa-angle-down"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </td>
+                    <td><span class="text-main-color fw-medium d-block text-end subtotal">$${subtotal}</span></td>
+                </tr>
+            `;
+        });
+
+        $("#cartItemsTable tbody").html(cartItemsHtml); // ✅ Update cart table content
+    }
+});
+</script>
+
+
+<style>
+    /* Hide number input spinners in Chrome, Safari, Edge */
+    .quantity-input::-webkit-outer-spin-button,
+    .quantity-input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Hide number input arrows in Firefox */
+    .quantity-input {
+        -moz-appearance: textfield;
+    }
+
+</style>

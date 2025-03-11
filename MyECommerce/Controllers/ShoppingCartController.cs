@@ -30,19 +30,23 @@ namespace MyECommerce.Controllers
                 .ToListAsync();
 
             return View(cartItems);
-        }
+        }   
+
+
 
 
         // Add Item to Cart
+        [HttpPost]
         public async Task<IActionResult> AddToCart(int productId, int quantity = 1)
         {
+            Console.WriteLine($"AddToCart called for Product ID: {productId}");
             string cartId = GetCartId();
             var userId = GetUserId();
 
             var product = await _context.Products.FindAsync(productId);
             if (product == null)
             {
-                return NotFound();
+                return Json(new { success = false, message = "Product not found." });
             }
 
             var cartItem = await _context.ShoppingCartItems
@@ -69,42 +73,184 @@ namespace MyECommerce.Controllers
             }
 
             await _context.SaveChangesAsync();
-            return RedirectToAction("Index");
+
+            // ✅ Fetch updated cart items
+            var cartItems = await _context.ShoppingCartItems
+                .Where(item => item.CartId == cartId || item.UserId == userId)
+                .Select(item => new
+                {
+                    id = item.ProductId,
+                    name = item.Name,
+                    price = item.Price,
+                    quantity = item.Quantity,
+                    imageUrl = item.ImageUrl
+                })
+                .ToListAsync();
+
+            var totalCartItems = cartItems.Sum(i => i.quantity);
+            var totalCartPrice = cartItems.Sum(i => i.price * i.quantity);
+
+            return Json(new
+            {
+                success = true,
+                message = "Added to cart!",
+                count = totalCartItems,
+                totalPrice = totalCartPrice,
+                cartItems = cartItems // ✅ Send updated cart items
+            });
         }
+
+
 
         // Remove Item from Cart
-        public async Task<IActionResult> RemoveFromCart(int id)
-        {
-            var cartItem = await _context.ShoppingCartItems.FindAsync(id);
-            if (cartItem != null)
-            {
-                _context.ShoppingCartItems.Remove(cartItem);
-                await _context.SaveChangesAsync();
-            }
+       [HttpPost]
+public async Task<IActionResult> RemoveFromCart(int productId)
+{
+    string cartId = GetCartId();
+    var userId = GetUserId();
 
-            return RedirectToAction("Index");
-        }
+    var cartItem = await _context.ShoppingCartItems
+        .FirstOrDefaultAsync(item => (item.CartId == cartId || item.UserId == userId) && item.ProductId == productId);
+
+    if (cartItem == null)
+    {
+        return Json(new { success = false, message = "Item not found in cart." });
+    }
+
+    _context.ShoppingCartItems.Remove(cartItem);
+    await _context.SaveChangesAsync();
+
+    // ✅ Fetch updated cart items after removal
+    var cartItems = await _context.ShoppingCartItems
+        .Where(item => item.CartId == cartId || item.UserId == userId)
+        .Select(item => new
+        {
+            id = item.ProductId,
+            name = item.Name,
+            price = item.Price,
+            quantity = item.Quantity,
+            imageUrl = item.ImageUrl
+        })
+        .ToListAsync();
+
+    var totalCartItems = cartItems.Sum(i => i.quantity);
+    var totalCartPrice = cartItems.Sum(i => i.price * i.quantity);
+
+    return Json(new
+    {
+        success = true,
+        message = "Item removed from cart!",
+        count = totalCartItems,
+        totalPrice = totalCartPrice,
+        cartItems = cartItems // ✅ Send updated cart items
+    });
+}
+
+
 
         // Update Quantity
         [HttpPost]
         public async Task<IActionResult> UpdateQuantity(int id, int quantity)
         {
-            var cartItem = await _context.ShoppingCartItems.FindAsync(id);
-            if (cartItem != null && quantity > 0)
+            string cartId = GetCartId();
+            var userId = GetUserId();
+
+            var cartItem = await _context.ShoppingCartItems
+                .FirstOrDefaultAsync(item => (item.CartId == cartId || item.UserId == userId) && item.ProductId == id);
+
+            if (cartItem == null)
             {
-                cartItem.Quantity = quantity;
-                await _context.SaveChangesAsync();
+                return Json(new { success = false, message = "Cart item not found." });
             }
 
-            return RedirectToAction("Index");
+            cartItem.Quantity = quantity;
+            await _context.SaveChangesAsync();
+
+            // ✅ Fetch updated cart items
+            var cartItems = await _context.ShoppingCartItems
+                .Where(item => item.CartId == cartId || item.UserId == userId)
+                .Select(item => new
+                {
+                    id = item.ProductId,
+                    name = item.Name,
+                    price = item.Price,
+                    quantity = item.Quantity,
+                    imageUrl = item.ImageUrl
+                })
+                .ToListAsync();
+
+            var totalCartItems = cartItems.Sum(i => i.quantity);
+            var totalCartPrice = cartItems.Sum(i => i.price * i.quantity);
+
+            return Json(new
+            {
+                success = true,
+                message = "Quantity updated successfully!",
+                count = totalCartItems,
+                totalPrice = totalCartPrice,
+                cartItems = cartItems // ✅ Send updated cart items
+            });
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetCartSummary()
+        {
+            string cartId = GetCartId();
+            var userId = GetUserId();
+
+            // ✅ Fetch cart items
+            var cartItems = await _context.ShoppingCartItems
+                .Where(item => item.CartId == cartId || item.UserId == userId)
+                .ToListAsync();
+
+            int totalCount = cartItems.Sum(i => i.Quantity);
+            decimal totalPrice = cartItems.Sum(i => i.Price * i.Quantity);
+
+            return Json(new { success = true, count = totalCount, totalPrice });
+        }
+
+
+
+
+        [HttpGet]
+        public async Task<IActionResult> GetCartItems()
+        {
+            string cartId = GetCartId();
+            var userId = GetUserId();
+
+            // ✅ Fetch cart items from the database
+            var cartItems = await _context.ShoppingCartItems
+                .Where(item => item.CartId == cartId || item.UserId == userId)
+                .Select(item => new
+                {
+                    id = item.ProductId,
+                    name = item.Name,
+                    price = item.Price,
+                    quantity = item.Quantity,
+                    imageUrl = item.ImageUrl
+                })
+                .ToListAsync();
+
+            var totalCartItems = cartItems.Sum(i => i.quantity);
+            var totalCartPrice = cartItems.Sum(i => i.price * i.quantity);
+
+            return Json(new
+            {
+                success = true,
+                count = totalCartItems,
+                totalPrice = totalCartPrice,
+                cartItems = cartItems // ✅ Send updated cart items
+            });
+        }
+
+
 
         // Helper method to get CartId
         private string GetCartId()
         {
             if (User.Identity?.IsAuthenticated == true)
             {
-                return GetUserId()?.ToString() ?? Guid.NewGuid().ToString();
+                return GetUserId() ?? Guid.NewGuid().ToString();
             }
 
             if (string.IsNullOrEmpty(HttpContext.Session.GetString("CartId")))
@@ -117,19 +263,14 @@ namespace MyECommerce.Controllers
 
 
 
+
         // Helper method to get UserId if logged in
-        private int? GetUserId()
+        private string? GetUserId()
         {
-            if (User.Identity?.IsAuthenticated == true)
-            {
-                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (int.TryParse(userIdClaim, out int userId))
-                {
-                    return userId;
-                }
-            }
-            return null;
+            return User.FindFirstValue(ClaimTypes.NameIdentifier); // ✅ Returns a string now
         }
+
+
 
     }
 }

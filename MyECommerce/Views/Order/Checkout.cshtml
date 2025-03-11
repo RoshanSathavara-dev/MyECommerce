@@ -1,0 +1,197 @@
+﻿@model MyECommerce.ViewModels.CheckoutViewModel
+
+@{
+    ViewData["Title"] = "Checkout";
+}
+
+<section class="checkout-section bg-white ptb-120">
+    <div class="container">
+
+        <form asp-action="PlaceOrder" method="post" class="checkout-form mt-80">
+            <div class="row g-4">
+                <!-- ✅ Billing Details -->
+                <div class="col-xl-6">
+                    <h3 class="mb-4 fw-normal">Billing Details</h3>
+                    <div class="row g-4">
+                        <div class="col-12">
+                            <div class="input-field">
+                                <label for="email">Email Address*</label>
+                                <input type="email" asp-for="Email" class="theme-input bg-transparent" required>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="input-field">
+                                <label for="fname">First Name*</label>
+                                <input type="text" asp-for="FullName" class="theme-input bg-transparent" required>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="input-field">
+                                <label for="phone">Phone*</label>
+                                <input type="text" asp-for="Phone" class="theme-input bg-transparent" required>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="input-field">
+                                <label for="street">Street Address*</label>
+                                <input type="text" asp-for="StreetAddress" class="theme-input bg-transparent" required>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="input-field">
+                                <label for="city">City*</label>
+                                <input type="text" asp-for="City" class="theme-input bg-transparent" required>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="input-field">
+                                <label>State*</label>
+                                <select asp-for="State" class="nice_select w-100">
+                                    <option value="California">California</option>
+                                    <option value="Texas">Texas</option>
+                                    <option value="Florida">Florida</option>
+                                    <option value="Ohio">Ohio</option>
+                                    <option value="Alaska">Alaska</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="input-field">
+                                <label for="zip">Pin Code*</label>
+                                <input type="text" asp-for="PinCode" class="theme-input bg-transparent" required>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="input-field">
+                                <label for="note">Order Notes</label>
+                                <textarea asp-for="OrderNotes" class="theme-input bg-transparent" rows="5"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ✅ Order Summary -->
+                <div class="col-xl-6">
+                    <h3 class="mb-4">Your Order</h3>
+                    <div class="order-table table-responsive">
+                        <table class="table">
+                            <tr>
+                                <th>Products</th>
+                                <th>Price</th>
+                            </tr>
+                            @foreach (var item in Model.CartItems)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-4 product-box">
+                                            <div class="feature-image light-bg">
+                                                <img src="@item.ImageUrl" class="img-fluid" alt="@item.Name">
+                                            </div>
+                                            <div>
+                                                <span class="fs-sm text-uppercase secondary-text-color d-block">@item.Name</span>
+                                                <span class="text-muted">x @item.Quantity</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="text-main-color fw-medium">$@(item.Price * item.Quantity)</span>
+                                    </td>
+                                </tr>
+                            }
+                            <tr>
+                                <td>
+                                    <span class="text-main-color fw-medium">Subtotal</span>
+                                </td>
+                                <td>
+                                    <span class="text-main-color fw-medium">$@Model.TotalAmount</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <span class="text-main-color fw-medium">Shipping</span>
+                                </td>
+                                <td>
+                                    <p class="mb-0 pp-price">Flat rate: <span class="text-main-color fw-medium">$10.00</span></p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <span class="text-main-color fw-medium">Total Price</span>
+                                </td>
+                                <td>
+                                    <span class="secondary-text-color fw-medium">$@(Model.TotalAmount + 10)</span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- ✅ Payment Methods -->
+                    <h4 class="mt-4">Payment Method</h4>
+                    <div class="checkout-payment-methods">
+                        <label>
+                            <input type="radio" asp-for="PaymentMethod" value="Bank Transfer">
+                            <span class="radio">Direct Bank Transfer</span>
+                        </label>
+                        <label>
+                            <input type="radio" asp-for="PaymentMethod" value="COD">
+                            <span class="radio">Cash On Delivery</span>
+                        </label>
+                        <label>
+                            <input type="radio" asp-for="PaymentMethod" value="PayPal">
+                            <span class="radio">PayPal</span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="template-btn primary-btn w-100 text-uppercase mt-5">
+                        Place Order
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+<!--hm2 feature section start-->
+<section class="hm2-feature-section overflow-hidden light-bg-2 border-0">
+    <div class="container-1400">
+        <div class="row align-items-center g-5">
+            <div class="col-xl-3 col-lg-4 col-sm-6">
+                <div class="hm2-feature-box">
+                    <span class="icon-wrapper d-inline-flex align-items-center justify-content-center rounded-circle">
+                        <img src="~/assets/images/icons/1.svg" alt="not found" class="img-fluid">
+                    </span>
+                    <h6 class="fw-normal hm2-font-family mt-40 mb-4">Free Delivery</h6>
+                    <p class="mb-0">Orci lectus per torquent netusque habitasse mauris inceptos.</p>
+                </div>
+            </div>
+            <div class="col-xl-3 col-lg-4 col-sm-6">
+                <div class="hm2-feature-box">
+                    <span class="icon-wrapper d-inline-flex align-items-center justify-content-center rounded-circle">
+                        <img src="~/assets/images/icons/2.svg" alt="not found" class="img-fluid">
+                    </span>
+                    <h6 class="fw-normal hm2-font-family mt-40 mb-4">90 Days Returns</h6>
+                    <p class="mb-0">Orci lectus per torquent netusque habitasse mauris inceptos.</p>
+                </div>
+            </div>
+            <div class="col-xl-3 col-lg-4 col-sm-6">
+                <div class="hm2-feature-box">
+                    <span class="icon-wrapper d-inline-flex align-items-center justify-content-center rounded-circle">
+                        <img src="~/assets/images/icons/3.svg" alt="not found" class="img-fluid">
+                    </span>
+                    <h6 class="fw-normal hm2-font-family mt-40 mb-4">Secure Payment</h6>
+                    <p class="mb-0">Orci lectus per torquent netusque habitasse mauris inceptos.</p>
+                </div>
+            </div>
+            <div class="col-xl-3 col-lg-4 col-sm-6">
+                <div class="hm2-feature-box">
+                    <span class="icon-wrapper d-inline-flex align-items-center justify-content-center rounded-circle">
+                        <img src="~/assets/images/icons/4.svg" alt="not found" class="img-fluid">
+                    </span>
+                    <h6 class="fw-normal hm2-font-family mt-40 mb-4">100% Free Warranty</h6>
+                    <p class="mb-0">Orci lectus per torquent netusque habitasse mauris inceptos.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!--hm2 feature section end-->

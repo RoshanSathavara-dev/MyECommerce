@@ -1,9 +1,10 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyECommerce.Models;
 using System.Linq;
 using MyECommerce.Data;
+using System.Security.Claims;
 
 namespace MyECommerce.Controllers
 {
@@ -18,15 +19,50 @@ namespace MyECommerce.Controllers
             _context = context;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            //var featuredProducts = _context.Products
-            //                           .OrderByDescending(p => p.Id) // Fetch latest products
-            //                           .Take(6) // Show 6 products on the home page
-            //                           .ToList();
+            if (User.Identity != null && User.Identity.IsAuthenticated)
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var userEmail = User.FindFirstValue(ClaimTypes.Email);
 
-            return View();
+                Console.WriteLine($"✅ User is logged in. ID: {userId}, Email: {userEmail}");
+            }
+            else
+            {
+                Console.WriteLine("❌ User is NOT logged in.");
+            }
+
+            var heroProducts = await _context.Products
+                .Where(p => p.ShowInHeroSection)
+                .ToListAsync();
+
+            var featuredProducts = await _context.Products
+                .Where(p => p.IsFeatured)
+                .ToListAsync();
+
+            var allProducts = await _context.Products
+                .Include(p => p.Category)
+                .ToListAsync();
+
+            var categories = await _context.Categories.ToListAsync();
+            var galleryImages = await _context.GalleryImages.ToListAsync();
+
+            var viewModel = new HomeViewModel
+            {
+                HeroProducts = heroProducts,
+                FeaturedProducts = featuredProducts,
+                AllProducts = allProducts,
+                Categories = categories,
+                GalleryImages = galleryImages
+            };
+
+            return View(viewModel);
         }
+
+
+
+
 
         public IActionResult Privacy()
         {
