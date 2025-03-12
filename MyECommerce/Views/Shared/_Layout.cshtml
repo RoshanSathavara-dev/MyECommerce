@@ -524,40 +524,56 @@
 
         let productId = $(this).data("id");
 
-        $.post("/ShoppingCart/AddToCart", { productId: productId }, function (response) {
-            if (response.success) {
-                alert(response.message); // ✅ Show "Added to cart!"
-                updateCartDrawer(response.cartItems, response.totalPrice); // ✅ Update cart drawer
-                $(".cart-drawer").addClass("open"); // ✅ Open the cart drawer
-            } else {
-                alert(response.message || "Something went wrong!"); // ✅ Proper fallback message
-            }
-        }).fail(function () {
-            alert("Error adding product to cart. Please try again!"); // ✅ Handle AJAX errors
-        });
+          $.post("/ShoppingCart/AddToCart", { productId: productId }, function (response) {
+        if (response.success) {
+            alert(response.message); // ✅ Show "Added to cart!"
+
+            // ✅ Manually fetch updated cart items after adding
+            fetchCartItems();
+
+            $(".cart-drawer").addClass("open"); // ✅ Open the cart drawer
+        } else {
+            alert(response.message || "Something went wrong!"); // ✅ Proper fallback message
+        }
+    }).fail(function () {
+        alert("Error adding product to cart. Please try again!"); // ✅ Handle AJAX errors
+    });
+
     });
 
     // ✅ Function to update the cart drawer dynamically
-    function updateCartDrawer(cartItems, totalPrice) {
+     function updateCartDrawer(cartItems, totalPrice) {
         let cartList = $(".cart-list");
         let cartCount = $("#cart-count");
         let totalAmount = $("#cart-total");
 
-        cartList.empty(); // ✅ Clear previous items
+        // ✅ Also update header cart (icon)
+        let headerCartCount = $(".cart-item");
+        let headerTotalPrice = $(".cart-amount");
+
+        cartList.empty();
 
         if (cartItems.length === 0) {
             cartList.append("<li class='text-center py-3'>Your cart is empty</li>");
             cartCount.text("0");
             totalAmount.text("$0.00");
+
+            // ✅ Update header cart too
+            headerCartCount.text("0");
+            headerTotalPrice.text("$0.00");
             return;
         }
 
-        cartCount.text(cartItems.length); // ✅ Update item count in cart header
-        totalAmount.text("$" + totalPrice.toFixed(2)); // ✅ Update total price
+        let totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+
+        cartCount.text(totalItems);
+        totalAmount.text("$" + totalPrice.toFixed(2));
+
+        // ✅ Update header cart values
+        headerCartCount.text(totalItems);
+        headerTotalPrice.text("$" + totalPrice.toFixed(2));
 
         cartItems.forEach(item => {
-            let itemPrice = item.price * item.quantity;
-
             let cartItemHTML = `
                 <li class="d-flex align-items-center gap-3">
                     <div class="feature-image light-bg">
@@ -566,7 +582,7 @@
                     <div class="d-flex justify-content-between gap-3 w-100">
                         <div>
                             <a href="#"><h6 class="mb-1">${item.name}</h6></a>
-                            <span class="price fw-medium secondary-text-color d-block mb-1 fs-sm">$${itemPrice.toFixed(2)}</span>
+                            <span class="price fw-medium secondary-text-color d-block mb-1 fs-sm">$${(item.price * item.quantity).toFixed(2)}</span>
                             <div class="quantity d-flex align-items-center">
                                 <input type="text" value="${item.quantity}" readonly>
                                 <div class="step-btns">
@@ -584,6 +600,7 @@
             cartList.append(cartItemHTML);
         });
     }
+
 
 
 

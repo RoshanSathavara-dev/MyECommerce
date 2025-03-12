@@ -246,20 +246,20 @@ public async Task<IActionResult> RemoveFromCart(int productId)
 
 
         // Helper method to get CartId
-        private string GetCartId()
-        {
-            if (User.Identity?.IsAuthenticated == true)
-            {
-                return GetUserId() ?? Guid.NewGuid().ToString();
-            }
+   private string GetCartId()
+{
+    if (User.Identity?.IsAuthenticated == true)
+    {
+        return GetUserId() ?? Guid.NewGuid().ToString();
+    }
 
-            if (string.IsNullOrEmpty(HttpContext.Session.GetString("CartId")))
-            {
-                HttpContext.Session.SetString("CartId", Guid.NewGuid().ToString());
-            }
+    if (string.IsNullOrEmpty(HttpContext.Session.GetString("CartId")))
+    {
+        HttpContext.Session.SetString("CartId", Guid.NewGuid().ToString());
+    }
 
-            return HttpContext.Session.GetString("CartId") ?? string.Empty;
-        }
+    return HttpContext.Session.GetString("CartId") ?? string.Empty;
+}
 
 
 

@@ -129,7 +129,9 @@
                                         <div class="feature-image position-relative h-300">
                                             <img src="@product.ImageUrl" alt="@product.Name" class="img-fluid">
                                             <div class="action-box">
-                                                <a href="#" class="cart-btn">Add to Cart</a>
+                                                <a href="javascript:void(0)" class="cart-btn add-to-cart" data-id="@product.Id">
+                                                    Add to Cart
+                                                </a>
                                                 <div class="action-btns">
                                                     <a href="#" class="wishlist-btn">
                                                         <i class="fa-regular fa-heart"></i>
@@ -213,7 +215,6 @@
                             <div class="vr-product-thumb position-relative">
                                 <img id="modalProductImage" src="" alt="product" class="img-fluid">
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -235,25 +236,155 @@
                         <h5 id="modalProductPrice" class="mb-0 mt-30 text-main-color"></h5>
                         <p id="modalProductDescription" class="mb-40 mt-30"></p>
 
-                        <!-- ✅ Quantity & Buttons -->
+                        <!-- ✅ Quantity Input -->
                         <div class="d-flex align-items-center mt-30 gap-3">
                             <div class="quantity-box">
                                 <button type="button" class="decrement"><i class="fa-solid fa-minus"></i></button>
-                                <input type="text" value="1">
+                                <input type="number" id="modalProductQuantity" value="1" min="1">
                                 <button type="button" class="increment"><i class="fa-solid fa-plus"></i></button>
                             </div>
-                            <a href="#" class="template-btn primary-btn fs-sm text-uppercase h-40">ADD To Cart</a>
                         </div>
-                        <a href="#" class="pd-wishlist-btn text-uppercase mt-30"><i class="fa-regular fa-heart"></i> ADD Wishlist</a>
+
+                        <!-- ✅ Add to Cart Form -->
+                        <form id="addToCartForm" action="/ShoppingCart/AddToCart" method="post">
+                            <input type="hidden" id="modalProductId" name="productId">
+                            <input type="hidden" id="modalProductQuantityHidden" name="quantity" value="1">
+                            <button type="submit" class="template-btn primary-btn fs-sm text-uppercase h-40 w-100 mt-3">
+                                Add To Cart
+                            </button>
+                        </form>
+
+                        <a href="#" class="pd-wishlist-btn text-uppercase mt-30"><i class="fa-regular fa-heart"></i> Add to Wishlist</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-<!--modal End-->
 <!-- ✅ JavaScript to Fill Modal -->
 <script>
+
+    $(document).ready(function () {
+         $(document).on("click", ".increment", function () {
+        let quantityInput = $("#modalProductQuantity");
+        let currentValue = parseInt(quantityInput.val());
+        quantityInput.val(currentValue + 1);
+        $("#modalProductQuantityHidden").val(currentValue + 1); // Update hidden input
+    });
+
+    // ✅ Decrement Quantity in Quick View Modal
+    $(document).on("click", ".decrement", function () {
+        let quantityInput = $("#modalProductQuantity");
+        let currentValue = parseInt(quantityInput.val());
+        if (currentValue > 1) {
+            quantityInput.val(currentValue - 1);
+            $("#modalProductQuantityHidden").val(currentValue - 1); // Update hidden input
+        }
+    });
+
+    // ✅ Populate Quick View Modal with Product Data
+    $(document).on("click", ".quick-view-btn", function () {
+        let productId = $(this).data("id");
+        let productName = $(this).data("name");
+        let productPrice = $(this).data("price");
+        let productImage = $(this).data("image");
+        let productDescription = $(this).data("description");
+
+        // Populate modal fields
+        $("#modalProductId").val(productId);
+        $("#modalProductName").text(productName);
+        $("#modalProductPrice").text("$" + productPrice);
+        $("#modalProductImage").attr("src", productImage);
+        $("#modalProductDescription").text(productDescription);
+
+        // Reset quantity to 1
+        $("#modalProductQuantity").val(1);
+        $("#modalProductQuantityHidden").val(1);
+
+        // Open the modal
+        $("#product_view").modal("show");
+    });
+
+    // ✅ Handle Add to Cart Form Submission
+    $("#addToCartForm").off("submit").on("submit", function (event) {
+        event.preventDefault();
+
+        let quantity = $("#modalProductQuantity").val();
+        $("#modalProductQuantityHidden").val(quantity);
+
+        let formData = $(this).serialize();
+
+        $.post("/ShoppingCart/AddToCart", formData, function (response) {
+            if (response.success) {
+                alert(response.message);
+                updateCartCount(); // ✅ Update header cart count & total price
+                updateCartDrawer(response.cartItems, response.totalPrice);
+                $("#product_view").modal("hide");
+            } else {
+                alert(response.message || "Something went wrong!");
+            }
+        }).fail(function () {
+            alert("Error adding product to cart. Please try again!");
+        });
+    });
+    function updateCartCount() {
+        $.get("/ShoppingCart/GetCartSummary", function (response) {
+            if (response.success) {
+                $(".cart-item-count").text(response.count); // Update cart icon count
+                $(".cart-amount").text("$" + response.totalPrice.toFixed(2)); // Update cart total price
+            } else {
+                console.error("Failed to update cart count.");
+            }
+        }).fail(function () {
+            console.error("Error fetching cart summary.");
+        });
+    }
+
+    function updateCartDrawer(cartItems, totalPrice) {
+        let cartList = $(".cart-list");
+        let cartCount = $("#cart-count");
+        let totalAmount = $("#cart-total");
+
+        cartList.empty(); // Clear previous items
+
+        if (cartItems.length === 0) {
+            cartList.append("<li class='text-center py-3'>Your cart is empty</li>");
+            cartCount.text("0");
+            totalAmount.text("$0.00");
+            return;
+        }
+
+        cartCount.text(cartItems.length); // Update cart count
+        totalAmount.text("$" + totalPrice.toFixed(2)); // Update total price
+
+        cartItems.forEach(item => {
+            let itemPrice = item.price * item.quantity;
+
+            let cartItemHTML = `
+                <li class="d-flex align-items-center gap-3">
+                    <div class="feature-image light-bg">
+                        <a href="#"><img src="${item.imageUrl}" alt="${item.name}" class="img-fluid"></a>
+                    </div>
+                    <div class="d-flex justify-content-between gap-3 w-100">
+                        <div>
+                            <a href="#"><h6 class="mb-1">${item.name}</h6></a>
+                            <span class="price fw-medium secondary-text-color d-block mb-1 fs-sm">$${itemPrice.toFixed(2)}</span>
+                            <div class="quantity d-flex align-items-center">
+                                <input type="text" value="${item.quantity}" readonly>
+                            </div>
+                        </div>
+                        <div>
+                            <a href="javascript:void(0)" class="close remove-item" data-id="${item.id}"><i class="fas fa-xmark"></i></a>
+                        </div>
+                    </div>
+                </li>
+            `;
+            cartList.append(cartItemHTML);
+        });
+    }
+
+    });
+
     document.addEventListener("DOMContentLoaded", function () {
         document.querySelectorAll(".quick-view-btn").forEach(button => {
             button.addEventListener("click", function () {
@@ -268,7 +399,10 @@
                 document.getElementById("modalProductDescription").textContent = description;
             });
         });
+
     });
+
+
 
     document.addEventListener("DOMContentLoaded", function () {
         let searchInput = document.getElementById("searchInput");

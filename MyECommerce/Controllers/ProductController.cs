@@ -50,33 +50,33 @@ namespace MyECommerce.Controllers
 
         // POST: Product/Create
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Product product, IFormFile ImageFile)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                if (ImageFile != null)
-                {
-                    string uploadsFolder = Path.Combine(_hostEnvironment.WebRootPath, "images");
-                    string uniqueFileName = Guid.NewGuid().ToString() + "_" + ImageFile.FileName;
-                    string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-                    using (var fileStream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await ImageFile.CopyToAsync(fileStream);
-                    }
-
-                    product.ImageUrl = "/images/" + uniqueFileName;
-                }
-
-                _context.Add(product);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return Json(new { success = false, message = "Invalid product data." });
             }
 
-            ViewBag.Categories = new SelectList(_context.Categories, "Id", "Name", product.CategoryId);
-            return View(product);
+            if (ImageFile != null)
+            {
+                string uploadsFolder = Path.Combine(_hostEnvironment.WebRootPath, "images");
+                string uniqueFileName = Guid.NewGuid().ToString() + "_" + ImageFile.FileName;
+                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await ImageFile.CopyToAsync(fileStream);
+                }
+
+                product.ImageUrl = "/images/" + uniqueFileName;
+            }
+
+            _context.Products.Add(product);
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true, message = "Product added successfully!" });
         }
+
 
         // GET: Product/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -92,53 +92,82 @@ namespace MyECommerce.Controllers
 
         // POST: Product/Edit/5
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Product product, IFormFile? ImageFile)
         {
-            if (id != product.Id) return NotFound();
-
-            if (ModelState.IsValid)
+            if (id != product.Id)
             {
-                try
-                {
-                    var existingProduct = await _context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
-                    if (existingProduct == null) return NotFound();
-
-                    // If user uploads a new image, save it
-                    if (ImageFile != null)
-                    {
-                        string uploadsFolder = Path.Combine(_hostEnvironment.WebRootPath, "images");
-                        string uniqueFileName = Guid.NewGuid().ToString() + "_" + ImageFile.FileName;
-                        string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-                        using (var fileStream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await ImageFile.CopyToAsync(fileStream);
-                        }
-
-                        product.ImageUrl = "/images/" + uniqueFileName;
-                    }
-                    else
-                    {
-                        // Keep the existing image if no new image is uploaded
-                        product.ImageUrl = existingProduct.ImageUrl;
-                    }
-
-                    _context.Update(product);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ProductExists(product.Id)) return NotFound();
-                    else throw;
-                }
-
-                return RedirectToAction(nameof(Index));
+                return Json(new { success = false, message = "Product not found." });
             }
 
-            ViewBag.Categories = new SelectList(_context.Categories, "Id", "Name", product.CategoryId);
-            return View(product);
+            if (!ModelState.IsValid)
+            {
+                return Json(new { success = false, message = "Invalid product data." });
+            }
+
+            var existingProduct = await _context.Products.FindAsync(id);
+            if (existingProduct == null)
+            {
+                return Json(new { success = false, message = "Product not found." });
+            }
+
+            existingProduct.Name = product.Name;
+            existingProduct.Price = product.Price;
+            existingProduct.Stock = product.Stock;
+            existingProduct.CategoryId = product.CategoryId;
+            existingProduct.Color = product.Color;
+            existingProduct.Size = product.Size;
+            existingProduct.IsFeatured = product.IsFeatured;
+            existingProduct.ShowInHeroSection = product.ShowInHeroSection;
+
+            if (ImageFile != null)
+            {
+                string uploadsFolder = Path.Combine(_hostEnvironment.WebRootPath, "images");
+                string uniqueFileName = Guid.NewGuid().ToString() + "_" + ImageFile.FileName;
+                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await ImageFile.CopyToAsync(fileStream);
+                }
+
+                existingProduct.ImageUrl = "/images/" + uniqueFileName;
+            }
+
+            _context.Products.Update(existingProduct);
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true, message = "Product updated successfully!" });
         }
+        [HttpGet]
+        public async Task<IActionResult> GetProduct(int id)
+        {
+            var product = await _context.Products
+                .Include(p => p.Category)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (product == null)
+            {
+                return Json(new { success = false, message = "Product not found." });
+            }
+
+            return Json(new
+            {
+                success = true,
+                id = product.Id,
+                name = product.Name,
+                description = product.Description,
+                price = product.Price,
+                stock = product.Stock,
+                categoryId = product.CategoryId,
+                color = product.Color,
+                size = product.Size,
+                isFeatured = product.IsFeatured,
+                showInHeroSection = product.ShowInHeroSection,
+                imageUrl = product.ImageUrl
+            });
+        }
+
+
 
 
         // GET: Product/Delete/5

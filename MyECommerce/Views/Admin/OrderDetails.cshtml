@@ -1,0 +1,37 @@
+﻿@model MyECommerce.Models.Order
+
+@{
+    ViewData["Title"] = "Order Details";
+}
+
+<h2>Order Details - #@Model.Id</h2>
+
+<p><strong>Customer:</strong> @Model.FullName</p>
+<p><strong>Email:</strong> @Model.Email</p>
+<p><strong>Phone:</strong> @Model.Phone</p>
+<p><strong>Total Amount:</strong> $@Model.TotalAmount</p>
+<p><strong>Status:</strong> @Model.Status</p>
+<p><strong>Order Date:</strong> @Model.OrderDate.ToString("yyyy-MM-dd")</p>
+
+<h3>Ordered Items</h3>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Price</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.OrderItems)
+        {
+            <tr>
+                <td>@item.Product</td>
+                <td>@item.Quantity</td>
+                <td>$@item.Price</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a href="@Url.Action("OrderIndex", "Admin")" class="btn btn-secondary">Back to Orders</a>

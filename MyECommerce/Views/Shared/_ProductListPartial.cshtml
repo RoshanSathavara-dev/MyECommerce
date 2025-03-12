@@ -1,0 +1,38 @@
+﻿@model IEnumerable<MyECommerce.Models.Product>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Category</th>
+            <th>Image</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>₹@item.Price</td>
+                <td>@item.Stock</td>
+                <td>@item.Category?.Name</td>
+                <td>
+                    @if (!string.IsNullOrEmpty(item.ImageUrl))
+                    {
+                        <img src="@item.ImageUrl" alt="Product Image" width="50" height="50">
+                    }
+                </td>
+                <td>
+                    <a asp-controller="Product" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning">Edit</a>
+                    <form asp-controller="Product" asp-action="Delete" method="post" style="display:inline;">
+                        <input type="hidden" name="id" value="@item.Id" />
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

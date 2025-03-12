@@ -1,18 +1,18 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MyECommerce.Data;
 using MyECommerce.Models;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace MyECommerce.Controllers
 {
-
-    
+    [Authorize(Roles = "Admin")] // ✅ Ensure only Admins can access
     public class AdminController : Controller
     {
-
         private readonly ApplicationDbContext _context;
         private readonly UserManager<User> _userManager;
 
@@ -28,62 +28,89 @@ namespace MyECommerce.Controllers
             {
                 TotalProducts = _context.Products.Count(),
                 TotalOrders = _context.Orders.Count(),
-                TotalUsers = _userManager.Users.Count() // ✅ Use UserManager for users
+                TotalUsers = _userManager.Users.Count(),
+
+                // ✅ Fetch the 5 most recent orders
+                RecentOrders = _context.Orders
+                    .OrderByDescending(o => o.OrderDate)
+                    .Take(5)
+                    .ToList()
             };
+
             return View(model);
         }
-        //private readonly ApplicationDbContext _context;
 
-        //public AdminController(ApplicationDbContext context)
-        //{
-        //    _context = context;
-        //}
 
-        //// Dashboard view
-        //public IActionResult Dashboard()
-        //{
-        //    var categoryCount = _context.Categories.Count();
-        //    var productCount = _context.Products.Count();
-        //    var orderCount = _context.Orders.Count();
-        //    var paymentCount = _context.Payments.Count();
+        // ✅ Manage Orders
+        public async Task<IActionResult> Orders()
+        {
+            var orders = await _context.Orders
+                .Include(o => o.User)
+                .OrderByDescending(o => o.OrderDate)
+                .ToListAsync();
 
-        //    var dashboardData = new
-        //    {
-        //        CategoryCount = categoryCount,
-        //        ProductCount = productCount,
-        //        OrderCount = orderCount,
-        //        PaymentCount = paymentCount
-        //    };
+            return View(orders);
+        }
 
-        //    return View(dashboardData);
-        //}
+        // ✅ Manage Users
+        public async Task<IActionResult> Users()
+        {
+            var users = await _userManager.Users.ToListAsync();
+            return View(users);
+        }
 
-        //// Orders page
-        //public IActionResult Orders()
-        //{
-        //    var orders = _context.Orders.ToList();
-        //    return View(orders);
-        //}
+        public IActionResult OrderIndex()
+        {
+            var orders = _context.Orders.OrderByDescending(o => o.OrderDate).ToList();
+            return View(orders);
+        }
 
-        //// Staff page
-        //public IActionResult Staff()
-        //{
-        //    // Fetch staff or admin data if needed
-        //    return View();
-        //}
+        // ✅ View Order Details
+        public IActionResult OrderDetails(int id)
+        {
+            var order = _context.Orders
+                .Include(o => o.OrderItems)
+                .FirstOrDefault(o => o.Id == id);
 
-        //// Products page
-        //public IActionResult ProductIndex()
-        //{
-        //    var products = _context.Products.Include(p => p.Category).ToList();
-        //    return View("Product/Index", products);
-        //}
+            if (order == null)
+                return NotFound();
 
-        //// Admin Categories
-        //public IActionResult CategoryIndex()
-        //{
-        //    var categories = _context.Categories.ToList();
-        //    return View("Category/Index", categories);
-        //}
+            return View(order);
+        }
+
+        // ✅ Delete Order
+        [HttpPost]
+        public IActionResult DeleteOrder(int id)
+        {
+            var order = _context.Orders.Find(id);
+            if (order != null)
+            {
+                _context.Orders.Remove(order);
+                _context.SaveChanges();
+            }
+
+            return RedirectToAction("OrderIndex");
+        }
+
+        public async Task<IActionResult> ManageProducts(string search, int? categoryId)
+        {
+            var products = _context.Products.Include(p => p.Category).AsQueryable();
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                products = products.Where(p => p.Name.Contains(search) || p.Description.Contains(search));
+            }
+
+            if (categoryId.HasValue && categoryId > 0)
+            {
+                products = products.Where(p => p.CategoryId == categoryId);
+            }
+
+            ViewBag.Categories = new SelectList(_context.Categories, "Id", "Name");
+
+            return View(await products.ToListAsync());
+        }
+
+
     }
 }

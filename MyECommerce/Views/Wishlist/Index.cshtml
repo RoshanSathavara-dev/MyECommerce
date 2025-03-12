@@ -75,31 +75,57 @@
             });
         });
 
-        // ✅ Add to Cart from Wishlist (Fix for Product Not Found)
-        $(document).on("click", ".add-to-cart", function () {
-            debugger;
+          $(document).ready(function () {
+        $(document).off("click", ".add-to-cart").on("click", ".add-to-cart", function (event) {
+            event.preventDefault();
+
             var productId = $(this).data("product-id");
 
-            $.post("/ShoppingCart/AddToCart", { productId: productId }, function (response) {
-                if (response.success) {
-                    alert(response.message); // ✅ Show success message
-                    updateCartCount(); // ✅ Update Cart count
-                    updateCartDrawer(response.cartItems, response.totalPrice); // ✅ Update Cart drawer
+            console.log("🛒 Attempting to add Product ID:", productId);
 
-                    // ✅ Remove from Wishlist after adding to Cart
+            if (!productId || productId === 0) {
+                alert("Invalid product data. Please try again.");
+                console.error("❌ ERROR: Invalid productId (missing or zero)");
+                return;
+            }
+
+            $.post("/ShoppingCart/AddToCart", { productId: productId }, function (response) {
+                console.log("✅ Response received:", response);
+
+                if (response.success) {
+                    alert(response.message);
+                    updateCartCount();
+                    updateCartDrawer(response.cartItems, response.totalPrice);
+
+                    // ✅ If added to cart, remove from wishlist
                     $.post("/Wishlist/RemoveFromWishlist", { productId: productId }, function (wishlistResponse) {
                         if (wishlistResponse.success) {
-                            $("#wishlist-item-" + productId).fadeOut(); // ✅ Remove item from UI
-                            updateWishlistCount(); // ✅ Update Wishlist count
+                            console.log("✅ Removed from wishlist:", productId);
+                            $("#wishlist-item-" + productId).fadeOut(); // Remove from UI
+                            updateWishlistCount();
                         }
                     });
                 } else {
                     alert(response.message || "Something went wrong!");
                 }
             }).fail(function () {
-                alert("Error adding product to cart. Please try again!");
+                alert("❌ Error adding product to cart. Please try again!");
             });
         });
+
+        // ✅ Function to update Wishlist count
+        function updateWishlistCount() {
+            $.get("/Wishlist/GetWishlistCount", function (response) {
+                if (response.success) {
+                    $(".wishlist-item-count").text(response.count);
+                }
+            }).fail(function () {
+                console.error("Error fetching wishlist count.");
+            });
+        }
+    });
+
+
 
         // ✅ Function to update Wishlist count in header
         function updateWishlistCount() {

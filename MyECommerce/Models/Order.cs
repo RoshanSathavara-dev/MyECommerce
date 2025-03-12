@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MyECommerce.Models
 {
@@ -6,7 +7,12 @@ namespace MyECommerce.Models
     {
         [Key]
         public int Id { get; set; }
-        public required string UserId { get; set; }
+
+        [Required]
+        public string? UserId { get; set; }   // ✅ Foreign Key for User
+
+        [ForeignKey("UserId")]
+        public User? User { get; set; }
         public DateTime OrderDate { get; set; } = DateTime.UtcNow;
         public decimal TotalAmount { get; set; }
         public string Status { get; set; } = "Pending"; // Pending, Shipped, Delivered

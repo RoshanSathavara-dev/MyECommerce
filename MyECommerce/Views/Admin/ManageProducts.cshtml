@@ -1,0 +1,319 @@
+﻿@model IEnumerable<MyECommerce.Models.Product>
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Manage Products";
+}
+
+<h2 class="mb-4">Manage Products</h2>
+
+<!-- ✅ Add this before any script using $() -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+<!-- ✅ Separate Add and Edit Buttons -->
+<button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addProductModal">Add New Product</button>
+
+<!-- ✅ Product Table -->
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Category</th>
+            <th>Image</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>₹@item.Price</td>
+                <td>@item.Stock</td>
+                <td>@item.Category?.Name</td>
+                <td>
+                    @if (!string.IsNullOrEmpty(item.ImageUrl))
+                    {
+                        <img src="@item.ImageUrl" alt="Product Image" width="50" height="50">
+                    }
+                </td>
+                <td>
+                    <button class="btn btn-warning btnEdit" data-id="@item.Id" data-bs-toggle="modal" data-bs-target="#editProductModal">Edit</button>
+                    <button class="btn btn-danger btnDelete" data-id="@item.Id">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- ✅ Add Product Modal -->
+<!-- ✅ Add Product Modal -->
+<div class="modal fade" id="addProductModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Product</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addProductForm" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" name="Name" class="form-control" id="addName" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea name="Description" class="form-control" id="addDescription"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Price</label>
+                        <input type="number" name="Price" step="0.01" class="form-control" id="addPrice" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Stock</label>
+                        <input type="number" name="Stock" class="form-control" id="addStock" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select name="CategoryId" class="form-control" id="addCategory">
+                            @foreach (var category in (IEnumerable<SelectListItem>)ViewBag.Categories)
+                            {
+                                <option value="@category.Value">@category.Text</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- ✅ Color Selection -->
+                    <div class="form-group">
+                        <label>Color</label>
+                        <select name="Color" class="form-control" id="addColor">
+                            <option value="">Select Color</option>
+                            <option value="Soft Gold">Soft Gold</option>
+                            <option value="Light Pink">Light Pink</option>
+                            <option value="Green Touch">Green Touch</option>
+                            <option value="Navy Blue">Navy Blue</option>
+                            <option value="Gray White">Gray White</option>
+                        </select>
+                    </div>
+
+                    <!-- ✅ Size Selection -->
+                    <div class="form-group">
+                        <label>Size</label>
+                        <select name="Size" class="form-control" id="addSize">
+                            <option value="">Select Size</option>
+                            <option value="S">S</option>
+                            <option value="M">M</option>
+                            <option value="L">L</option>
+                            <option value="XL">XL</option>
+                            <option value="XXL">XXL</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Upload Image</label>
+                        <input type="file" name="ImageFile" id="addImageFile" class="form-control" />
+                    </div>
+
+                    <!-- ✅ Checkboxes -->
+                    <div class="form-group form-check">
+                        <input type="checkbox" name="ShowInHeroSection" id="addShowInHero" class="form-check-input">
+                        <label class="form-check-label">Show in Home Hero Section</label>
+                    </div>
+                    <div class="form-group form-check">
+                        <input type="checkbox" name="IsFeatured" id="addIsFeatured" class="form-check-input">
+                        <label class="form-check-label">Show in Featured Products</label>
+                    </div>
+
+                    <button type="button" class="btn btn-success" id="saveProduct">Save</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ✅ Edit Product Modal -->
+<div class="modal fade" id="editProductModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Product</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editProductForm" enctype="multipart/form-data">
+                    <input type="hidden" name="Id" id="editProductId">
+
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" name="Name" class="form-control" id="editName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea name="Description" class="form-control" id="editDescription"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Price</label>
+                        <input type="number" name="Price" step="0.01" class="form-control" id="editPrice" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Stock</label>
+                        <input type="number" name="Stock" class="form-control" id="editStock" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select name="CategoryId" class="form-control" id="editCategory">
+                            @foreach (var category in (IEnumerable<SelectListItem>)ViewBag.Categories)
+                            {
+                                <option value="@category.Value">@category.Text</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- ✅ Color Selection -->
+                    <div class="form-group">
+                        <label>Color</label>
+                        <select name="Color" class="form-control" id="editColor">
+                            <option value="Soft Gold">Soft Gold</option>
+                            <option value="Light Pink">Light Pink</option>
+                            <option value="Green Touch">Green Touch</option>
+                            <option value="Navy Blue">Navy Blue</option>
+                            <option value="Gray White">Gray White</option>
+                        </select>
+                    </div>
+
+                    <!-- ✅ Size Selection -->
+                    <div class="form-group">
+                        <label>Size</label>
+                        <select name="Size" class="form-control" id="editSize">
+                            <option value="S">S</option>
+                            <option value="M">M</option>
+                            <option value="L">L</option>
+                            <option value="XL">XL</option>
+                            <option value="XXL">XXL</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Upload New Image</label>
+                        <input type="file" name="ImageFile" id="editImageFile" class="form-control">
+                    </div>
+
+                    <!-- ✅ Checkboxes -->
+                    <div class="form-group form-check">
+                        <input type="checkbox" name="ShowInHeroSection" id="editShowInHero" class="form-check-input">
+                        <label class="form-check-label">Show in Home Hero Section</label>
+                    </div>
+                    <div class="form-group form-check">
+                        <input type="checkbox" name="IsFeatured" id="editIsFeatured" class="form-check-input">
+                        <label class="form-check-label">Show in Featured Products</label>
+                    </div>
+
+                    <button type="button" class="btn btn-success" id="updateProduct">Update</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script>
+    $(document).ready(function () {
+        // ✅ Add Product
+    $("#saveProduct").click(function () {
+           let formData = new FormData($("#addProductForm")[0]);
+
+           $.ajax({
+               url: "/Product/Create",
+               type: "POST",
+               data: formData,
+               processData: false,
+               contentType: false,
+               success: function (response) {
+                   if (response.success) {
+                       alert(response.message);
+                       location.reload();
+                   } else {
+                       console.log("Validation Errors:", response.errors);
+                       alert("Error: " + response.errors.join("\n"));
+                   }
+               },
+               error: function (xhr) {
+                   console.log("AJAX Error:", xhr.responseText);
+                   alert("Error: " + xhr.responseText);
+               }
+           });
+       });
+
+        // ✅ Load Product Data into Edit Modal
+        $(".btnEdit").click(function () {
+            let productId = $(this).data("id");
+
+            $.get(`/Product/GetProduct/${productId}`, function (product) {
+                if (product.success) {
+                    $("#editProductId").val(product.id);
+                    $("#editName").val(product.name);
+                    $("#editDescription").val(product.description);
+                    $("#editPrice").val(product.price);
+                    $("#editStock").val(product.stock);
+                    $("#editCategory").val(product.categoryId);
+                    $("#editColor").val(product.color);
+                    $("#editSize").val(product.size);
+                    $("#editShowInHero").prop("checked", product.showInHeroSection);
+                    $("#editIsFeatured").prop("checked", product.isFeatured);
+
+                    if (product.imageUrl) {
+                        $("#editProductImage").attr("src", product.imageUrl).removeClass("d-none");
+                    } else {
+                        $("#editProductImage").addClass("d-none");
+                    }
+                } else {
+                    alert(product.message);
+                }
+            });
+        });
+
+        // ✅ Edit Product
+        $("#updateProduct").click(function () {
+            let formData = new FormData($("#editProductForm")[0]);
+
+            $.ajax({
+                url: "/Product/Edit",
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    alert(response.message);
+                    if (response.success) location.reload();
+                },
+                error: function (xhr) {
+                    alert("Error: " + xhr.responseText);
+                }
+            });
+        });
+
+        // ✅ Delete Product
+        $(".btnDelete").click(function () {
+            let productId = $(this).data("id");
+
+            if (confirm("Are you sure you want to delete this product?")) {
+                $.ajax({
+                    url: "/Product/Delete",
+                    type: "POST",
+                    data: { id: productId },
+                    success: function (response) {
+                        alert(response.message);
+                        if (response.success) location.reload();
+                    }
+                });
+            }
+        });
+    });
+</script>
+
