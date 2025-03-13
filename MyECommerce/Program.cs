@@ -8,7 +8,13 @@ using Microsoft.AspNetCore.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddSession();
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30); // Session timeout
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -18,20 +24,19 @@ builder.Services.AddIdentity<User, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders(); // Needed for OTP
 
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Account/Login";  // Redirect to login page
+    options.LogoutPath = "/Account/Logout";
+    options.ExpireTimeSpan = TimeSpan.FromDays(7); // Keep user logged in
+    options.SlidingExpiration = true;
+    options.AccessDeniedPath = "/Account/AccessDenied"; // Redirect on access denied
+});
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<OtpService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddSingleton<SendGridService>();
 
-builder.Services.AddDistributedMemoryCache();
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
-    {
-        options.LoginPath = "/Account/Login";  // ✅ Redirect to login page
-        options.LogoutPath = "/Account/Logout";
-        options.ExpireTimeSpan = TimeSpan.FromDays(7); // ✅ Keep user logged in
-        options.SlidingExpiration = true; // ✅ Reset expiration if the user is active
-    });
 
 var app = builder.Build();
 

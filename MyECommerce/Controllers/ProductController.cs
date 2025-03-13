@@ -50,12 +50,14 @@ namespace MyECommerce.Controllers
 
         // POST: Product/Create
         [HttpPost]
-        public async Task<IActionResult> Create(Product product, IFormFile ImageFile)
+        public async Task<IActionResult> Create(Product product, IFormFile? ImageFile)
         {
             if (!ModelState.IsValid)
-            {
-                return Json(new { success = false, message = "Invalid product data." });
-            }
+                return Json(new { success = false, errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
+
+            // ✅ Ensure boolean values are correctly assigned
+            product.ShowInHeroSection = Request.Form["ShowInHeroSection"] == "true";
+            product.IsFeatured = Request.Form["IsFeatured"] == "true";
 
             if (ImageFile != null)
             {
@@ -78,6 +80,7 @@ namespace MyECommerce.Controllers
         }
 
 
+
         // GET: Product/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
@@ -92,32 +95,26 @@ namespace MyECommerce.Controllers
 
         // POST: Product/Edit/5
         [HttpPost]
-        public async Task<IActionResult> Edit(int id, Product product, IFormFile? ImageFile)
+        public async Task<IActionResult> Edit(Product product, IFormFile? ImageFile)
         {
-            if (id != product.Id)
-            {
-                return Json(new { success = false, message = "Product not found." });
-            }
-
             if (!ModelState.IsValid)
-            {
-                return Json(new { success = false, message = "Invalid product data." });
-            }
+                return Json(new { success = false, errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
 
-            var existingProduct = await _context.Products.FindAsync(id);
+            var existingProduct = await _context.Products.FindAsync(product.Id);
             if (existingProduct == null)
-            {
                 return Json(new { success = false, message = "Product not found." });
-            }
 
             existingProduct.Name = product.Name;
+            existingProduct.Description = product.Description;
             existingProduct.Price = product.Price;
             existingProduct.Stock = product.Stock;
             existingProduct.CategoryId = product.CategoryId;
             existingProduct.Color = product.Color;
             existingProduct.Size = product.Size;
-            existingProduct.IsFeatured = product.IsFeatured;
-            existingProduct.ShowInHeroSection = product.ShowInHeroSection;
+
+            // ✅ Ensure boolean values are correctly assigned
+            existingProduct.ShowInHeroSection = Request.Form["ShowInHeroSection"] == "true";
+            existingProduct.IsFeatured = Request.Form["IsFeatured"] == "true";
 
             if (ImageFile != null)
             {
@@ -138,34 +135,34 @@ namespace MyECommerce.Controllers
 
             return Json(new { success = true, message = "Product updated successfully!" });
         }
+
         [HttpGet]
         public async Task<IActionResult> GetProduct(int id)
         {
             var product = await _context.Products
-                .Include(p => p.Category)
-                .FirstOrDefaultAsync(p => p.Id == id);
+                .Where(p => p.Id == id)
+                .Select(p => new
+                {
+                    p.Id,
+                    p.Name,
+                    p.Description,
+                    p.Price,
+                    p.Stock,
+                    p.CategoryId,
+                    p.Color,
+                    p.Size,
+                    p.ImageUrl,
+                    p.ShowInHeroSection, // ✅ Ensure this is returned
+                    p.IsFeatured // ✅ Ensure this is returned
+                })
+                .FirstOrDefaultAsync();
 
             if (product == null)
-            {
                 return Json(new { success = false, message = "Product not found." });
-            }
 
-            return Json(new
-            {
-                success = true,
-                id = product.Id,
-                name = product.Name,
-                description = product.Description,
-                price = product.Price,
-                stock = product.Stock,
-                categoryId = product.CategoryId,
-                color = product.Color,
-                size = product.Size,
-                isFeatured = product.IsFeatured,
-                showInHeroSection = product.ShowInHeroSection,
-                imageUrl = product.ImageUrl
-            });
+            return Json(product);
         }
+
 
 
 

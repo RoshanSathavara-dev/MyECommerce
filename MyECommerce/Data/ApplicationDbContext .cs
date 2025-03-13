@@ -16,8 +16,9 @@ namespace MyECommerce.Data
         public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Admin> Admins { get; set; }
-       
-        
+        public DbSet<Review> Reviews { get; set; }
+
+
         public DbSet<CustomZula> CustomZulas { get; set; }
 
         public DbSet<ShoppingCartItem> ShoppingCartItems { get; set; }

@@ -118,14 +118,23 @@
                     </div>
 
                     <!-- ✅ Checkboxes -->
+                    <!-- ✅ Show in Home Hero Section -->
                     <div class="form-group form-check">
-                        <input type="checkbox" name="ShowInHeroSection" id="addShowInHero" class="form-check-input">
-                        <label class="form-check-label">Show in Home Hero Section</label>
+                        <input type="hidden" name="ShowInHeroSection" value="false"> <!-- Ensures unchecked checkbox submits -->
+                        <input type="checkbox" name="ShowInHeroSection" id="addShowInHero" class="form-check-input" value="true">
+                        <label class="form-check-label" for="addShowInHero">Show in Home Hero Section</label>
                     </div>
+
+                    <!-- ✅ Show in Featured Products -->
                     <div class="form-group form-check">
-                        <input type="checkbox" name="IsFeatured" id="addIsFeatured" class="form-check-input">
-                        <label class="form-check-label">Show in Featured Products</label>
+                        <input type="hidden" name="IsFeatured" value="false"> <!-- Ensures unchecked checkbox submits -->
+                        <input type="checkbox" name="IsFeatured" id="addIsFeatured" class="form-check-input" value="true">
+                        <label class="form-check-label" for="addIsFeatured">Show in Featured Products</label>
                     </div>
+
+
+
+
 
                     <button type="button" class="btn btn-success" id="saveProduct">Save</button>
                 </form>
@@ -202,15 +211,21 @@
                         <input type="file" name="ImageFile" id="editImageFile" class="form-control">
                     </div>
 
-                    <!-- ✅ Checkboxes -->
+                    <!-- ✅ Show in Home Hero Section -->
                     <div class="form-group form-check">
-                        <input type="checkbox" name="ShowInHeroSection" id="editShowInHero" class="form-check-input">
-                        <label class="form-check-label">Show in Home Hero Section</label>
+                        <input type="checkbox" id="editShowInHero" class="form-check-input">
+                        <label class="form-check-label" for="editShowInHero">Show in Home Hero Section</label>
                     </div>
+
+                    <!-- ✅ Show in Featured Products -->
                     <div class="form-group form-check">
-                        <input type="checkbox" name="IsFeatured" id="editIsFeatured" class="form-check-input">
-                        <label class="form-check-label">Show in Featured Products</label>
+                        <input type="checkbox" id="editIsFeatured" class="form-check-input">
+                        <label class="form-check-label" for="editIsFeatured">Show in Featured Products</label>
                     </div>
+
+
+
+
 
                     <button type="button" class="btn btn-success" id="updateProduct">Update</button>
                 </form>
@@ -225,95 +240,118 @@
 <script>
     $(document).ready(function () {
         // ✅ Add Product
-    $("#saveProduct").click(function () {
-           let formData = new FormData($("#addProductForm")[0]);
+            $("#saveProduct").click(function () {
+        let formData = new FormData($("#addProductForm")[0]);
 
-           $.ajax({
-               url: "/Product/Create",
-               type: "POST",
-               data: formData,
-               processData: false,
-               contentType: false,
-               success: function (response) {
-                   if (response.success) {
-                       alert(response.message);
-                       location.reload();
-                   } else {
-                       console.log("Validation Errors:", response.errors);
-                       alert("Error: " + response.errors.join("\n"));
-                   }
-               },
-               error: function (xhr) {
-                   console.log("AJAX Error:", xhr.responseText);
-                   alert("Error: " + xhr.responseText);
-               }
-           });
-       });
+        // ✅ Ensure checkboxes are included in FormData manually
+        formData.set("ShowInHeroSection", $("#addShowInHero").is(":checked"));
+        formData.set("IsFeatured", $("#addIsFeatured").is(":checked"));
 
-        // ✅ Load Product Data into Edit Modal
-        $(".btnEdit").click(function () {
-            let productId = $(this).data("id");
-
-            $.get(`/Product/GetProduct/${productId}`, function (product) {
-                if (product.success) {
-                    $("#editProductId").val(product.id);
-                    $("#editName").val(product.name);
-                    $("#editDescription").val(product.description);
-                    $("#editPrice").val(product.price);
-                    $("#editStock").val(product.stock);
-                    $("#editCategory").val(product.categoryId);
-                    $("#editColor").val(product.color);
-                    $("#editSize").val(product.size);
-                    $("#editShowInHero").prop("checked", product.showInHeroSection);
-                    $("#editIsFeatured").prop("checked", product.isFeatured);
-
-                    if (product.imageUrl) {
-                        $("#editProductImage").attr("src", product.imageUrl).removeClass("d-none");
-                    } else {
-                        $("#editProductImage").addClass("d-none");
-                    }
+        $.ajax({
+            url: "/Product/Create",
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                if (response.success) {
+                    alert("Product added successfully!");
+                    location.reload();
                 } else {
-                    alert(product.message);
+                    alert("Validation Errors: " + response.errors.join(", "));
                 }
-            });
-        });
-
-        // ✅ Edit Product
-        $("#updateProduct").click(function () {
-            let formData = new FormData($("#editProductForm")[0]);
-
-            $.ajax({
-                url: "/Product/Edit",
-                type: "POST",
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function (response) {
-                    alert(response.message);
-                    if (response.success) location.reload();
-                },
-                error: function (xhr) {
-                    alert("Error: " + xhr.responseText);
-                }
-            });
-        });
-
-        // ✅ Delete Product
-        $(".btnDelete").click(function () {
-            let productId = $(this).data("id");
-
-            if (confirm("Are you sure you want to delete this product?")) {
-                $.ajax({
-                    url: "/Product/Delete",
-                    type: "POST",
-                    data: { id: productId },
-                    success: function (response) {
-                        alert(response.message);
-                        if (response.success) location.reload();
-                    }
-                });
+            },
+            error: function (xhr) {
+                console.error("Error:", xhr.responseText);
+                alert("Failed to add product. Please try again.");
             }
         });
+    });
+
+
+
+        // ✅ Load Product Data into Edit Modal
+      // ✅ Load Product Data into Edit Modal
+    $(".btnEdit").click(function () {
+        let productId = $(this).data("id");
+
+        $.get(`/Product/GetProduct/${productId}`, function (product) {
+            $("#editProductId").val(product.id);
+            $("#editName").val(product.name);
+            $("#editDescription").val(product.description);
+            $("#editPrice").val(product.price);
+            $("#editStock").val(product.stock);
+            $("#editCategory").val(product.categoryId);
+            $("#editColor").val(product.color);
+            $("#editSize").val(product.size);
+
+            // ✅ Ensure checkboxes are set properly
+            $("#editShowInHero").prop("checked", product.showInHeroSection);
+            $("#editIsFeatured").prop("checked", product.isFeatured);
+
+            // ✅ Show current image
+            if (product.imageUrl) {
+                $("#editProductImagePreview").attr("src", product.imageUrl).removeClass("d-none");
+            } else {
+                $("#editProductImagePreview").addClass("d-none");
+            }
+        });
+    });
+
+
+     $("#updateProduct").click(function () {
+        let formData = new FormData($("#editProductForm")[0]);
+
+        // ✅ Ensure checkboxes are included in FormData manually
+        formData.set("ShowInHeroSection", $("#editShowInHero").is(":checked"));
+        formData.set("IsFeatured", $("#editIsFeatured").is(":checked"));
+
+        $.ajax({
+            url: "/Product/Edit",
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                if (response.success) {
+                    alert("Product updated successfully!");
+                    location.reload();
+                } else {
+                    alert("Validation Errors: " + response.errors.join(", "));
+                }
+            },
+            error: function (xhr) {
+                console.error("Error:", xhr.responseText);
+                alert("Failed to update product. Please try again.");
+            }
+        });
+    });
+
+
+        // ✅ Delete Product
+    $(".btnDelete").click(function () {
+                let button = $(this); // Get the button
+                let productId = button.data("id");
+
+                if (confirm("Are you sure you want to delete this product?")) {
+                    $.ajax({
+                        url: "/Product/Delete/" + productId,
+                        type: "POST",
+                        data: {
+                            id: productId,
+                            __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function () {
+                            alert("Product deleted successfully!");
+                            button.closest("tr").fadeOut(500, function () { $(this).remove(); }); // ✅ Remove row smoothly
+                        },
+                        error: function (xhr) {
+                            console.error("Error deleting product:", xhr.responseText);
+                            alert("Failed to delete the product. Please try again.");
+                        }
+                    });
+                }
+            });
     });
 </script>
 

@@ -54,30 +54,12 @@
                     </div>
 
 
-                    <h4 class="mt-4">Customer Reviews</h4>
-                    <div id="review-list"></div>
+                  
 
-                    @if (Context.Session.GetInt32("UserId") != null)
-                    {
-                        <h5>Add Your Review</h5>
-                        <div>
-                            <label>Rating:</label>
-                            <div class="rating">
-                                <input type="radio" name="rating" value="5" id="star5"><label for="star5">★</label>
-                                <input type="radio" name="rating" value="4" id="star4"><label for="star4">★</label>
-                                <input type="radio" name="rating" value="3" id="star3"><label for="star3">★</label>
-                                <input type="radio" name="rating" value="2" id="star2"><label for="star2">★</label>
-                                <input type="radio" name="rating" value="1" id="star1"><label for="star1">★</label>
-                            </div>
-                            <label>Comment:</label>
-                            <textarea id="comment" class="form-control"></textarea>
-                            <button class="btn btn-success mt-2" onclick="submitReview()">Submit Review</button>
-                        </div>
-                    }
-                    else
-                    {
-                        <p><a href="/Account/Login">Login</a> to submit a review.</p>
-                    }
+
+
+
+
                 </div>
             </div>
         </div>
@@ -91,7 +73,7 @@
             <ul class="nav nav-tabs border-bottom" role="tablist">
                 <li><a href="#tab-1" data-bs-toggle="tab" class="active">Description</a></li>
                 <li><a href="#tab-2" data-bs-toggle="tab">Addition information</a></li>
-                <li><a href="#tab-3" data-bs-toggle="tab">Reviews(2)</a></li>
+                <li><a href="#tab-3" data-bs-toggle="tab" id="reviewTab">Reviews(<span id="reviewCount">0</span>)</a></li>
             </ul>
             <div class="tab-content mt-32">
                 <div class="tab-pane fade active show" id="tab-1" role="tabpanel">
@@ -125,10 +107,6 @@
                                 </li>
                             </ul>
                         </div>
-                        <div class="video-content flex-shrink-0 position-relative">
-                            <img src="assets/images/banner/video-banner.jpg" alt="video banner" class="img-fluid">
-                            <a href="https://www.youtube.com/watch?v=6WZOxnYi4Cs" data-fancybox="" class="video-popup-btn"><i class="fas fa-play"></i></a>
-                        </div>
                     </div>
                 </div>
                 <div class="tab-pane fade" id="tab-2" role="tabpanel">
@@ -139,38 +117,28 @@
                     </ul>
                 </div>
                 <div class="tab-pane fade" id="tab-3" role="tabpanel">
-                    <ul class="prduct-reviews">
-                        <li class="d-flex align-items-center gap-4 flex-wrap flex-sm-nowrap">
-                            <img src="assets/images/clients/client-1.jpg" alt="user" class="user-thumb">
-                            <div>
-                                <span class="date fs-sm fw-light text-color">Sep 25, 2022</span>
-                                <h6 class="mt-1 mb-2">Amalia Genner</h6>
-                                <ul class="fs-sm d-flex align-items-center">
-                                    <li><i class="fas fa-star"></i></li>
-                                    <li><i class="fas fa-star"></i></li>
-                                    <li><i class="fas fa-star"></i></li>
-                                    <li><i class="fas fa-star"></i></li>
-                                    <li><i class="fas fa-star"></i></li>
-                                </ul>
-                                <p class="fs-sm text-color mt-3 mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus magna justo, lacinia eget consectetur sed, convallis at tellus. Vivamus suscipit tortor eget felis porttitor volutpat. Vivamus suscipit tortor eget felis porttitor volutpat. Vivamus magna justo</p>
+                    <h4>Customer Reviews</h4>
+                    <div id="review-list"></div>
+
+                    <!-- ✅ Only show review form if user is logged in -->
+                    <div id="writeReviewSection" style="display: none;">
+                        <h5>Add Your Review</h5>
+                        <div>
+                            <label>Rating:</label>
+                            <div class="rating">
+                                <input type="radio" name="rating" value="1" id="star5"><label for="star5">★</label>
+                                <input type="radio" name="rating" value="2" id="star4"><label for="star4">★</label>
+                                <input type="radio" name="rating" value="3" id="star3"><label for="star3">★</label>
+                                <input type="radio" name="rating" value="4" id="star2"><label for="star2">★</label>
+                                <input type="radio" name="rating" value="5" id="star1"><label for="star1">★</label>
                             </div>
-                        </li>
-                        <li class="d-flex align-items-center gap-4 flex-wrap flex-sm-nowrap">
-                            <img src="assets/images/clients/client-2.jpg" alt="user" class="user-thumb">
-                            <div>
-                                <span class="date fs-sm fw-light text-color">Sep 25, 2022</span>
-                                <h6 class="mt-1 mb-2">Emma Watson</h6>
-                                <ul class="fs-sm d-flex align-items-center">
-                                    <li><i class="fas fa-star"></i></li>
-                                    <li><i class="fas fa-star"></i></li>
-                                    <li><i class="fas fa-star"></i></li>
-                                    <li><i class="fas fa-star"></i></li>
-                                    <li><i class="fas fa-star"></i></li>
-                                </ul>
-                                <p class="fs-sm text-color mt-3 mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus magna justo, lacinia eget consectetur sed, convallis at tellus. Vivamus suscipit tortor eget felis porttitor volutpat. Vivamus suscipit tortor eget felis porttitor volutpat. Vivamus magna justo</p>
-                            </div>
-                        </li>
-                    </ul>
+                            <label>Comment:</label>
+                            <textarea id="comment" class="form-control"></textarea>
+                            <button class="btn btn-success mt-2" id="submitReview">Submit Review</button>
+                        </div>
+                    </div>
+
+                    <p id="loginMessage"><a href="/Account/Login">Login</a> to submit a review.</p>
                 </div>
             </div>
         </div>
@@ -227,6 +195,9 @@
 
 
         $(document).ready(function () {
+                   let productId = "@Model.Id";
+                      loadReviews();
+           
            $("#addToCartForm").on("submit", function (event) {
         event.preventDefault();
 
@@ -341,57 +312,114 @@
             cartList.append(cartItemHTML);
         });
     }
+           $.get("/Account/CheckSession", function (response) {
+           if (response.isAuthenticated) {
+               console.log("✅ User is logged in:", response.userId); // Debugging
+               $("#writeReviewSection").show();  // ✅ Show Review Form
+               $("#loginMessage").hide();  // ✅ Hide Login Message
+           } else {
+               console.log("❌ User not authenticated");
+               $("#writeReviewSection").hide();
+               $("#loginMessage").show();
+           }
+       });
 
+       // ✅ Submit Review
+       $("#submitReview").click(function () {
+           let productId = "@Model.Id";
+           let rating = $("input[name='rating']:checked").val();
+           let comment = $("#comment").val().trim();
 
+           if (!rating) {
+               alert("❌ Please select a rating.");
+               return;
+           }
 
+           $.post("/Review/AddReview", {
+               productId: productId,
+               rating: rating,
+               comment: comment
+           }, function (response) {
+               if (response.success) {
+                   alert("✅ Review submitted successfully!");
+                   loadReviews(); // Refresh reviews
+                   $("#comment").val(""); // Clear comment
+               } else {
+                   alert("❌ " + response.message);
+               }
+           }).fail(function () {
+               alert("❌ Error submitting review.");
+           });
+       });
 
-        // ✅ Quantity Increment & Decrement
-    
-    });
+        function getRandomColor(name) {
+        const colors = ["#FF5733", "#33A1FF", "#FFC300", "#DAF7A6", "#C70039", "#900C3F", "#581845"];
+        let hash = 0;
+        for (let i = 0; i < name.length; i++) {
+            hash = name.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        return colors[Math.abs(hash) % colors.length]; // Pick a color based on the name
+    }
+
+    function generateAvatar(name) {
+        let firstLetter = name.charAt(0).toUpperCase();
+        let bgColor = getRandomColor(name);
+        return `<div class="user-avatar" style="background-color: ${bgColor};">${firstLetter}</div>`;
+    }
+
+    function generateStars(rating) {
+        let stars = "";
+        for (let i = 1; i <= 5; i++) {
+            stars += `<li><i class="fas fa-star${i <= rating ? "" : "-o"}"></i></li>`;
+        }
+        return stars;
+    }
 
     function loadReviews() {
-        $.get("/Review/GetReviews?productId=@Model.Id", function (data) {
-            var reviewsHtml = "";
+        $.get(`/Review/GetReviews?productId=${productId}`, function (data) {
+            let reviewsHtml = "";
             if (data.length === 0) {
                 reviewsHtml = "<p>No reviews yet.</p>";
             } else {
                 data.forEach(function (review) {
                     reviewsHtml += `
-                        <div class="review-item">
-                            <strong>${review.name}</strong>
-                            <span>(${review.rating} ★)</span>
-                            <p>${review.comment}</p>
-                            <small>${review.createdAt}</small>
-                        </div>
-                        <hr>`;
+                        <li class="d-flex align-items-center gap-4 flex-wrap flex-sm-nowrap">
+                            ${generateAvatar(review.userName)}
+                            <div>
+                                <span class="date fs-sm fw-light text-color">${review.createdAt}</span>
+                                <h6 class="mt-1 mb-2">${review.userName}</h6>
+                                <ul class="fs-sm d-flex align-items-center">
+                                    ${generateStars(review.rating)}
+                                </ul>
+                                <p class="fs-sm text-color mt-3 mb-0">${review.comment}</p>
+                            </div>
+                        </li>
+                    `;
                 });
             }
             $("#review-list").html(reviewsHtml);
+            $("#reviewCount").text(data.length); // ✅ Update review count
         });
     }
 
-    function submitReview() {
-        var rating = $("input[name='rating']:checked").val();
-        var comment = $("#comment").val();
 
-        if (!rating) {
-            alert("Please select a rating.");
-            return;
+
+       loadReviews(); // ✅ Load reviews on
+
+           function generateStars(rating) {
+        let stars = "";
+        for (let i = 1; i <= 5; i++) {
+            stars += `<li><i class="fas fa-star ${i <= rating ? 'text-warning' : 'text-muted'}"></i></li>`;
         }
-
-        $.post("/Review/AddReview", {
-            productId: "@Model.Id",
-            rating: rating,
-            comment: comment
-        }, function (response) {
-            alert(response.message);
-            if (response.success) {
-                loadReviews();
-                $("#comment").val("");
-            }
-        });
+        return stars;
     }
 
+
+
+    
+    });
+
+       
   
 </script>
 
@@ -404,12 +432,26 @@
         width: 40px; /* Adjust width */
     }
 
-        /* Remove spinner buttons in WebKit browsers (Chrome, Safari, Edge) */
-        input[type="number"]::-webkit-inner-spin-button,
-        input[type="number"]::-webkit-outer-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
+    /* Remove spinner buttons in WebKit browsers (Chrome, Safari, Edge) */
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 18px;
+        font-weight: bold;
+        border-radius: 50%;
+        text-transform: uppercase;
+    }
+
 
 
 </style>

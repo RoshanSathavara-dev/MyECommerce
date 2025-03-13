@@ -72,6 +72,21 @@ namespace MyECommerce.Controllers
             return Json(new { success = true, message = "OTP sent successfully." });
         }
 
+        [HttpGet]
+        public IActionResult CheckSession()
+        {
+            bool isAuthenticated = User.Identity != null && User.Identity.IsAuthenticated;
+            string? userId = isAuthenticated ? User.FindFirst(ClaimTypes.NameIdentifier)?.Value : null;
+
+            return Json(new
+            {
+                isAuthenticated,
+                userId
+            });
+        }
+
+
+
 
         // ✅ Verify OTP and Log in
         [HttpPost]

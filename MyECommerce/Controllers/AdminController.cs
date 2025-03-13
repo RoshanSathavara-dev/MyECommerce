@@ -70,6 +70,7 @@ namespace MyECommerce.Controllers
         {
             var order = _context.Orders
                 .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Product) // ✅ Ensure Product is included
                 .FirstOrDefault(o => o.Id == id);
 
             if (order == null)
@@ -77,6 +78,24 @@ namespace MyECommerce.Controllers
 
             return View(order);
         }
+        [HttpPost]
+        public async Task<IActionResult> UpdateOrderStatus(int id, string status)
+        {
+            var order = await _context.Orders.FindAsync(id);
+            if (order == null)
+            {
+                return Json(new { success = false, message = "Order not found." });
+            }
+
+            order.Status = status; // ✅ Ensure the status is updated
+            _context.Orders.Update(order);
+            await _context.SaveChangesAsync(); // ✅ Ensure changes are saved
+
+            return Json(new { success = true, message = "Order status updated successfully!" });
+        }
+
+
+
 
         // ✅ Delete Order
         [HttpPost]

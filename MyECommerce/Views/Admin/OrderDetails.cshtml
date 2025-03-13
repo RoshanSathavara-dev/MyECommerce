@@ -1,6 +1,7 @@
 ﻿@model MyECommerce.Models.Order
 
 @{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Order Details";
 }
 
@@ -26,12 +27,13 @@
         @foreach (var item in Model.OrderItems)
         {
             <tr>
-                <td>@item.Product</td>
+                <td>@(item.Product?.Name ?? "Unknown Product")</td> <!-- ✅ Display Product Name -->
                 <td>@item.Quantity</td>
                 <td>$@item.Price</td>
             </tr>
         }
     </tbody>
 </table>
+
 
 <a href="@Url.Action("OrderIndex", "Admin")" class="btn btn-secondary">Back to Orders</a>

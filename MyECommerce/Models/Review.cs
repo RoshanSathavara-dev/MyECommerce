@@ -16,7 +16,7 @@ namespace MyECommerce.Models
 
         [Required]
         [ForeignKey("User")]
-        public int UserId { get; set; } // ✅ Use `int` instead of `string`
+        public string UserId { get; set; } = string.Empty; // ✅ Use `int` instead of `string`
 
         public User? User { get; set; } // ✅ Make nullable
 
@@ -27,6 +27,9 @@ namespace MyECommerce.Models
         [Required]
         [MaxLength(500)]
         public string Comment { get; set; } = string.Empty;
+
+        [Required]
+        public string UserName { get; set; } = "Anonymous";
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
