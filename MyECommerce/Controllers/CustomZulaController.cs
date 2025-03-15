@@ -40,17 +40,42 @@ namespace MyECommerce.Controllers
         // POST: CustomZula/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CustomZula model, IFormFile? imageFile) // ✅ Allow imageFile to be nullable
+        public async Task<IActionResult> Create(CustomZula model, IFormFile? imageFile)
         {
-            if (ModelState.IsValid)
+            if (!User.Identity.IsAuthenticated)
+            {
+                return BadRequest(new { success = false, message = "You must be logged in to submit a request!" });
+            }
+
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized(new { success = false, message = "User ID not found." });
+            }
+
+            model.UserId = userId;
+
+            ModelState.Remove("UserId");  // ✅ Bypass ModelState validation for UserId
+
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                return BadRequest(new { success = false, message = "Validation Failed", errors });
+            }
+
+            try
             {
                 if (imageFile != null && imageFile.Length > 0)
                 {
-                    string folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "CustomZulaImages"); // ✅ Store inside wwwroot
+                    string folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "CustomZulaImages");
                     if (!Directory.Exists(folderPath))
                         Directory.CreateDirectory(folderPath);
 
-                    string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
+                    string uniqueFileName = $"{Guid.NewGuid()}{Path.GetExtension(imageFile.FileName)}";
                     string filePath = Path.Combine(folderPath, uniqueFileName);
 
                     using (var fileStream = new FileStream(filePath, FileMode.Create))
@@ -58,22 +83,24 @@ namespace MyECommerce.Controllers
                         await imageFile.CopyToAsync(fileStream);
                     }
 
-                    model.ImageUrl = "/CustomZulaImages/" + uniqueFileName; // ✅ Ensure relative path is correct
+                    model.ImageUrl = "/CustomZulaImages/" + uniqueFileName;
                 }
                 else
                 {
-                    model.ImageUrl = "/CustomZulaImages/default.jpg"; // ✅ Set default image if no file uploaded
+                    model.ImageUrl = "/CustomZulaImages/default.jpg";
                 }
 
+                model.Status = "Pending";
                 _context.CustomZulas.Add(model);
                 await _context.SaveChangesAsync();
-                return RedirectToAction("Index");
+
+                return Json(new { success = true, message = "Your request has been submitted successfully!" });
             }
-
-            return View(model);
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = "Server error: " + ex.Message });
+            }
         }
-
-
 
 
         // GET: CustomZula/Edit/5

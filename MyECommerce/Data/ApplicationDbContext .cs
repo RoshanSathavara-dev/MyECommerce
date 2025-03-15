@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 namespace MyECommerce.Data
 {
@@ -30,6 +31,34 @@ namespace MyECommerce.Data
         public DbSet<GalleryImage> GalleryImages { get; set; }
 
 
+        public static async Task SeedAdminUser(UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
+        {
+            // Create the "Admin" role if it doesn't exist
+            if (!await roleManager.RoleExistsAsync("Admin"))
+            {
+                await roleManager.CreateAsync(new IdentityRole("Admin"));
+            }
+
+            // Create the admin user if it doesn't exist
+            var adminUser = await userManager.FindByEmailAsync("admin@example.com");
+            if (adminUser == null)
+            {
+                adminUser = new User
+                {
+                    UserName = "admin@example.com",
+                    Email = "admin@example.com",
+                    Name = "Admin",
+                    ContactNo = "1234567890",
+                    CreatedDate = DateTime.UtcNow
+                };
+
+                var result = await userManager.CreateAsync(adminUser, "Admin@123");
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(adminUser, "Admin");
+                }
+            }
+        }
 
 
 
@@ -62,6 +91,8 @@ namespace MyECommerce.Data
 
             base.OnModelCreating(modelBuilder);
         }
+
+
     }
 
 

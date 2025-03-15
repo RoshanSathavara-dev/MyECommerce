@@ -34,5 +34,6 @@ namespace MyECommerce.Controllers
 
             return View("Index", model);
         }
+
     }
 }

@@ -1,46 +1,51 @@
-﻿@{
-    ViewData["Title"] = "Register";
-}
+﻿<!-- Register Section -->
+<div class="login-area ptb-120 bg-white">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-xl-6">
+                <form id="registerForm" asp-controller="Account" asp-action="SendOtp" method="post" class="theme-form">
+                    <h3 class="mb-40 text-center">Create Account</h3>
 
-<h2>Register</h2>
+                    <!-- Name -->
+                    <input type="text" id="Name" name="Name" class="theme-input" placeholder="Your Name" required>
 
-<div class="d-flex justify-content-center align-items-center vh-100">
-    <div class="card shadow-lg p-4" style="width: 400px;">
-        <h2 class="text-center mb-4">Register</h2>
+                    <!-- Email -->
+                    <input type="email" id="Email" name="Email" class="theme-input mt-3" placeholder="Your Email" required>
 
-        <form id="registerForm" asp-controller="Account" asp-action="SendOtp" method="post">
-            <div id="registerFields">
-                <div class="mb-3">
-                    <label class="form-label">Full Name</label>
-                    <input type="text" id="Name" name="Name" class="form-control" placeholder="Enter your name" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Email</label>
-                    <input type="email" id="Email" name="Email" class="form-control" placeholder="Enter your email" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Contact No.</label>
-                    <input type="text" id="ContactNo" name="ContactNo" class="form-control" placeholder="Enter your contact number" required>
-                </div>
-                <button type="button" id="sendOtpButton" class="btn btn-primary w-100">Register</button>
+                    <!-- Contact No -->
+                    <input type="text" id="ContactNo" name="ContactNo" class="theme-input mt-3" placeholder="Contact No." required>
+
+
+                    <!-- Register Button -->
+                    <button type="button" id="sendOtpButton" class="template-btn primary-btn w-100 mt-32">
+                        <span>Register</span>
+                    </button>
+
+                    <!-- OTP Section (Initially Hidden) -->
+                    <div id="otpSection" style="display: none;">
+                        <h3 class="mb-40 text-center">Enter OTP</h3>
+
+                        <input type="text" id="otp" name="otp" class="theme-input mt-3" placeholder="Enter OTP" required>
+
+                        <button type="button" id="verifyOtpButton" class="template-btn primary-btn w-100 mt-32">
+                            <span>Verify & Complete Registration</span>
+                        </button>
+                    </div>
+
+
+
+
+                    <p class="mb-0 mt-32 text-center">
+                        Already have an account? <a href="Login" class="secondary-text-color">Login</a>
+                    </p>
+                </form>
             </div>
-
-            <!-- OTP Field (Initially Hidden) -->
-            <!-- OTP Field (Initially Hidden) -->
-            <div id="otpSection" style="display: none;">
-                <div class="mb-3">
-                    <label class="form-label">Enter OTP</label>
-                    <input type="text" id="otp" name="otp" class="form-control" placeholder="Enter OTP" required>
-                </div>
-                <button type="button" id="verifyOtpButton" class="btn btn-success w-100">Verify & Complete Registration</button>
-            </div>
-
-        </form>
+        </div>
     </div>
 </div>
 
 <script>
-    document.getElementById("sendOtpButton").addEventListener("click", function () {
+          document.getElementById("sendOtpButton").addEventListener("click", function () {
         var name = document.getElementById("Name").value;
         var email = document.getElementById("Email").value;
         var contactNo = document.getElementById("ContactNo").value;
@@ -51,7 +56,6 @@
             return;
         }
 
-        // Disable button to prevent duplicate requests
         button.disabled = true;
         button.innerText = "Sending OTP...";
 
@@ -62,9 +66,18 @@
         })
         .then(response => response.json())
         .then(data => {
+            console.log(data);  // Debugging purpose
+
             if (data.success) {
                 alert("OTP sent successfully!");
-                document.getElementById("registerFields").style.display = "none";
+
+                // Hide registration fields
+                document.getElementById("Name").style.display = "none";
+                document.getElementById("Email").style.display = "none";
+                document.getElementById("ContactNo").style.display = "none";
+                button.style.display = "none";  // Hide Register button
+
+                // Show OTP input field
                 document.getElementById("otpSection").style.display = "block";
             } else {
                 alert("Failed to send OTP: " + data.message);
@@ -79,7 +92,8 @@
         });
     });
 
-    // ✅ FIXED: Verify OTP Logic
+
+
     document.getElementById("verifyOtpButton").addEventListener("click", function () {
         var otp = document.getElementById("otp").value;
         var button = document.getElementById("verifyOtpButton");
@@ -90,7 +104,7 @@
         }
 
         button.disabled = true;
-        button.innerText = "Verifying...";
+        button.innerHTML = "Verifying...";
 
         fetch('/Account/VerifyOtp', {
             method: 'POST',
@@ -105,17 +119,13 @@
             } else {
                 alert("Invalid OTP: " + data.message);
                 button.disabled = false;
-                button.innerText = "Verify OTP";
+                button.innerHTML = "<span>Verify & Complete Registration</span>";
             }
         })
         .catch(error => {
             console.error("Error verifying OTP:", error);
             button.disabled = false;
-            button.innerText = "Verify OTP";
+            button.innerHTML = "<span>Verify & Complete Registration</span>";
         });
     });
 </script>
-
-    
-
-

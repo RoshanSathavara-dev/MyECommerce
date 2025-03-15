@@ -44,6 +44,7 @@ namespace MyECommerce.Controllers
         // ✅ Send OTP for Login
         [HttpPost]
         public async Task<IActionResult> SendLoginOtp(string EmailOrContact, string? returnUrl = null)
+        
         {
             if (string.IsNullOrEmpty(EmailOrContact))
                 return Json(new { success = false, message = "Email or Contact No. is required." });
@@ -124,7 +125,15 @@ namespace MyECommerce.Controllers
             // ✅ Merge Guest Cart into User Cart
             MergeGuestCartIntoUserCart(user.Id);
 
-            return Json(new { success = true, redirectUrl = returnUrl });
+            // ✅ Check if the user is an admin
+            if (await _userManager.IsInRoleAsync(user, "Admin"))
+            {
+                return Json(new { success = true, redirectUrl = Url.Action("Index", "Admin") });
+            }
+            else
+            {
+                return Json(new { success = true, redirectUrl = returnUrl });
+            }
         }
 
 
