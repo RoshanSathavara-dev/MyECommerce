@@ -4,77 +4,177 @@
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<h2>Admin Dashboard</h2>
+<h2 class="mb-4 text-center">Admin Dashboard</h2>
 
 <div class="row">
-    <div class="col-md-4">
-        <div class="card text-center">
-            <div class="card-body">
-                <h5>Total Products</h5>
+    <!-- Total Products -->
+    <div class="col-md-3">
+        <div class="card text-center shadow-lg border-primary">
+            <div class="card-body bg-primary text-white">
+                <h5><i class="fas fa-box"></i> Total Products</h5>
                 <h3>@Model.TotalProducts</h3>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card text-center">
-            <div class="card-body">
-                <h5>Total Orders</h5>
+
+    <!-- Total Orders -->
+    <div class="col-md-3">
+        <div class="card text-center shadow-lg border-success">
+            <div class="card-body bg-success text-white">
+                <h5><i class="fas fa-shopping-cart"></i> Total Orders</h5>
                 <h3>@Model.TotalOrders</h3>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card text-center">
-            <div class="card-body">
-                <h5>Total Users</h5>
+
+    <!-- Total Users -->
+    <div class="col-md-3">
+        <div class="card text-center shadow-lg border-info">
+            <div class="card-body bg-info text-white">
+                <h5><i class="fas fa-users"></i> Total Users</h5>
                 <h3>@Model.TotalUsers</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Custom Zulla Requests -->
+    <div class="col-md-3">
+        <div class="card text-center shadow-lg border-danger">
+            <div class="card-body bg-danger text-white">
+                <h5><i class="fas fa-file-alt"></i> Custom Zulla Requests</h5>
+                <h3>@Model.TotalCustomZulaRequests</h3>
             </div>
         </div>
     </div>
 </div>
 
+<!-- ✅ Recent Orders Table -->
+<div class="container mt-5">
+    <h3 class="text-center">Last 3 Orders</h3>
+
+    <table class="table table-striped table-hover table-bordered">
+        <thead class="bg-dark text-white text-center">
+            <tr>
+                <th>User</th>
+                <th>Order Date</th>
+                <th>Total Amount</th>
+                <th>Order Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody class="text-center">
+            @foreach (var order in Model.RecentOrders)
+            {
+                <tr>
+                    <td>@(order.User?.Name ?? "Guest")</td>
+                    <td>@order.OrderDate.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td>₹@order.TotalAmount</td>
+                    <td>
+                        @if (order.Status == "Pending")
+                        {
+                            <span class="badge bg-warning text-dark">Pending</span>
+                        }
+                        else if (order.Status == "Shipped")
+                        {
+                            <span class="badge bg-info">Shipped</span>
+                        }
+                        else if (order.Status == "Delivered")
+                        {
+                            <span class="badge bg-success">Delivered</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">Cancelled</span>
+                        }
+                    </td>
+                    <td>
+                        <a href="@Url.Action("OrderDetails", "Admin", new { id = order.Id })" class="btn btn-sm btn-primary">
+                            <i class="fas fa-eye"></i> View
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+
+<!-- ✅ Recent Custom Zulla Requests Table -->
+<div class="container mt-5">
+    <h3 class="text-center">Last 3 Requested Custom Zullas</h3>
+
+    <table class="table table-striped table-hover table-bordered">
+        <thead class="bg-dark text-white text-center">
+            <tr>
+                <th>User</th>
+                <th>Description</th>
+                <th>Contact No</th>
+                <th>Requested Date</th>
+                <th>Image</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody class="text-center">
+            @foreach (var zulla in Model.RecentCustomZulas)
+            {
+                <tr>
+                    <td>@(zulla.User?.Name ?? "Unknown")</td>
+                    <td>@zulla.Description</td>
+                    <td>@zulla.ContactNo</td>
+                    <td>@zulla.CreatedDate.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(zulla.ImageUrl))
+                        {
+                            <a href="@zulla.ImageUrl" download class="btn btn-sm btn-primary">
+                                <i class="fa fa-download"></i> Download
+                            </a>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">No Image</span>
+                        }
+                    </td>
+                    <td>
+                        @if (zulla.Status == "Pending")
+                        {
+                            <span class="badge bg-warning text-dark">Pending</span>
+                        }
+                        else if (zulla.Status == "Approved")
+                        {
+                            <span class="badge bg-success">Approved</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">Rejected</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
 <style>
+    .card {
+        border-radius: 10px;
+    }
 
-.sidebar {
-    width: 250px;
-    height: 100vh;
-    position: fixed;
-    left: 0;
-    top: 0;
-    background-color: #343a40;
-    transition: all 0.3s;
-}
+    .table th {
+        text-transform: uppercase;
+    }
 
-.sidebar.collapsed {
-    width: 80px;
-}
+    .badge {
+        font-size: 14px;
+        padding: 5px 10px;
+    }
 
-.sidebar .list-group-item {
-    border: none;
-    padding: 15px 20px;
-    transition: background 0.3s;
-}
+    .shadow-lg {
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2) !important;
+    }
 
-.sidebar .list-group-item:hover {
-    background-color: #495057;
-}
-
-.sidebar .nav-link {
-    display: flex;
-    align-items: center;
-}
-
-.sidebar .nav-link i {
-    font-size: 1.2rem;
-}
-
-#page-content-wrapper {
-    margin-left: 250px;
-    transition: margin-left 0.3s;
-}
-
-.sidebar.collapsed ~ #page-content-wrapper {
-    margin-left: 80px;
-}
+    .text-center h2 {
+        font-weight: bold;
+        color: #333;
+    }
 
 </style>

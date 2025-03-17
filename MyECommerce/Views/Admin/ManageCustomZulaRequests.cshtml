@@ -1,0 +1,99 @@
+﻿@model IEnumerable<MyECommerce.Models.CustomZula>
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Manage Custom Zulla Requests";
+}
+<!-- ✅ Add this before any script using $() -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+<h2 class="mb-4">Manage Custom Zulla Requests</h2>
+
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Image</th>
+            <th>Description</th>
+            <th>Contact No</th>
+            <th>Email</th>
+            <th>User</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var request in Model)
+        {
+            var userName = request.User?.Name ?? "Unknown"; // ✅ Ensure a default name if User is null
+            var formattedUserName = userName.Replace(" ", "_"); // ✅ Remove spaces for a cleaner filename
+            var fileExtension = System.IO.Path.GetExtension(request.ImageUrl); // ✅ Get file extension
+
+            <tr>
+                <td>@request.Id</td>
+                <td>
+                    @if (!string.IsNullOrEmpty(request.ImageUrl))
+                    {
+                        <div class="d-flex align-items-center">
+                            <img src="@request.ImageUrl" alt="Image" width="50" height="50" class="me-2 rounded">
+                            <a href="@request.ImageUrl" download="@($"{formattedUserName}_CustomZula{fileExtension}")"
+                               class="btn btn-sm btn-primary">
+                                <i class="fas fa-download"></i>
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <span>No Image</span>
+                    }
+                </td>
+                <td>@request.Description</td>
+                <td>@request.ContactNo</td>
+                <td>@(string.IsNullOrEmpty(request.Email) ? "N/A" : request.Email)</td>
+                <td>@userName</td>
+                <td>
+                    <span class="badge @(request.Status == "Pending" ? "bg-warning" : request.Status == "Approved" ? "bg-success" : "bg-danger")">
+                        @request.Status
+                    </span>
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-success approve-btn" data-id="@request.Id">Approve</button>
+                    <button class="btn btn-sm btn-danger reject-btn" data-id="@request.Id">Reject</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script>
+    $(document).ready(function () {
+        $(".approve-btn").click(function () {
+            var requestId = $(this).data("id");
+            updateRequestStatus(requestId, "Approved");
+        });
+
+        $(".reject-btn").click(function () {
+            var requestId = $(this).data("id");
+            updateRequestStatus(requestId, "Rejected");
+        });
+
+        function updateRequestStatus(id, status) {
+            $.ajax({
+                type: "POST",
+                url: "/Admin/UpdateCustomZulaStatus",
+                data: { id: id, status: status },
+                success: function (response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function () {
+                    alert("An error occurred while updating the status.");
+                }
+            });
+        }
+    });
+</script>

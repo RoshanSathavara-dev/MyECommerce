@@ -1,0 +1,73 @@
+﻿@model IEnumerable<MyECommerce.Models.User>
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Manage Users";
+}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<h2 class="mb-4">Manage Users</h2>
+
+<!-- ✅ Search Box -->
+<form method="get" class="mb-3">
+    <div class="input-group">
+        <input type="text" name="search" class="form-control" placeholder="Search by name or email" value="@Context.Request.Query["search"]">
+        <button type="submit" class="btn btn-primary">Search</button>
+    </div>
+</form>
+
+<!-- ✅ Users Table -->
+<table class="table table-bordered">
+    <thead class="table-dark">
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Contact No.</th>
+            <th>Role</th>
+            <th>Created Date</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+                <tr>
+                    <td>@user.Name</td>
+                    <td>@user.Email</td>
+                    <td>@user.ContactNo</td>
+                    <td>
+                        <span class="badge bg-@(user.Role == "Admin" ? "success" : "secondary")">
+                        @user.Role
+                        </span>
+                    </td>
+                    <td>@user.CreatedDate.ToString("yyyy-MM-dd")</td>
+                    <td>
+                        <!-- ✅ Toggle Admin Role -->
+                        <button class="btn btn-sm @(user.Role == "Admin" ? "btn-danger" : "btn-success") toggleAdmin"
+                                data-id="@user.Id">
+                        @(user.Role == "Admin" ? "Remove Admin" : "Make Admin")
+                        </button>
+                    </td>
+                </tr>
+        }
+    </tbody>
+</table>
+
+<script>
+    $(document).ready(function () {
+        // ✅ Toggle Admin Role
+        $(".toggleAdmin").click(function () {
+            let button = $(this);
+            let userId = button.data("id");
+
+            $.post("/Admin/ToggleAdminRole", { userId: userId })
+                .done(function (response) {
+                    alert(response.message);
+                    location.reload();
+                })
+                .fail(function () {
+                    alert("Failed to update role. Try again.");
+                });
+        });
+    });
+</script>

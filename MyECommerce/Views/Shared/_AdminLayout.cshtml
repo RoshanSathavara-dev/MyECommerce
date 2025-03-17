@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Admin Panel</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="~/css/admin.css"> <!-- Custom CSS for extra styling -->
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true">
 </head>
 <body>
 
@@ -24,44 +26,98 @@
                         <i class="fas fa-box me-2"></i> Manage Products
                     </a>
                 </li>
-
                 <li class="list-group-item bg-dark">
                     <a class="nav-link text-white" asp-controller="Admin" asp-action="OrderIndex">
                         <i class="fas fa-shopping-cart me-2"></i> Manage Orders
                     </a>
                 </li>
                 <li class="list-group-item bg-dark">
-                    <form asp-controller="Account" asp-action="Logout" method="post">
+                    <a class="nav-link text-white" asp-controller="Admin" asp-action="ManageCustomZulaRequests">
+                        <i class="fas fa-file-alt me-2"></i> Custom Zulla Requests
+                    </a>
+                </li>
+                <li class="list-group-item bg-dark">
+                    <a class="nav-link text-white" asp-controller="Admin" asp-action="ManageReviews">
+                        <i class="fas fa-star me-2"></i> Manage Reviews & Ratings
+                    </a>
+                </li>
+                <li class="list-group-item bg-dark">
+                    <a class="nav-link text-white" asp-controller="Admin" asp-action="ManageUsers">
+                        <i class="fas fa-users me-2"></i> Manage Users
+                    </a>
+                </li>
+                <li class="list-group-item bg-dark">
+                    <form asp-controller="Admin" asp-action="Logout" method="post">
                         @Html.AntiForgeryToken()
                         <button type="submit" class="btn btn-danger w-100 text-start">
                             <i class="fas fa-sign-out-alt me-2"></i> Logout
                         </button>
                     </form>
                 </li>
-
             </ul>
         </div>
 
         <!-- ✅ Page Content -->
-        <div id="page-content-wrapper" class="p-4 w-100">
-            <nav class="navbar navbar-expand-lg navbar-light bg-light">
-                <button class="btn btn-dark" id="menu-toggle">☰</button>
+        <div id="page-content-wrapper">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+                <div class="container-fluid">
+                    <button class="btn btn-dark" id="menu-toggle">☰</button>
+                    <div class="navbar-nav ms-auto">
+                        <div class="dropdown">
+                            <button class="btn btn-light dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown">
+                                <i class="fas fa-user-circle me-2"></i> @User.Identity?.Name
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" asp-controller="Admin" asp-action="Profile">Profile</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form asp-controller="Admin" asp-action="Logout" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="dropdown-item text-danger">Logout</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             </nav>
 
             <div class="container-fluid">
                 @RenderBody()
             </div>
+
+            <!-- ✅ Sticky Footer -->
+            <footer class="text-center py-3 bg-light border-top">
+                <p class="mb-0">© 2025 MyECommerce. All Rights Reserved.</p>
+            </footer>
         </div>
     </div>
+
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // ✅ Sidebar Toggle Function
-        $("#menu-toggle").click(function() {
-            $(".sidebar").toggleClass("collapsed");
+            $("#menu-toggle").click(function () {
+                $(".sidebar").toggleClass("collapsed");
+                $("#page-content-wrapper").toggleClass("expanded");
+            });
+
+            $("#logoutBtn").click(function () {
+            $.post("/Admin/Logout", { "__RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() })
+                .done(function () {
+                    window.location.href = "/Account/Login";
+                })
+                .fail(function () {
+                    alert("Logout failed. Please try again.");
+                });
         });
     </script>
 
+    <!-- ✅ CSS Fixes -->
+
+
+
 </body>
 </html>
+
