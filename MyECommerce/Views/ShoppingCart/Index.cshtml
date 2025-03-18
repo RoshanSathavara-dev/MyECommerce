@@ -98,10 +98,10 @@
                                 <td>Subtotal</td>
                                 <td id="cart-subtotal">$@Model.Sum(item => item.Price * item.Quantity).ToString("F2")</td>
                             </tr>
-                            <tr>
+@*                             <tr>
                                 <td>Total</td>
                                 <td id="cart-total">$@Model.Sum(item => item.Price * item.Quantity).ToString("F2")</td>
-                            </tr>
+                            </tr> *@
                         </table>
                         <a asp-controller="Order" asp-action="Checkout" class="template-btn primary-btn text-uppercase mt-5">
                             <span>Proceed to Checkout</span>
@@ -159,16 +159,42 @@
 
 <script>
 
-$(document).ready(function () {
+$(document).ready(function () { 
     // ✅ Remove item from cart
-    $(".remove_product").click(function () {
+
+
+    // ✅ Update quantity (Increase)
+
+
+
+        // ✅ Increase quantity
+        $(document).on("click", ".increment", function () {
+        let productId = $(this).data("product-id");
+        let input = $(this).closest(".quantity").find(".quantity-input");
+        let newQuantity = parseInt(input.val()) + 1;
+
+        updateQuantity(productId, newQuantity, input);
+    });
+
+    $(document).on("click", ".decrement", function () {
+        let productId = $(this).data("product-id");
+        let input = $(this).closest(".quantity").find(".quantity-input");
+        let newQuantity = Math.max(1, parseInt(input.val()) - 1);
+
+        updateQuantity(productId, newQuantity, input);
+    });
+
+
+    $(document).on("click", ".remove_product, .remove-from-cart", function () {
         var productId = $(this).data("product-id");
-        var row = $(this).closest("tr");
+        var row = $(`tr[data-product-id="${productId}"], li[data-product-id="${productId}"]`);
 
         $.post("/ShoppingCart/RemoveFromCart", { productId: productId }, function (response) {
             if (response.success) {
-                row.fadeOut(500, function () { $(this).remove(); });
-                updateCart(response);
+                row.fadeOut(500, function () {
+                    $(this).remove();
+                    updateCart(response); // ✅ Update Cart Drawer Instantly
+                });
             } else {
                 alert(response.message);
             }
@@ -177,121 +203,104 @@ $(document).ready(function () {
         });
     });
 
-    // ✅ Update quantity (Increase)
-
-
-
-        // ✅ Increase quantity
-        $(".increment").click(function () {
-            let productId = $(this).data("product-id");
-            let input = $(this).closest(".quantity").find(".quantity-input");
-            let newQuantity = parseInt(input.val()) + 1;
-
-            updateQuantity(productId, newQuantity, input);
-        });
-
-        // ✅ Decrease quantity
-        $(".decrement").click(function () {
-            let productId = $(this).data("product-id");
-            let input = $(this).closest(".quantity").find(".quantity-input");
-            let newQuantity = Math.max(1, parseInt(input.val()) - 1);
-
-            updateQuantity(productId, newQuantity, input);
-        });
-
-
-         $(document).on("click", ".remove-from-cart", function () {
-            var productId = $(this).data("product-id");
-
-            $.post("/ShoppingCart/RemoveFromCart", { productId: productId }, function (response) {
-                if (response.success) {
-                    alert(response.message); // ✅ Show success message
-                    updateCartDrawer(response.cartItems, response.totalPrice); // ✅ Update UI dynamically
-                } else {
-                    alert("Error: " + response.message); // ✅ Show error only if needed
-                }
-            }).fail(function () {
-                alert("Error removing product from cart. Please try again!"); // ✅ Handle failure case
-            });
-        });
 
         // ✅ Function to update quantity
-          function updateQuantity(productId, quantity, inputField) {
-        $.post("/ShoppingCart/UpdateQuantity", { id: productId, quantity: quantity }, function (response) {
-            console.log("Update Response:", response); // ✅ Debugging log
+function updateQuantity(productId, quantity, inputField) {
+    $.post("/ShoppingCart/UpdateQuantity", { id: productId, quantity: quantity }, function (response) { // ✅ Fix parameter name
+        if (response.success) {
+            inputField.val(quantity);
 
-            if (response.success) {
-                inputField.val(quantity); // ✅ Update input field
+            let row = inputField.closest("tr");
+            let price = parseFloat(row.find(".fw-medium.text-main-color").text().replace("$", ""));
+            let subtotal = (price * quantity).toFixed(2);
+            row.find(".subtotal").text("$" + subtotal);
 
-                // ✅ Find row and update subtotal
-                let row = inputField.closest("tr");
-                let price = parseFloat(row.find(".fw-medium.text-main-color").text().replace("$", ""));
-                let subtotal = (price * quantity).toFixed(2);
-                row.find(".subtotal").text("$" + subtotal); // ✅ Update subtotal
+            updateCart(response); // ✅ Update Cart Drawer Instantly
+        } else {
+            alert(response.message);
+        }
+    }).fail(function () {
+        alert("Error updating quantity. Please try again!");
+    });
+}
 
-                updateCart(response); // ✅ Update total price and cart count
-            } else {
-                alert(response.message);
-            }
-        }).fail(function () {
-            alert("Error updating quantity. Please try again!");
-        });
-    }
+
 
 
         // ✅ Function to update cart total
-          function updateCart(cartData) {
+       function updateCart(cartData) {
         if (!cartData || !cartData.cartItems) {
             console.error("Invalid cart data:", cartData);
             return;
         }
 
-        let totalPrice = cartData.totalPrice ?? 0; // ✅ Ensure totalPrice is not undefined
-        $("#cart-total").text("$" + totalPrice.toFixed(2)); // ✅ Update total cart price
-        $("#cart-subtotal").text("$" + totalPrice.toFixed(2)); // ✅ Update subtotal
+        let totalPrice = cartData.totalPrice ?? 0;
+        let totalItems = cartData.cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
-        let cartItemsHtml = "";
+        // ✅ Update Cart Subtotal & Total in Main Cart Section
+        $("#cart-total").text("$" + totalPrice.toFixed(2));
+        $("#cart-subtotal").text("$" + totalPrice.toFixed(2));
+
+        // ✅ Update Cart Count in Header
+        $(".cart-item").text(totalItems);
+        $(".cart-amount").text("$" + totalPrice.toFixed(2));
+
+        // ✅ Ensure Cart Drawer is Reset Properly
+        let cartList = $(".cart-list");
+        cartList.empty(); // ✅ Clear cart before adding new items
+
         cartData.cartItems.forEach(item => {
-            let itemPrice = item.price ?? 0; // ✅ Ensure item price is valid
-            let subtotal = (itemPrice * item.quantity).toFixed(2); // ✅ Calculate subtotal
+            let itemPrice = item.price ?? 0;
+            let subtotal = (itemPrice * item.quantity).toFixed(2);
 
-            cartItemsHtml += `
-                <tr data-product-id="${item.id}">
-                    <td>
-                        <div class="d-flex align-items-center gap-4 product-box">
-                            <button type="button" class="remove_product" data-product-id="${item.id}">
-                                <i class="fas fa-close"></i>
-                            </button>
-                            <div class="feature-image light-bg">
-                                <img src="${item.imageUrl}" class="img-fluid" alt="${item.name}">
-                            </div>
-                            <div>
-                                <span class="fs-sm text-uppercase secondary-text-color d-block">${item.name}</span>
-                                <a href="#" class="product-title h6 mt-2 d-block">${item.name}</a>
-                            </div>
-                        </div>
-                    </td>
-                    <td><span class="fw-medium text-main-color">$${itemPrice.toFixed(2)}</span></td>
-                    <td>
-                        <div class="quantity d-flex align-items-center">
-                            <input type="number" class="quantity-input" value="${item.quantity}" min="1">
-                            <div class="step-btns">
-                                <button class="increment" data-product-id="${item.id}">
-                                    <i class="fa-solid fa-angle-up"></i>
-                                </button>
-                                <button class="decrement" data-product-id="${item.id}">
-                                    <i class="fa-solid fa-angle-down"></i>
-                                </button>
+            let cartItemHTML = `
+                <li class="d-flex align-items-center gap-4 flex-wrap flex-sm-nowrap cart-item-container" data-product-id="${item.id}">
+                    <div class="feature-image light-bg">
+                        <img src="${item.imageUrl}" alt="${item.name}" class="cart-item-img img-fluid">
+                    </div>
+                    <div class="d-flex justify-content-between gap-3 w-100">
+                        <div>
+                            <a href="#"><h6 class="mb-1">${item.name}</h6></a>
+                            <span class="price fw-medium secondary-text-color d-block mb-1 fs-sm">$${subtotal}</span>
+                            <div class="quantity d-flex align-items-center">
+                                <input type="text" value="${item.quantity}" readonly>
+                                <div class="step-btns">
+                                    <button class="increment" data-id="${item.id}"><i class="fa-solid fa-angle-up"></i></button>
+                                    <button class="decrement" data-id="${item.id}"><i class="fa-solid fa-angle-down"></i></button>
+                                </div>
                             </div>
                         </div>
-                    </td>
-                    <td><span class="text-main-color fw-medium d-block text-end subtotal">$${subtotal}</span></td>
-                </tr>
+                        <div>
+                            <a href="javascript:void(0)" class="close remove-item" data-id="${item.id}"><i class="fas fa-xmark"></i></a>
+                        </div>
+                    </div>
+                </li>
             `;
+            cartList.append(cartItemHTML); // ✅ Ensure consistent structure
         });
 
-        $("#cartItemsTable tbody").html(cartItemsHtml); // ✅ Update cart table content
+        // ✅ Reapply styles after updating cart drawer
+        applyCartDrawerStyles();
     }
+
+        function applyCartDrawerStyles() {
+        $(".cart-item-img").css({
+            "width": "50px",  // ✅ Keep image size fixed
+            "height": "auto",
+            "object-fit": "cover"
+        });
+
+        $(".cart-list li").css({
+            "display": "flex",
+            "align-items": "center",
+            "justify-content": "space-between"
+        });
+
+        console.log("Cart styles reapplied!"); // ✅ Debugging (Check in console)
+    }
+
+
+
 });
 </script>
 
@@ -308,5 +317,7 @@ $(document).ready(function () {
     .quantity-input {
         -moz-appearance: textfield;
     }
+
+
 
 </style>

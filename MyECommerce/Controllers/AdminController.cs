@@ -7,6 +7,10 @@ using MyECommerce.Data;
 using MyECommerce.Models;
 using System.Linq;
 using System.Threading.Tasks;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
+
+
 
 namespace MyECommerce.Controllers
 {
@@ -107,17 +111,20 @@ namespace MyECommerce.Controllers
 
         // ✅ Delete Order
         [HttpPost]
-        public IActionResult DeleteOrder(int id)
+        public async Task<IActionResult> DeleteOrder(int id)
         {
-            var order = _context.Orders.Find(id);
-            if (order != null)
+            var order = await _context.Orders.FindAsync(id);
+            if (order == null)
             {
-                _context.Orders.Remove(order);
-                _context.SaveChanges();
+                return Json(new { success = false, message = "Order not found." });
             }
 
-            return RedirectToAction("OrderIndex");
+            _context.Orders.Remove(order);
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true, message = "Order deleted successfully!" });
         }
+
 
         public async Task<IActionResult> ManageProducts(string search, int? categoryId)
         {
@@ -208,12 +215,14 @@ namespace MyECommerce.Controllers
 
             if (!string.IsNullOrEmpty(search))
             {
-                users = users.Where(u => u.Name.Contains(search) || u.Email.Contains(search));
+                users = users.Where(u => u.Name.Contains(search) || u.Email!.Contains(search));
             }
 
             var userList = await users.ToListAsync();
             return View(userList);
         }
+
+
 
         // ✅ Assign or Remove Admin Role
         [HttpPost]
@@ -227,6 +236,84 @@ namespace MyECommerce.Controllers
 
             return Json(new { success = true, message = "User role updated successfully!" });
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GenerateInvoice(int id)
+        {
+            var order = await _context.Orders
+                .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Product)
+                .FirstOrDefaultAsync(o => o.Id == id);
+
+            if (order == null)
+            {
+                return NotFound("Order not found.");
+            }
+
+            byte[] pdfBytes = GenerateInvoicePdf(order);
+
+            return File(pdfBytes, "application/pdf", $"Invoice_{order.Id}.pdf");
+        }
+
+        private byte[] GenerateInvoicePdf(Order order)
+        {
+            using (MemoryStream memoryStream = new MemoryStream())
+            {
+                Document document = new Document(PageSize.A4);
+                PdfWriter writer = PdfWriter.GetInstance(document, memoryStream);
+                document.Open();
+
+                // ✅ Define Colors and Fonts for iText 5
+                BaseColor blackColor = new BaseColor(0, 0, 0); // RGB for black
+                BaseColor lightGray = new BaseColor(211, 211, 211);
+
+                Font titleFont = FontFactory.GetFont("Helvetica", 16, Font.BOLD, blackColor);
+                Font detailsFont = FontFactory.GetFont("Helvetica", 12, Font.NORMAL, blackColor);
+
+                // ✅ Add Title
+                Paragraph title = new Paragraph("Order Invoice", titleFont)
+                {
+                    Alignment = Element.ALIGN_CENTER,
+                    SpacingAfter = 20
+                };
+                document.Add(title);
+
+                // ✅ Add Order Details
+                document.Add(new Paragraph($"Invoice ID: {order.Id}", detailsFont));
+                document.Add(new Paragraph($"Customer Name: {order.FullName}", detailsFont));
+                document.Add(new Paragraph($"Email: {order.Email}", detailsFont));
+                document.Add(new Paragraph($"Order Date: {order.OrderDate:yyyy-MM-dd}", detailsFont));
+                document.Add(new Paragraph($"Total Amount: ₹{order.TotalAmount}", detailsFont));
+                document.Add(new Paragraph("--------------------------------------------------------"));
+
+                // ✅ Add Table for Order Items
+                PdfPTable table = new PdfPTable(3) { WidthPercentage = 100 };
+                table.SetWidths(new float[] { 50f, 20f, 30f });
+
+                // ✅ Table Headers with Light Gray Background
+                table.AddCell(new PdfPCell(new Phrase("Product Name", titleFont)) { BackgroundColor = lightGray });
+                table.AddCell(new PdfPCell(new Phrase("Quantity", titleFont)) { BackgroundColor = lightGray });
+                table.AddCell(new PdfPCell(new Phrase("Price", titleFont)) { BackgroundColor = lightGray });
+
+                foreach (var item in order.OrderItems)
+                {
+                    table.AddCell(new PdfPCell(new Phrase(item.Product?.Name ?? "N/A", detailsFont)));
+                    table.AddCell(new PdfPCell(new Phrase(item.Quantity.ToString(), detailsFont)));
+                    table.AddCell(new PdfPCell(new Phrase($"₹{item.Price}", detailsFont)));
+                }
+
+                document.Add(table);
+
+                document.Close();
+                writer.Close();
+
+                return memoryStream.ToArray();
+            }
+        }
+
+
+
+
 
 
 

@@ -341,7 +341,10 @@
                             </button>
                         </form>
 
-                        <a href="#" class="pd-wishlist-btn text-uppercase mt-30"><i class="fa-regular fa-heart"></i> Add to Wishlist</a>
+                        <!-- ✅ Add to Wishlist Button in Modal -->
+                        <a href="javascript:void(0)" class="pd-wishlist-btn text-uppercase mt-30 add-to-wishlist-modal" data-product-id="">
+                            <i class="fa-regular fa-heart"></i> Add to Wishlist
+                        </a>
                     </div>
                 </div>
             </div>
@@ -386,6 +389,9 @@
             $("#modalProductPrice").text("$" + productPrice);
             $("#modalProductImage").attr("src", productImage);
             $("#modalProductDescription").text(productDescription);
+
+                 // Populate the "Add to Wishlist" button with the product ID
+        $(".add-to-wishlist-modal").attr("data-product-id", productId);
 
             // Reset quantity to 1
             $("#modalProductQuantity").val(1);
@@ -519,188 +525,44 @@
 
 
         // ✅ Handle Add to Wishlist
-        $(document).on("click", ".add-to-wishlist", function (event) {
-            event.preventDefault();
+        $(document).on("click", ".add-to-wishlist, .add-to-wishlist-modal", function (event) {
+            event.preventDefault(); // Prevent default link behavior
 
-            let productId = $(this).data("product-id");
+            let productId = $(this).data("product-id"); // Get the product ID
+            console.log("Product ID:", productId); // Debug: Log the product ID
 
+            // Send an AJAX request to add the product to the wishlist
             $.post("/Wishlist/AddToWishlist", { productId: productId }, function (response) {
+                console.log("Response:", response); // Debug: Log the response
                 if (response.success) {
-                    alert(response.message); // ✅ Show success message
-                    updateWishlistCount(); // ✅ Update wishlist count
+                    alert(response.message); // Show success message
+                    updateWishlistCount(); // Update wishlist count dynamically
                 } else {
-                    alert(response.message || "Something went wrong!");
+                    alert(response.message || "Something went wrong!"); // Show error message
                 }
-            }).fail(function () {
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.error("AJAX Error:", textStatus, errorThrown); // Debug: Log AJAX errors
                 alert("Error adding product to wishlist. Please try again!");
             });
         });
+
+        // ✅ Function to update wishlist count in the header
+        function updateWishlistCount() {
+            $.get("/Wishlist/GetWishlistCount", function (response) {
+                console.log("Wishlist Count Response:", response); // Debug: Log the response
+                if (response.success) {
+                    $(".wishlist-item-count").text(response.count); // Update wishlist count
+                }
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.error("AJAX Error:", textStatus, errorThrown); // Debug: Log AJAX errors
+            });
+        }
 
     });
 
 
 </script>
 
-@* 
-<script>
-    $(document).ready(function () {
-        updateCartCount();
-        fetchCartItems();// ✅ Load cart count on page load
-
-        // ✅ Function to update cart count in header
-        function updateCartCount() {
-            $.get("/ShoppingCart/GetCartCount", function (response) {
-                $(".cart-item").text(response.count); // ✅ Update cart icon count
-                $(".cart-amount").text("$" + response.totalPrice.toFixed(2)); // ✅ Update cart total price
-            });
-        }
-            $(".cart-drawer").on("click", function () {
-        fetchCartItems();
-    });
-
-     function fetchCartItems() {
-        $.get("/ShoppingCart/GetCartItems", function (response) {
-            if (response.success) {
-                updateCartDrawer(response.cartItems, response.totalPrice); // ✅ Update cart drawer with items
-            }
-        }).fail(function () {
-            console.error("Failed to fetch cart items.");
-        });
-    }
-
-        // ✅ Click event for "Add to Cart" (Prevents Redirect)
-      $(document).on("click", ".add-to-cart", function (event) {
-        event.preventDefault(); // ✅ Prevent default link behavior
-
-        let productId = $(this).data("id");
-
-        $.post("/ShoppingCart/AddToCart", { productId: productId }, function (response) {
-            if (response.success) {
-                alert(response.message); // ✅ Show "Added to cart!"
-                updateCartDrawer(response.cartItems, response.totalPrice); // ✅ Update cart drawer
-                $(".cart-drawer").addClass("open"); // ✅ Open the cart drawer
-            } else {
-                alert(response.message || "Something went wrong!"); // ✅ Proper fallback message
-            }
-        }).fail(function () {
-            alert("Error adding product to cart. Please try again!"); // ✅ Handle AJAX errors
-        });
-    });
-
-    // ✅ Function to update the cart drawer dynamically
-    function updateCartDrawer(cartItems, totalPrice) {
-        let cartList = $(".cart-list");
-        let cartCount = $("#cart-count");
-        let totalAmount = $("#cart-total");
-
-        cartList.empty(); // ✅ Clear previous items
-
-        if (cartItems.length === 0) {
-            cartList.append("<li class='text-center py-3'>Your cart is empty</li>");
-            cartCount.text("0");
-            totalAmount.text("$0.00");
-            return;
-        }
-
-        cartCount.text(cartItems.length); // ✅ Update item count in cart header
-        totalAmount.text("$" + totalPrice.toFixed(2)); // ✅ Update total price
-
-        cartItems.forEach(item => {
-            let itemPrice = item.price * item.quantity;
-
-            let cartItemHTML = `
-                <li class="d-flex align-items-center gap-3">
-                    <div class="feature-image light-bg">
-                        <a href="#"><img src="${item.imageUrl}" alt="${item.name}" class="img-fluid"></a>
-                    </div>
-                    <div class="d-flex justify-content-between gap-3 w-100">
-                        <div>
-                            <a href="#"><h6 class="mb-1">${item.name}</h6></a>
-                            <span class="price fw-medium secondary-text-color d-block mb-1 fs-sm">$${itemPrice.toFixed(2)}</span>
-                            <div class="quantity d-flex align-items-center">
-                                <input type="text" value="${item.quantity}" readonly>
-                                <div class="step-btns">
-                                    <button class="increment" data-id="${item.id}"><i class="fa-solid fa-angle-up"></i></button>
-                                    <button class="decrement" data-id="${item.id}"><i class="fa-solid fa-angle-down"></i></button>
-                                </div>
-                            </div>
-                        </div>
-                        <div>
-                            <a href="javascript:void(0)" class="close remove-item" data-id="${item.id}"><i class="fas fa-xmark"></i></a>
-                        </div>
-                    </div>
-                </li>
-            `;
-            cartList.append(cartItemHTML);
-        });
-    }
-
-
-
-     $(document).on("click", ".remove-from-cart", function () {
-        var productId = $(this).data("product-id");
-
-        $.post("/ShoppingCart/RemoveFromCart", { productId: productId }, function (response) {
-            if (response.success) {
-                alert(response.message); // ✅ Show success message
-                updateCartDrawer(response.cartItems, response.totalPrice); // ✅ Update UI dynamically
-            } else {
-                alert("Error: " + response.message); // ✅ Show error only if needed
-            }
-        }).fail(function () {
-            alert("Error removing product from cart. Please try again!"); // ✅ Handle failure case
-        });
-    });
-
-
-        // ✅ Increment & Decrement Quantity
-        $(document).on("click", ".increment", function () {
-            let productId = $(this).data("id");
-
-            $.post("/ShoppingCart/IncreaseQuantity", { productId: productId }, function (response) {
-                if (response.success) {
-                    updateCartDrawer(); // ✅ Refresh cart UI
-                }
-            });
-        });
-
-        $(document).on("click", ".decrement", function () {
-            let productId = $(this).data("id");
-
-            $.post("/ShoppingCart/DecreaseQuantity", { productId: productId }, function (response) {
-                if (response.success) {
-                    updateCartDrawer(); // ✅ Refresh cart UI
-                }
-            });
-        });
-
-        // ✅ Close Cart Drawer
-        $(".drawer-close").click(function () {
-            $(".cart-drawer").removeClass("open");
-        });
-            $(document).on("click", ".remove-item", function (event) {
-        event.preventDefault(); // ✅ Prevent default link behavior
-
-        let productId = $(this).data("id");
-
-        $.post("/ShoppingCart/RemoveFromCart", { productId: productId }, function (response) {
-            if (response.success) {
-                alert(response.message); // ✅ Show "Item removed from cart!"
-                updateCartDrawer(response.cartItems, response.totalPrice); // ✅ Update cart drawer
-            } else {
-                alert(response.message || "Something went wrong!"); // ✅ Proper fallback message
-            }
-        }).fail(function () {
-            alert("Error removing product from cart. Please try again!"); // ✅ Handle AJAX errors
-        });
-    });
-
-    });
-
-
-
-
-</script> *@
 
 <style>
 

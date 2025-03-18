@@ -23,7 +23,13 @@
 
 
 </head>
-<body>
+
+<body class="@((ViewContext.RouteData.Values["Controller"]?.ToString() ?? "") == "Home"
+            && (ViewContext.RouteData.Values["Action"]?.ToString() ?? "") == "Index"
+            ? "home-page" : "other-page")">
+
+
+
 
 
     <!--preloader start-->
@@ -86,98 +92,9 @@
                         <nav class="header-navigation text-center text-xl-start">
                             <ul>
                                 <li><a asp-controller="Home" asp-action="Index">Home</a></li>
-                                <li><a asp-controller="Shop" asp-action="Index">Shop</a></li> 
-                                <li class="fullwidth-megamenu">
-                                    <a href="javascript:void(0)">Shop <i class="fas fa-angle-down"></i></a>
-                                    <div class="megamenu-3">
-                                        <div class="row">
-                                            <div class="col-xl-2">
-                                                <div class="megamenu-column">
-                                                    <h6 class="mb-4">Shop Pages</h6>
-                                                    <ul class="menu-list">
-                                                        <li><a href="#">Filters area</a></li>
-                                                        <li><a href="#">Hidden sidebar<span class="hot-badge">Hot</span></a></li>
-                                                        <li><a href="#">No page heading</a></li>
-                                                        <li><a href="#">Small categories menu</a></li>
-                                                        <li><a href="#">Masonry grid</a></li>
-                                                        <li><a href="#">With background</a></li>
-                                                        <li><a href="#">Category description</a></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                            <div class="col-xl-2">
-                                                <div class="megamenu-column">
-                                                    <h6 class="mb-4">Product Hovers</h6>
-                                                    <ul class="menu-list">
-                                                        <li><a href="#">Summary on hover</a></li>
-                                                        <li><a href="#">Icons on hover</a></li>
-                                                        <li><a href="#">Icons & Add to cart</a></li>
-                                                        <li><a href="#">Full info on image <span class="new-badge">New</span></a></li>
-                                                        <li><a href="#">All Info on hover</a></li>
-                                                        <li><a href="#">Button on image</a></li>
-                                                        <li><a href="#">Standard button</a></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                            <div class="col-xl-2">
-                                                <div class="megamenu-column">
-                                                    <h6 class="mb-4">Product Pages</h6>
-                                                    <ul class="menu-list">
-                                                        <li><a href="shop.html">Shop page</a></li>
-                                                        <li><a href="shop-list.html">Shop list</a></li>
-                                                        <li><a href="product-details.html">Product details</a></li>
-                                                        <li><a href="product-details-v2.html">Product Details 2</a></li>
-                                                        <li><a href="product-details-v3.html">Product Details 3</a></li>
-                                                        <li><a href="#">Massonry Product</a></li>
-                                                        <li><a href="#">Product Slider</a></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                            <div class="col-xl-2">
-                                                <div class="megamenu-column">
-                                                    <h6 class="mb-4">Product Image</h6>
-                                                    <ul class="menu-list">
-                                                        <li><a href="#">Filters area</a></li>
-                                                        <li><a href="#">Hidden sidebar</a></li>
-                                                        <li><a href="#">No page heading <span class="feature-badge">Featured</span></a></li>
-                                                        <li><a href="#">Small categories menu</a></li>
-                                                        <li><a href="#">Masonry grid</a></li>
-                                                        <li><a href="#">With background</a></li>
-                                                        <li><a href="#">Category description</a></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                            <div class="col-xl-2">
-                                                <div class="megamenu-column">
-                                                    <h6 class="mb-4">Features</h6>
-                                                    <ul class="menu-list">
-                                                        <li><a href="#">Filters area</a></li>
-                                                        <li><a href="#">Hidden sidebar</a></li>
-                                                        <li><a href="#">No page heading</a></li>
-                                                        <li><a href="#">Small categories menu</a></li>
-                                                        <li><a href="#">Masonry grid</a></li>
-                                                        <li><a href="#">With background</a></li>
-                                                        <li><a href="#">Category description</a></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                            <div class="col-xl-2">
-                                                <div class="megamenu-column">
-                                                    <h6 class="mb-4">Shop Pages</h6>
-                                                    <ul class="menu-list">
-                                                        <li><a href="shop.html">Shop page</a></li>
-                                                        <li><a href="shop-list.html">Shop list</a></li>
-                                                        <li><a href="product-details.html">Product details</a></li>
-                                                        <li><a href="product-details-v2.html">Product Details 2</a></li>
-                                                        <li><a href="product-details-v3.html">Product Details 3</a></li>
-                                                        <li><a href="#">Massonry Product</a></li>
-                                                        <li><a href="#">Product Slider</a></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
+                                <li><a asp-controller="Shop" asp-action="Index">Shop</a></li>
+                                <li><a asp-controller="ShoppingCart" asp-action="Index">Cart</a></li>
+                                
                                 <li class="has-submenu">
                                     <a href="javascript:void(0)">Products</a>
                                     <ul class="submenu-wrapper">
@@ -304,7 +221,6 @@
     </div>
     <!--mobile menu end-->
     <!--cart drawer start-->
-    <!--cart drawer start-->
     <div class="cart-drawer position-fixed">
         <div class="drawer-close d-flex align-items-center justify-content-between position-absolute start-0 top-0 w-100 px-4 py-4 border-bottom">
             <h6 class="mb-0 fw-medium">Your Cart (<span id="cart-count">0</span>)</h6>
@@ -317,13 +233,7 @@
             <div class="d-flex align-items-center justify-content-between">
                 <h6 class="mb-0">Total:</h6>
                 <span id="cart-total" class="fw-semibold text-main-color">$0.00</span>
-            </div>
-            <div class="progress-line">
-                <div class="progress-fill">
-                    <span>0%</span>
-                </div>
-            </div>
-            <p class="mt-4 fs-sm">Spend <span class="text-main-color">$125.00</span> to reach <span class="text-main-color">Free Shipping</span></p>
+            </div> 
             <a href="/ShoppingCart/Index" class="template-btn primary-btn text-uppercase fw-semibold w-100 text-center mt-4"><span>View Cart</span></a>
             <a asp-controller="Order" asp-action="Checkout" class="template-btn outline-btn text-uppercase fw-semibold w-100 text-center mt-3">Checkout</a>
 
@@ -489,6 +399,24 @@
         updateCartCount();
         fetchCartItems();// ✅ Load cart count on page load
         updateWishlistCount();
+
+         let header = $(".header-section");
+
+    // ✅ If NOT on the Home page, apply background color immediately
+    if (!$("body").hasClass("home-page")) {
+        header.removeClass("bg-transparent").addClass("bg-red"); // ✅ Use bg-red or your preferred color
+    }
+
+    // ✅ Handle scrolling behavior
+    $(window).on("scroll", function () {
+        if ($(window).scrollTop() > 50) {
+            header.addClass("bg-red shadow"); // ✅ Apply shadow on scroll
+        } else {
+            if ($("body").hasClass("home-page")) {
+                header.removeClass("bg-red shadow").addClass("bg-transparent"); // ✅ Keep transparent only on home page
+            }
+        }
+    });
 
         // ✅ Function to update cart count in header
             function updateCartCount() {
@@ -684,6 +612,18 @@
         position: relative;
         display: inline-block;
     }
+
+    .other-page .header-section {
+        background-color: #6B1717 !important; /* ✅ Set background for other pages */
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        transition: background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    }
+
+    .home-page .header-section {
+        background-color: transparent !important; /* ✅ Home page remains transparent */
+    }
+
+
 
     /* Wishlist badge styling */
     .wishlist-count-badge {

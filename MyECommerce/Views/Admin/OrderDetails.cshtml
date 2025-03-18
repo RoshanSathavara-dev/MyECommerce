@@ -5,35 +5,78 @@
     ViewData["Title"] = "Order Details";
 }
 
-<h2>Order Details - #@Model.Id</h2>
+<section class="admin-order-details bg-white ptb-120">
+    <div class="container">
+        <h2 class="mb-4">🛒 Order Details - #@Model.Id</h2>
 
-<p><strong>Customer:</strong> @Model.FullName</p>
-<p><strong>Email:</strong> @Model.Email</p>
-<p><strong>Phone:</strong> @Model.Phone</p>
-<p><strong>Total Amount:</strong> $@Model.TotalAmount</p>
-<p><strong>Status:</strong> @Model.Status</p>
-<p><strong>Order Date:</strong> @Model.OrderDate.ToString("yyyy-MM-dd")</p>
+        <!-- ✅ Customer Information -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h4 class="card-title">Customer Information</h4>
+                <p><strong>Name:</strong> @Model.FullName</p>
+                <p><strong>Email:</strong> @Model.Email</p>
+                <p><strong>Phone:</strong> @Model.Phone</p>
+            </div>
+        </div>
 
-<h3>Ordered Items</h3>
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Product</th>
-            <th>Quantity</th>
-            <th>Price</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.OrderItems)
-        {
-            <tr>
-                <td>@(item.Product?.Name ?? "Unknown Product")</td> <!-- ✅ Display Product Name -->
-                <td>@item.Quantity</td>
-                <td>$@item.Price</td>
-            </tr>
-        }
-    </tbody>
-</table>
+        <!-- ✅ Shipping Address -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h4 class="card-title">Shipping Address</h4>
+                <p><strong>Street:</strong> @Model.Address</p>
+                <p><strong>City:</strong> @Model.City</p>
+                <p><strong>State:</strong> @Model.State</p>
+                <p><strong>Pin Code:</strong> @Model.PinCode</p>
+            </div>
+        </div>
 
+        <!-- ✅ Order Summary -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h4 class="card-title">Order Information</h4>
+                <p><strong>Order ID:</strong> #@Model.Id</p>
+                <p><strong>Order Date:</strong> @Model.OrderDate.ToString("yyyy-MM-dd")</p>
+                <p><strong>Status:</strong> <span class="badge bg-success">@Model.Status</span></p>
+                <p><strong>Payment Method:</strong> @Model.PaymentMethod</p>
+                <p><strong>Total Amount:</strong> <span class="fw-bold text-primary">$@Model.TotalAmount</span></p>
+            </div>
+        </div>
 
-<a href="@Url.Action("OrderIndex", "Admin")" class="btn btn-secondary">Back to Orders</a>
+        <!-- ✅ Ordered Items -->
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">Ordered Items</h4>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Image</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.OrderItems)
+                        {
+                            <tr>
+                                <td>@(item.Product?.Name ?? "Unknown Product")</td>
+                                <td>
+                                    <img src="@item.Product?.ImageUrl" alt="@item.Product?.Name" width="50" height="50">
+                                </td>
+                                <td>@item.Quantity</td>
+                                <td>$@item.Price</td>
+                                <td>$@(item.Price * item.Quantity)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ✅ Back to Orders -->
+        <div class="mt-4">
+            <a href="@Url.Action("OrderIndex", "Admin")" class="btn btn-secondary">Back to Orders</a>
+        </div>
+    </div>
+</section>

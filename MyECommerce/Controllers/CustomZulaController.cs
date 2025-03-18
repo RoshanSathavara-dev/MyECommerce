@@ -42,7 +42,7 @@ namespace MyECommerce.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CustomZula model, IFormFile? imageFile)
         {
-            if (!User.Identity.IsAuthenticated)
+            if (User?.Identity == null || !User.Identity.IsAuthenticated)
             {
                 return BadRequest(new { success = false, message = "You must be logged in to submit a request!" });
             }

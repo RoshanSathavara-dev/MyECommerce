@@ -26,16 +26,33 @@
 
                     <div id="loginFields">
                         <input type="text" id="EmailOrContact" placeholder="User name or email address*" class="theme-input" required>
-                        <button type="button" id="sendOtpButton" class="template-btn primary-btn w-100 mt-32"><span>Send OTP</span></button>
+
+                        <!-- Send OTP Button -->
+                        <button type="button" id="sendOtpButton" class="template-btn primary-btn w-100 mt-32">
+                            <span>Send OTP</span>
+                        </button>
                     </div>
 
+                    <!-- OTP Section (Initially Hidden) -->
                     <div id="otpSection" style="display: none;">
                         <input type="text" id="OTP" placeholder="Enter OTP*" class="theme-input mt-3" required>
-                        <button type="button" id="verifyLoginOtpButton" class="template-btn primary-btn w-100 mt-32"><span>Verify OTP</span></button>
+
+                        <!-- Verify OTP Button -->
+                        <button type="button" id="verifyOtpButton" class="template-btn primary-btn w-100 mt-32">
+                            <span>Verify OTP</span>
+                        </button>
+
+                        <!-- Resend OTP Button (Initially Disabled) -->
+                        <button type="button" id="resendOtpButton" class="template-btn secondary-btn w-100 mt-3" disabled>
+                            <span>Resend OTP</span>
+                        </button>
+
+                        <!-- Timer Display -->
+                        <p id="otpTimer" class="text-danger mt-2"></p>
                     </div>
 
                     <p class="mb-0 mt-32">Not registered yet? <a href="Register" class="text-main-color">Create an Account</a></p>
-                </form> 
+                </form>
             </div>
         </div>
     </div>
@@ -43,54 +60,124 @@
 <!--login area end-->
 
 <script>
-    document.getElementById("sendOtpButton").addEventListener("click", function () {
-        var emailOrContact = document.getElementById("EmailOrContact").value.trim();
-        var returnUrl = document.getElementById("returnUrl").value; // ✅ Get returnUrl
+    document.addEventListener("DOMContentLoaded", function () {
+        var sendOtpButton = document.getElementById("sendOtpButton");
+        var verifyOtpButton = document.getElementById("verifyOtpButton");
+        var resendOtpButton = document.getElementById("resendOtpButton");
+        var emailOrContactInput = document.getElementById("EmailOrContact");
+        var otpInput = document.getElementById("OTP");
+        var otpSection = document.getElementById("otpSection");
+        var otpTimer = document.getElementById("otpTimer");
 
-        if (!emailOrContact) {
-            alert("Please enter your Email or Contact No.");
-            return;
-        }
+        // ✅ Send OTP Click Event
+        sendOtpButton.addEventListener("click", function () {
+            var emailOrContact = emailOrContactInput.value.trim();
+            var returnUrl = document.getElementById("returnUrl") ? document.getElementById("returnUrl").value : "/";
 
-        fetch('/Account/SendLoginOtp', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: new URLSearchParams({ EmailOrContact: emailOrContact, returnUrl: returnUrl }) // ✅ Pass returnUrl
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert("OTP sent successfully!");
-                document.getElementById("loginFields").style.display = "none";
-                document.getElementById("otpSection").style.display = "block";
-            } else {
-                alert("Failed to send OTP: " + data.message);
+            if (!emailOrContact) {
+                alert("Please enter your Email or Contact No.");
+                return;
             }
+
+            fetch('/Account/SendLoginOtp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ EmailOrContact: emailOrContact, returnUrl: returnUrl })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("OTP sent successfully!");
+
+                    // ✅ Show OTP Section
+                    otpSection.style.display = "block";
+
+                    // ✅ Hide Send OTP Button
+                    sendOtpButton.style.display = "none";
+
+                    // ✅ Make Email Field Read-Only
+                    emailOrContactInput.readOnly = true;
+
+                    // ✅ Start Timer for Resend OTP
+                    startOtpResendTimer(resendOtpButton, otpTimer, 60);
+                } else {
+                    alert("Failed to send OTP: " + data.message);
+                }
+            });
         });
-    });
 
-    document.getElementById("verifyLoginOtpButton").addEventListener("click", function () {
-        var otp = document.getElementById("OTP").value.trim();
-        var emailOrContact = document.getElementById("EmailOrContact").value.trim();
-        var returnUrl = document.getElementById("returnUrl").value; // ✅ Get returnUrl
+        // ✅ Verify OTP Click Event
+        verifyOtpButton.addEventListener("click", function () {
+            var otp = otpInput.value.trim();
+            var emailOrContact = emailOrContactInput.value.trim();
+            var returnUrl = document.getElementById("returnUrl") ? document.getElementById("returnUrl").value : "/";
 
-        if (!otp) {
-            alert("Please enter the OTP.");
-            return;
-        }
-
-        fetch('/Account/VerifyLoginOtp', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: new URLSearchParams({ otp: otp, EmailOrContact: emailOrContact, returnUrl: returnUrl }) // ✅ Pass returnUrl
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                window.location.href = data.redirectUrl; // ✅ Redirect to the correct page
-            } else {
-                alert("Invalid OTP: " + data.message);
+            if (!otp) {
+                alert("Please enter the OTP.");
+                return;
             }
+
+            fetch('/Account/VerifyLoginOtp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ otp: otp, EmailOrContact: emailOrContact, returnUrl: returnUrl })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = data.redirectUrl; // ✅ Redirect to correct page
+                } else {
+                    alert("Invalid OTP: " + data.message);
+                }
+            });
         });
+
+        // ✅ Resend OTP Click Event
+        resendOtpButton.addEventListener("click", function () {
+            var emailOrContact = emailOrContactInput.value.trim();
+            var returnUrl = document.getElementById("returnUrl") ? document.getElementById("returnUrl").value : "/";
+
+            if (!emailOrContact) {
+                alert("Please enter your Email or Contact No.");
+                return;
+            }
+
+            fetch('/Account/SendLoginOtp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ EmailOrContact: emailOrContact, returnUrl: returnUrl })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("New OTP sent successfully!");
+
+                    // ✅ Disable Resend OTP Button and Start Timer Again
+                    startOtpResendTimer(resendOtpButton, otpTimer, 60);
+                } else {
+                    alert("Failed to resend OTP: " + data.message);
+                }
+            });
+        });
+
+        // ✅ Function to start the resend timer
+        function startOtpResendTimer(button, timerElement, seconds) {
+            let remainingTime = seconds;
+
+            button.disabled = true; // ✅ Disable the button while timer is running
+
+            function updateTimer() {
+                if (remainingTime > 0) {
+                    timerElement.innerHTML = `Resend OTP in ${remainingTime}s`;
+                    remainingTime--;
+                    setTimeout(updateTimer, 1000);
+                } else {
+                    button.disabled = false;
+                    timerElement.innerHTML = "";
+                }
+            }
+
+            updateTimer();
+        }
     });
 </script>
