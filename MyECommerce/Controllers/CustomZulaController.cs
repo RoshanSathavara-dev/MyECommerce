@@ -42,20 +42,8 @@ namespace MyECommerce.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CustomZula model, IFormFile? imageFile)
         {
-            if (User?.Identity == null || !User.Identity.IsAuthenticated)
-            {
-                return BadRequest(new { success = false, message = "You must be logged in to submit a request!" });
-            }
-
-            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userId))
-            {
-                return Unauthorized(new { success = false, message = "User ID not found." });
-            }
-
-            model.UserId = userId;
-
-            ModelState.Remove("UserId");  // ✅ Bypass ModelState validation for UserId
+            // Remove UserId validation for guest requests
+            ModelState.Remove("UserId");
 
             if (!ModelState.IsValid)
             {
@@ -69,6 +57,7 @@ namespace MyECommerce.Controllers
 
             try
             {
+                // Handle image upload
                 if (imageFile != null && imageFile.Length > 0)
                 {
                     string folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "CustomZulaImages");
@@ -88,6 +77,19 @@ namespace MyECommerce.Controllers
                 else
                 {
                     model.ImageUrl = "/CustomZulaImages/default.jpg";
+                }
+
+                // Set UserId for logged-in users
+                if (User?.Identity?.IsAuthenticated == true)
+                {
+                    var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                    model.UserId = userId;
+                    model.IsGuestRequest = false;
+                }
+                else
+                {
+                    model.UserId = null;
+                    model.IsGuestRequest = true; // Mark as guest request
                 }
 
                 model.Status = "Pending";
@@ -177,5 +179,11 @@ namespace MyECommerce.Controllers
 
             return Json(new { success = true });
         }
+
+        public IActionResult Customzulla()
+        {
+            return View();
+        }
+
     }
 }

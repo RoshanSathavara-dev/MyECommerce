@@ -89,7 +89,7 @@
                                             <a href="@Url.Action("Details", "Product", new { id = product.Id })">
                                                 <h6 class="mb-3">@product.Name</h6>
                                             </a>
-                                            <span class="price primary-text-color">$@product.Price</span>
+                                            <span class="price primary-text-color">₹@product.Price</span>
                                         </div>
                                     </li>
                                 }
@@ -163,7 +163,7 @@
                                                 @product?.Description
                                             </p>
 
-                                            <span class="text-main-color fw-bold fs-sm">$@product?.Price</span>
+                                            <span class="text-main-color fw-bold fs-sm">₹@product?.Price</span>
                                         </div>
                                     </div>
                                 </div>
@@ -414,12 +414,12 @@
             max: 50000, // Adjust max price as needed
             values: [0, 50000], // Default price range
             slide: function (event, ui) {
-                $("#amount").val("$" + ui.values[0] + " - $" + ui.values[1]);
+                $("#amount").val("₹" + ui.values[0] + " - ₹" + ui.values[1]);
             }
         });
 
-        $("#amount").val("$" + $(".ur-pricing-range").slider("values", 0) +
-            " - $" + $(".ur-pricing-range").slider("values", 1));
+        $("#amount").val("₹" + $(".ur-pricing-range").slider("values", 0) +
+            " - ₹" + $(".ur-pricing-range").slider("values", 1));
 
         // ✅ Attach event listener to Filter button ONLY for price filtering
         document.querySelector(".submit-btn").addEventListener("click", function (event) {
@@ -517,7 +517,7 @@
                                 <span class="fw-semibold subtitle text-uppercase">${product.categoryName || 'Uncategorized'}</span>
                                 <a href="#"><h6 class="fw-semibold mt-3">${product.name || 'No Name'}</h6></a>
                                 <p class="fs-sm mb-4">${product.description || 'No description'}</p>
-                                <span class="text-main-color fw-bold fs-sm">$${product.price !== null ? product.price : 'N/A'}</span>
+                                <span class="text-main-color fw-bold fs-sm">₹${product.price !== null ? product.price : 'N/A'}</span>
                             </div>
                         </div>
                     </div>
@@ -554,7 +554,7 @@
 
                     document.getElementById("modalProductName").textContent = name;
                     document.getElementById("modalProductImage").src = image;
-                    document.getElementById("modalProductPrice").textContent = "$" + price;
+                    document.getElementById("modalProductPrice").textContent = "₹" + price;
                     document.getElementById("modalProductDescription").textContent = description;
                 });
             });
@@ -571,7 +571,7 @@
     });
 
 
-    </script>
+</script>
 
 
 
@@ -590,7 +590,5 @@
         object-fit: cover; /* Prevents stretching */
         border-radius: 5px; /* Optional: Adds smooth edges */
     }
-
-
-
 </style>
+in this search in not working

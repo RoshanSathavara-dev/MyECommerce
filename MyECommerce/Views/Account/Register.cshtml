@@ -22,7 +22,12 @@
 
                     <!-- OTP Section (Initially Hidden) -->
                     <div id="otpSection" style="display: none;">
-                        <h3 class="mb-40 text-center">Enter OTP</h3>
+                        <div class="d-flex align-items-center mb-3">
+                            <button type="button" id="backButton" class="btn btn-light me-2">
+                                <i class="fas fa-arrow-left"></i> <!-- Back Icon -->
+                            </button>
+                            <h3 class="mb-0 text-center flex-grow-1">Enter OTP</h3>
+                        </div>
 
                         <input type="text" id="otp" name="otp" class="theme-input mt-3" placeholder="Enter OTP" required>
 
@@ -53,10 +58,11 @@
         var sendOtpButton = document.getElementById("sendOtpButton");
         var verifyOtpButton = document.getElementById("verifyOtpButton");
         var resendOtpButton = document.getElementById("resendOtpButton");
+        var backButton = document.getElementById("backButton");
         var otpSection = document.getElementById("otpSection");
         var otpInput = document.getElementById("otp");
         var otpTimer = document.getElementById("otpTimer");
-       var contactNoInput = document.getElementById("ContactNo");
+        var contactNoInput = document.getElementById("ContactNo");
 
         // ✅ Restrict Contact No. to EXACTLY 10 Digits (Only Numbers)
         contactNoInput.addEventListener("input", function () {
@@ -66,7 +72,7 @@
             }
         });
 
-                sendOtpButton.addEventListener("click", function () {
+        sendOtpButton.addEventListener("click", function () {
             var name = document.getElementById("Name").value.trim();
             var email = document.getElementById("Email").value.trim();
             var contactNo = contactNoInput.value.trim();
@@ -119,6 +125,7 @@
             });
         });
 
+
         verifyOtpButton.addEventListener("click", function () {
             var otp = otpInput.value.trim();
 
@@ -153,63 +160,38 @@
             });
         });
 
-    document.getElementById("resendOtpButton").addEventListener("click", function () {
-        var email = document.getElementById("Email").value.trim();
-        var contactNo = document.getElementById("ContactNo").value.trim();
-        var resendOtpButton = document.getElementById("resendOtpButton");
+        // ✅ Handle Back Button Click (FIX: Reset Button Text & Enable)
+        backButton.addEventListener("click", function () {
+            otpSection.style.display = "none"; // Hide OTP Section
+            document.getElementById("Name").style.display = "block";
+            document.getElementById("Email").style.display = "block";
+            contactNoInput.style.display = "block";
+            sendOtpButton.style.display = "block";
 
-        if (!email && !contactNo) {
-            alert("Email or Contact No. is required to resend OTP.");
-            return;
-        }
+            // ✅ Reset Register Button Text & Enable It
+            sendOtpButton.disabled = false;
+            sendOtpButton.innerText = "Register";
 
-        resendOtpButton.disabled = true;
-        resendOtpButton.innerText = "Resending...";
-
-        fetch('/Account/SendOtp', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: new URLSearchParams({ Name: "User", Email: email, ContactNo: contactNo }) // ✅ Ensure Name is sent
-        })
-        .then(response => response.json()) // ✅ Always expect JSON response
-        .then(data => {
-            if (data.success) {
-                alert("New OTP sent successfully!");
-                startOtpResendTimer();
-            } else {
-                alert("Failed to resend OTP: " + data.message);
-                resendOtpButton.disabled = false;
-                resendOtpButton.innerText = "Resend OTP";
-            }
-        })
-        .catch(error => {
-            console.error("Error resending OTP:", error);
-            alert("An unexpected error occurred while resending OTP.");
-            resendOtpButton.disabled = false;
-            resendOtpButton.innerText = "Resend OTP";
+            // Reset OTP input & Timer
+            otpInput.value = "";
+            otpTimer.innerHTML = "";
         });
-    });
-
 
         function startOtpResendTimer() {
-        let remainingTime = 60;
-        resendOtpButton.disabled = true;
-        resendOtpButton.innerText = "Resend OTP"; // ✅ Initially set to "Resending..."
+            let remainingTime = 60;
+            resendOtpButton.disabled = true;
 
-        function updateTimer() {
-            if (remainingTime > 0) {
-                otpTimer.innerHTML = `Resend OTP in ${remainingTime}s`;
-                remainingTime--;
-                setTimeout(updateTimer, 1000);
-            } else {
-                resendOtpButton.disabled = false;
-                resendOtpButton.innerText = "Resend OTP"; // ✅ Reset text after 60 seconds
-                otpTimer.innerHTML = "";
+            function updateTimer() {
+                if (remainingTime > 0) {
+                    otpTimer.innerHTML = `Resend OTP in ${remainingTime}s`;
+                    remainingTime--;
+                    setTimeout(updateTimer, 1000);
+                } else {
+                    resendOtpButton.disabled = false;
+                    otpTimer.innerHTML = "";
+                }
             }
+            updateTimer();
         }
-
-        updateTimer();
-    }
-
     });
 </script>

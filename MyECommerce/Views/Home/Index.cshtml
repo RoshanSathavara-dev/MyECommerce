@@ -1,6 +1,7 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
 }
+
 <!----Hero Section Start--->
 @model MyECommerce.Models.HomeViewModel
 <!--hero section start-->
@@ -33,7 +34,7 @@
                                         <a href="@Url.Action("Details", "Product", new { id = product.Id })">
                                             <h5 class="mb-2">@product.Name</h5>
                                         </a>
-                                        <p class="fw-medium text-main-color mb-4">$@product.Price</p>
+                                        <p class="fw-medium text-main-color mb-4">₹@product.Price</p>
                                         <a href="@Url.Action("Details", "Product", new { id = product.Id })"
                                            class="template-btn primary-btn btn-sm text-uppercase">
                                             View Item
@@ -117,7 +118,7 @@
                                 <a href="@Url.Action("Details", "Product", new { id = product.Id })">
                                     <h5 class="mb-3">@product.Name</h5>
                                 </a>
-                                <span class="fw-medium text-main-color">$@product.Price</span>
+                                <span class="fw-medium text-main-color">₹@product.Price</span>
                             </div>
                         </div>
                     </div>
@@ -194,7 +195,7 @@
                                 <a href="@Url.Action("Details", "Product", new { id = product.Id })">
                                     <h5 class="mb-2">@product.Name</h5>
                                 </a>
-                                <p class="fw-medium text-main-color mb-4">$@product.Price</p>
+                                <p class="fw-medium text-main-color mb-4">₹@product.Price</p>
                                 <a href="@Url.Action("Details", "Product", new { id = product.Id })" class="template-btn primary-btn btn-sm text-uppercase">View Item</a>
                             </div>
                         </div>
@@ -386,7 +387,7 @@
             // Populate modal fields
             $("#modalProductId").val(productId);
             $("#modalProductName").text(productName);
-            $("#modalProductPrice").text("$" + productPrice);
+            $("#modalProductPrice").text("₹" + productPrice);
             $("#modalProductImage").attr("src", productImage);
             $("#modalProductDescription").text(productDescription);
 
@@ -468,7 +469,7 @@
         $.get("/ShoppingCart/GetCartSummary", function (response) {
             if (response.success) {
                 $(".cart-item").text(response.count); // ✅ Update cart icon count
-                $(".cart-amount").text("$" + response.totalPrice.toFixed(2)); // ✅ Update cart total price
+                    $(".cart-amount").text("₹" + response.totalPrice.toFixed(2)); // ✅ Update cart total price
             } else {
                 console.error("Failed to update cart count.");
             }
@@ -507,7 +508,7 @@
                     <div class="d-flex justify-content-between gap-3 w-100">
                         <div>
                             <a href="#"><h6 class="mb-1">${item.name}</h6></a>
-                            <span class="price fw-medium secondary-text-color d-block mb-1 fs-sm">$${itemPrice.toFixed(2)}</span>
+                                <span class="price fw-medium secondary-text-color d-block mb-1 fs-sm">₹${itemPrice.toFixed(2)}</span>
                             <div class="quantity d-flex align-items-center">
                                 <input type="text" value="${item.quantity}" readonly>
                             </div>

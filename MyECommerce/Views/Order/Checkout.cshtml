@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = "Checkout";
-}
+}   
 
 <section class="checkout-section bg-white ptb-120">
     <div class="container">
@@ -16,19 +16,27 @@
                         <div class="col-12">
                             <div class="input-field">
                                 <label for="email">Email Address*</label>
-                                <input type="email" asp-for="Email" class="theme-input bg-transparent" required>
+                                <input type="email" asp-for="Email" class="theme-input bg-transparent" readonly>
                             </div>
                         </div>
                         <div class="col-sm-6">
                             <div class="input-field">
                                 <label for="fname">First Name*</label>
-                                <input type="text" asp-for="FullName" class="theme-input bg-transparent" required>
+                                <input type="text" asp-for="FirstName" class="theme-input bg-transparent" required>
                             </div>
                         </div>
                         <div class="col-sm-6">
                             <div class="input-field">
+                                <label for="lname">Last Name*</label>
+                                <input type="text" asp-for="LastName" class="theme-input bg-transparent" required>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="input-field">
                                 <label for="phone">Phone*</label>
                                 <input type="text" asp-for="Phone" class="theme-input bg-transparent" required>
+                                <span asp-validation-for="Phone" class="text-danger"></span>
                             </div>
                         </div>
                         <div class="col-12">
@@ -39,19 +47,31 @@
                         </div>
                         <div class="col-12">
                             <div class="input-field">
-                                <label for="city">City*</label>
-                                <input type="text" asp-for="City" class="theme-input bg-transparent" required>
+                                <label>Country*</label>
+                                <select asp-for="Country" class="nice_select w-100">
+                                    <option value="India" selected>India</option>
+                                </select>
                             </div>
                         </div>
+
                         <div class="col-12">
                             <div class="input-field">
                                 <label>State*</label>
-                                <select asp-for="State" class="nice_select w-100">
-                                    <option value="California">California</option>
-                                    <option value="Texas">Texas</option>
-                                    <option value="Florida">Florida</option>
-                                    <option value="Ohio">Ohio</option>
-                                    <option value="Alaska">Alaska</option>
+                                <select id="StateDropdown" asp-for="State" class="nice_select w-100">
+                                    <option value="">Select State</option>
+                                    @foreach (var state in Model.AvailableStates)
+                                    {
+                                        <option value="@state">@state</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="input-field">
+                                <label>City*</label>
+                                <select id="CityDropdown" asp-for="City" class="nice_select w-100">
+                                    <option value="">Select City</option>
                                 </select>
                             </div>
                         </div>
@@ -59,6 +79,7 @@
                             <div class="input-field">
                                 <label for="zip">Pin Code*</label>
                                 <input type="text" asp-for="PinCode" class="theme-input bg-transparent" required>
+                                <span asp-validation-for="PinCode" class="text-danger"></span>
                             </div>
                         </div>
                         <div class="col-12">
@@ -94,7 +115,7 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <span class="text-main-color fw-medium">$@(item.Price * item.Quantity)</span>
+                                        <span class="text-main-color fw-medium">₹@(item.Price * item.Quantity)</span>
                                     </td>
                                 </tr>
                             }
@@ -103,7 +124,7 @@
                                     <span class="text-main-color fw-medium">Subtotal</span>
                                 </td>
                                 <td>
-                                    <span class="text-main-color fw-medium">$@Model.TotalAmount</span>
+                                    <span class="text-main-color fw-medium">₹@Model.TotalAmount</span>
                                 </td>
                             </tr>
                             <tr>
@@ -111,7 +132,7 @@
                                     <span class="text-main-color fw-medium">Shipping</span>
                                 </td>
                                 <td>
-                                    <p class="mb-0 pp-price">Flat rate: <span class="text-main-color fw-medium">$10.00</span></p>
+                                    <p class="mb-0 pp-price">Flat rate: <span class="text-main-color fw-medium">₹10.00</span></p>
                                 </td>
                             </tr>
                             <tr>
@@ -119,7 +140,7 @@
                                     <span class="text-main-color fw-medium">Total Price</span>
                                 </td>
                                 <td>
-                                    <span class="secondary-text-color fw-medium">$@(Model.TotalAmount + 10)</span>
+                                    <span class="secondary-text-color fw-medium">₹@(Model.TotalAmount + 10)</span>
                                 </td>
                             </tr>
                         </table>
@@ -195,3 +216,46 @@
     </div>
 </section>
 <!--hm2 feature section end-->
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var stateDropdown = document.getElementById("StateDropdown");
+        var cityDropdown = document.getElementById("CityDropdown");
+
+        stateDropdown.addEventListener("change", function () {
+            var selectedState = stateDropdown.value;
+
+            // ✅ Prevent API call if state is empty
+            if (!selectedState) {
+                cityDropdown.innerHTML = '<option value="">Select City</option>';
+                return;
+            }
+
+            cityDropdown.innerHTML = '<option value="">Loading...</option>';
+
+            fetch(`/Order/GetCities?state=${encodeURIComponent(selectedState)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => { throw new Error(err.error || "Unknown error"); });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    cityDropdown.innerHTML = '<option value="">Select City</option>';
+                    data.forEach(city => {
+                        var option = document.createElement("option");
+                        option.value = city;
+                        option.textContent = city;
+                        cityDropdown.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error("Error fetching cities:", error);
+                    cityDropdown.innerHTML = '<option value="">Error loading cities</option>';
+                });
+        });
+    });
+
+
+</script>

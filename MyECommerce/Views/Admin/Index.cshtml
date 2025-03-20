@@ -46,6 +46,22 @@
             </div>
         </div>
     </div>
+
+
+</div>
+
+<div class="row">
+
+    <!-- Total Categories -->
+    <div class="col-md-3 mt-5">
+        <div class="card text-center shadow-lg border-warning">
+            <div class="card-body bg-warning text-white">
+                <h5><i class="fas fa-tags"></i> Total Categories</h5>
+                <h3>@Model.TotalCategories</h3>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <!-- ✅ Recent Orders Table -->
@@ -73,6 +89,10 @@
                         @if (order.Status == "Pending")
                         {
                             <span class="badge bg-warning text-dark">Pending</span>
+                        }
+                        else if (order.Status == "Processing")
+                        {
+                            <span class="badge bg-warning">Processing</span>
                         }
                         else if (order.Status == "Shipped")
                         {

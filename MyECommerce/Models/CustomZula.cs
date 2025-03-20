@@ -8,6 +8,9 @@ namespace MyECommerce.Models
         [Key]
         public int Id { get; set; }
 
+        [Required]
+        public string FullName { get; set; } = string.Empty;
+
         public string? ImageUrl { get; set; } // ✅ Renamed from 'Image' to 'ImageUrl'
 
 
@@ -25,7 +28,7 @@ namespace MyECommerce.Models
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
 
         // ✅ Track the user who made the request
-        [Required]
+    
         public string? UserId { get; set; }
 
         [ForeignKey("UserId")]
@@ -34,5 +37,8 @@ namespace MyECommerce.Models
         // ✅ Add Status Field (Pending, Approved, Rejected)
         [Required]
         public string Status { get; set; } = "Pending"; // ✅ Default value
+
+        // Add a flag to identify guest requests
+        public bool IsGuestRequest { get; set; } = false;
     }
 }

@@ -47,6 +47,11 @@
                     </a>
                 </li>
                 <li class="list-group-item bg-dark">
+                    <a class="nav-link text-white" asp-controller="Admin" asp-action="ManageCategories">
+                        <i class="fas fa-tags me-2"></i> Manage Categories
+                    </a>
+                </li>
+                <li class="list-group-item bg-dark">
                     <form asp-controller="Admin" asp-action="Logout" method="post">
                         @Html.AntiForgeryToken()
                         <button type="submit" class="btn btn-danger w-100 text-start">

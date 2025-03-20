@@ -31,6 +31,11 @@ namespace MyECommerce.Controllers
             string cartId = GetCartId();
             var userId = GetUserId();
 
+            var user = await _context.Users
+                .Where(u => u.Id == userId)
+                .Select(u => new { u.Email })
+                .FirstOrDefaultAsync();
+
             var cartItems = await _context.ShoppingCartItems
                 .Where(item => item.CartId == cartId || item.UserId == userId)
                 .ToListAsync();
@@ -44,7 +49,8 @@ namespace MyECommerce.Controllers
             var viewModel = new CheckoutViewModel
             {
                 CartItems = cartItems,
-                TotalAmount = cartItems.Sum(item => item.Price * item.Quantity)
+                TotalAmount = cartItems.Sum(item => item.Price * item.Quantity),
+                Email = user?.Email ?? ""
             };
 
             return View(viewModel);
@@ -79,10 +85,11 @@ namespace MyECommerce.Controllers
                 UserId = userId ?? "Guest",
                 OrderDate = DateTime.UtcNow,
                 TotalAmount = cartItems.Sum(item => item.Price * item.Quantity),
-                FullName = model.FullName,
+                FullName = $"{model.FirstName} {model.LastName}".Trim(),
                 Email = model.Email,
                 Phone = model.Phone,
                 Address = model.StreetAddress,
+                Country = model.Country,
                 City = model.City,
                 State = model.State,
                 PinCode = model.PinCode,
@@ -135,6 +142,31 @@ namespace MyECommerce.Controllers
 
             return HttpContext.Session.GetString("CartId") ?? string.Empty;
         }
+
+        [HttpGet]
+        public IActionResult GetCities(string state)
+        {
+            try
+            {
+                var stateCityMapping = new Dictionary<string, List<string>>
+        {
+            { "Gujarat", new List<string> { "Ahmedabad", "Surat", "Vadodara", "Rajkot" } }
+        };
+
+                if (!string.IsNullOrEmpty(state) && stateCityMapping.ContainsKey(state))
+                {
+                    return Json(stateCityMapping[state]);
+                }
+
+                return BadRequest(new { error = "Invalid State" }); // 🔴 Returns proper error response
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Server Error", message = ex.Message });
+            }
+        }
+
+
 
         private string? GetUserId()
         {

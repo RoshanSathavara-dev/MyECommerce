@@ -36,6 +36,7 @@ namespace MyECommerce.Controllers
                 TotalOrders = _context.Orders.Count(),
                 TotalUsers = _userManager.Users.Count(),
                 TotalCustomZulaRequests = _context.CustomZulas.Count(),
+                TotalCategories = _context.Categories.Count(),
 
                 // ✅ Fetch the 5 most recent orders
                 RecentOrders = _context.Orders
@@ -310,6 +311,11 @@ namespace MyECommerce.Controllers
                 return memoryStream.ToArray();
             }
         }
+        public IActionResult ManageCategories()
+        {
+            return View();
+        }
+
 
 
 

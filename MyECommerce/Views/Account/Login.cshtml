@@ -1,10 +1,7 @@
 ﻿@{
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Login";
-
 }
-
-
 
 <!--breadcrumb section start-->
 <div class="breadcrumb-section pt-40 pb-40">
@@ -24,14 +21,17 @@
                     <!-- ✅ Store returnUrl in a hidden field -->
                     <input type="hidden" id="returnUrl" value="@ViewBag.ReturnUrl" />
 
-                    <div id="loginFields">
-                        <input type="text" id="EmailOrContact" placeholder="User name or email address*" class="theme-input" required>
-
-                        <!-- Send OTP Button -->
-                        <button type="button" id="sendOtpButton" class="template-btn primary-btn w-100 mt-32">
-                            <span>Send OTP</span>
+                    <div id="loginFields" class="d-flex">
+                        <input type="text" id="EmailOrContact" placeholder="User name or email address*" class="theme-input flex-grow-1" required>
+                        <button type="button" id="editEmailButton" class="btn btn-warning ms-2" style="display: none;">
+                            <i class="fas fa-edit"></i>
                         </button>
                     </div>
+
+                    <!-- Send OTP Button -->
+                    <button type="button" id="sendOtpButton" class="template-btn primary-btn w-100 mt-32">
+                        <span>Send OTP</span>
+                    </button>
 
                     <!-- OTP Section (Initially Hidden) -->
                     <div id="otpSection" style="display: none;">
@@ -64,6 +64,7 @@
         var sendOtpButton = document.getElementById("sendOtpButton");
         var verifyOtpButton = document.getElementById("verifyOtpButton");
         var resendOtpButton = document.getElementById("resendOtpButton");
+        var editEmailButton = document.getElementById("editEmailButton");
         var emailOrContactInput = document.getElementById("EmailOrContact");
         var otpInput = document.getElementById("OTP");
         var otpSection = document.getElementById("otpSection");
@@ -92,8 +93,9 @@
                     // ✅ Show OTP Section
                     otpSection.style.display = "block";
 
-                    // ✅ Hide Send OTP Button
+                    // ✅ Hide Send OTP Button & Show Edit Button
                     sendOtpButton.style.display = "none";
+                    editEmailButton.style.display = "inline-block";
 
                     // ✅ Make Email Field Read-Only
                     emailOrContactInput.readOnly = true;
@@ -130,6 +132,24 @@
                     alert("Invalid OTP: " + data.message);
                 }
             });
+        });
+
+        // ✅ Edit Email Button Click Event
+        editEmailButton.addEventListener("click", function () {
+            // Enable the email field
+            emailOrContactInput.readOnly = false;
+            emailOrContactInput.value = "";
+
+            // Hide OTP Section & Reset Fields
+            otpSection.style.display = "none";
+            otpInput.value = "";
+            otpTimer.innerHTML = "";
+
+            // Show Send OTP Button Again
+            sendOtpButton.style.display = "block";
+
+            // Hide Edit Button
+            editEmailButton.style.display = "none";
         });
 
         // ✅ Resend OTP Click Event

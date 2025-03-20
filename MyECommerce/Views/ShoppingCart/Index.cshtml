@@ -45,7 +45,7 @@
                                     </div>
                                 </div>
                             </td>
-                            <td><span class="fw-medium text-main-color">$@item.Price.ToString("F2")</span></td>
+                            <td><span class="fw-medium text-main-color">₹@item.Price.ToString("F2")</span></td>
                             <td>
                                 <div class="quantity d-flex align-items-center">
                                     <input type="number" class="quantity-input" value="@item.Quantity" min="1">
@@ -59,7 +59,7 @@
                                     </div>
                                 </div>
                             </td>
-                            <td><span class="text-main-color fw-medium d-block text-end subtotal">$@((item.Price * item.Quantity).ToString("F2"))</span></td>
+                            <td><span class="text-main-color fw-medium d-block text-end subtotal">₹@((item.Price * item.Quantity).ToString("F2"))</span></td>
                         </tr>
 
                     }
@@ -96,7 +96,7 @@
                         <table class="table">
                             <tr>
                                 <td>Subtotal</td>
-                                <td id="cart-subtotal">$@Model.Sum(item => item.Price * item.Quantity).ToString("F2")</td>
+                                <td id="cart-subtotal">₹@Model.Sum(item => item.Price * item.Quantity).ToString("F2")</td>
                             </tr>
 @*                             <tr>
                                 <td>Total</td>
@@ -211,9 +211,9 @@ function updateQuantity(productId, quantity, inputField) {
             inputField.val(quantity);
 
             let row = inputField.closest("tr");
-            let price = parseFloat(row.find(".fw-medium.text-main-color").text().replace("$", ""));
+            let price = parseFloat(row.find(".fw-medium.text-main-color").text().replace("₹", ""));
             let subtotal = (price * quantity).toFixed(2);
-            row.find(".subtotal").text("$" + subtotal);
+            row.find(".subtotal").text("₹" + subtotal);
 
             updateCart(response); // ✅ Update Cart Drawer Instantly
         } else {
@@ -238,12 +238,12 @@ function updateQuantity(productId, quantity, inputField) {
         let totalItems = cartData.cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
         // ✅ Update Cart Subtotal & Total in Main Cart Section
-        $("#cart-total").text("$" + totalPrice.toFixed(2));
-        $("#cart-subtotal").text("$" + totalPrice.toFixed(2));
+        $("#cart-total").text("₹" + totalPrice.toFixed(2));
+        $("#cart-subtotal").text("₹" + totalPrice.toFixed(2));
 
         // ✅ Update Cart Count in Header
         $(".cart-item").text(totalItems);
-        $(".cart-amount").text("$" + totalPrice.toFixed(2));
+        $(".cart-amount").text("₹" + totalPrice.toFixed(2));
 
         // ✅ Ensure Cart Drawer is Reset Properly
         let cartList = $(".cart-list");

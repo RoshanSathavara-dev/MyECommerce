@@ -10,5 +10,7 @@
         public List<Order> RecentOrders { get; set; } = new List<Order>();
         public List<CustomZula> RecentCustomZulas { get; set; } = new List<CustomZula>();
         public List<Review> RecentReviews { get; set; } = new List<Review>();
+
+        public int TotalCategories { get; set; }
     }
 }

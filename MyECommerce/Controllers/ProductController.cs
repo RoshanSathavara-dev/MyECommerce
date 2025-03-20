@@ -224,5 +224,71 @@ namespace MyECommerce.Controllers
             return View(product);
         }
 
+        //[HttpGet]
+        //public async Task<IActionResult> GetProductsByCategory(int? categoryId)
+        //{
+        //    var productsQuery = _context.Products.Include(p => p.Category).AsQueryable();
+
+        //    if (categoryId.HasValue && categoryId > 0)
+        //    {
+        //        productsQuery = productsQuery.Where(p => p.CategoryId == categoryId.Value);
+        //    }
+
+        //    var products = await productsQuery.Select(p => new
+        //    {
+        //        p.Id,
+        //        p.Name,
+        //        p.Price,
+        //        p.ImageUrl
+        //    }).ToListAsync();
+
+        //    return Json(products);
+        //}
+        [HttpGet]
+        public IActionResult FilterProducts(int? categoryId)
+        {
+            var products = _context.Products
+                .Include(p => p.Category) // ✅ Ensure category data is included
+                .Where(p => categoryId == 0 || p.CategoryId == categoryId) // ✅ Show all if categoryId is 0
+                .Select(p => new
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Price = p.Price,
+                    ImageUrl = p.ImageUrl
+                }).ToList();
+
+            return Json(products);
+        }
+
+
+
+
+
+
+
+
+        //public async Task<IActionResult> LoadMoreProducts(int page)
+        //{
+        //    int pageSize = 6; // Number of products to load per page
+        //    var products = await _context.Products
+        //        .Include(p => p.Category)
+        //        .OrderBy(p => p.Id)
+        //        .Skip((page - 1) * pageSize)
+        //        .Take(pageSize)
+        //        .Select(p => new
+        //        {
+        //            id = p.Id,
+        //            name = p.Name,
+        //            description = p.Description,
+        //            price = p.Price,
+        //            imageUrl = p.ImageUrl,
+        //            category = p.Category != null ? p.Category.Name : null
+        //        })
+        //        .ToListAsync();
+
+        //    return Json(products);
+        //}
+
     }
 }

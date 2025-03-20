@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using MyECommerce.Data;
 using MyECommerce.Models;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace MyECommerce.Controllers
 {
@@ -15,94 +16,72 @@ namespace MyECommerce.Controllers
             _context = context;
         }
 
-        // GET: Category
-        public async Task<IActionResult> Index()
+        // ✅ GET: Fetch all categories (Returns JSON)
+        public async Task<IActionResult> GetCategories()
         {
             var categories = await _context.Categories.ToListAsync();
-            return View(categories);
+            return Json(new { success = true, data = categories });
         }
 
-        // GET: Category/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null) return NotFound();
-
-            var category = await _context.Categories.FindAsync(id);
-            if (category == null) return NotFound();
-
-            return View(category);
-        }
-
-        // GET: Category/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: Category/Create
+        // ✅ POST: Create a new category (Returns JSON)
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name")] Category category)
+        public async Task<IActionResult> Create([FromBody] Category category)
         {
-            if (ModelState.IsValid)
+            if (category == null || string.IsNullOrWhiteSpace(category.Name))
             {
-                _context.Add(category);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return Json(new { success = false, message = "Category name is required." });
             }
-            return View(category);
+
+            _context.Categories.Add(category);
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true, message = "Category added successfully!", data = category });
         }
 
-        // GET: Category/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null) return NotFound();
-
-            var category = await _context.Categories.FindAsync(id);
-            if (category == null) return NotFound();
-
-            return View(category);
-        }
-
-        // POST: Category/Edit/5
+        // ✅ POST: Update a category (Returns JSON)
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] Category category)
+        public async Task<IActionResult> Edit(int id, [FromBody] Category category)
         {
-            if (id != category.Id) return NotFound();
-
-            if (ModelState.IsValid)
+            if (id != category.Id)
             {
-                _context.Update(category);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return Json(new { success = false, message = "Invalid category ID." });
             }
-            return View(category);
-        }
 
-        // GET: Category/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null) return NotFound();
-
-            var category = await _context.Categories.FindAsync(id);
-            if (category == null) return NotFound();
-
-            return View(category);
-        }
-
-        // POST: Category/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var category = await _context.Categories.FindAsync(id);
-            if (category != null)
+            var existingCategory = await _context.Categories.FindAsync(id);
+            if (existingCategory == null)
             {
+                return Json(new { success = false, message = "Category not found." });
+            }
+
+            existingCategory.Name = category.Name;
+            _context.Categories.Update(existingCategory);
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true, message = "Category updated successfully!", data = existingCategory });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete([FromQuery] int id)
+        {
+            try
+            {
+                var category = await _context.Categories.FindAsync(id);
+                if (category == null)
+                {
+                    return Json(new { success = false, message = "Category not found." });
+                }
+
                 _context.Categories.Remove(category);
                 await _context.SaveChangesAsync();
+
+                return Json(new { success = true, message = "Category deleted successfully!" });
             }
-            return RedirectToAction(nameof(Index));
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error: " + ex.Message });
+            }
         }
+
+
     }
 }

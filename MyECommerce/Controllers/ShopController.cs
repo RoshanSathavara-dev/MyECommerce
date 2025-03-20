@@ -27,7 +27,7 @@ namespace MyECommerce.Controllers
                 productsQuery = productsQuery.Where(p => p.Name.Contains(search) || p.Description.Contains(search));
             }
 
-            // ✅ Apply category filter
+            // ✅ Apply category filterzz
             if (!string.IsNullOrEmpty(categoryIds))
             {
                 var categoryIdList = categoryIds.Split(',').Select(int.Parse).ToList();
@@ -80,13 +80,30 @@ namespace MyECommerce.Controllers
             ViewBag.CurrentPage = page;
             ViewBag.TotalPages = totalPages;
             return View(products);
+        }   
+
+        [HttpGet]
+        public async Task<IActionResult> GlobalSearch(string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return Json(new { success = false, products = new List<object>() });
+            }
+
+            var products = await _context.Products
+                .Where(p => p.Name.Contains(query) || p.Description.Contains(query))
+                .Select(p => new
+                {
+                    id = p.Id,
+                    name = p.Name,
+                    price = p.Price,
+                    imageUrl = p.ImageUrl
+                })
+                .Take(5) // ✅ Limit results to 5 for better UX
+                .ToListAsync();
+
+            return Json(new { success = true, products });
         }
-
-
-
-
-
-
 
     }
 }

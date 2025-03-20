@@ -18,7 +18,7 @@
             <th>Description</th>
             <th>Contact No</th>
             <th>Email</th>
-            <th>User</th>
+            <th>Full Name</th> <!-- ✅ Changed User to Full Name -->
             <th>Status</th>
             <th>Actions</th>
         </tr>
@@ -26,8 +26,8 @@
     <tbody>
         @foreach (var request in Model)
         {
-            var userName = request.User?.Name ?? "Unknown"; // ✅ Ensure a default name if User is null
-            var formattedUserName = userName.Replace(" ", "_"); // ✅ Remove spaces for a cleaner filename
+            var fullName = request.FullName ?? "Unknown"; // ✅ Ensure a default name if FullName is null
+            var formattedFullName = fullName.Replace(" ", "_"); // ✅ Remove spaces for a cleaner filename
             var fileExtension = System.IO.Path.GetExtension(request.ImageUrl); // ✅ Get file extension
 
             <tr>
@@ -37,7 +37,7 @@
                     {
                         <div class="d-flex align-items-center">
                             <img src="@request.ImageUrl" alt="Image" width="50" height="50" class="me-2 rounded">
-                            <a href="@request.ImageUrl" download="@($"{formattedUserName}_CustomZula{fileExtension}")"
+                            <a href="@request.ImageUrl" download="@($"{formattedFullName}_CustomZula{fileExtension}")"
                                class="btn btn-sm btn-primary">
                                 <i class="fas fa-download"></i>
                             </a>
@@ -51,7 +51,7 @@
                 <td>@request.Description</td>
                 <td>@request.ContactNo</td>
                 <td>@(string.IsNullOrEmpty(request.Email) ? "N/A" : request.Email)</td>
-                <td>@userName</td>
+                <td>@fullName</td> <!-- ✅ Displaying Full Name Instead of User -->
                 <td>
                     <span class="badge @(request.Status == "Pending" ? "bg-warning" : request.Status == "Approved" ? "bg-success" : "bg-danger")">
                         @request.Status

@@ -32,12 +32,16 @@ namespace MyECommerce.Models
         public string Address { get; set; } = string.Empty;
 
         [Required]
+        public string Country { get; set; } = "India"; // ✅ Default to India
+
+        [Required]
         public string City { get; set; } = string.Empty;
 
         [Required]
         public string State { get; set; } = string.Empty;
 
         [Required]
+        [StringLength(6, MinimumLength = 6, ErrorMessage = "Pin Code must be 6 digits")]
         public string PinCode { get; set; } = string.Empty;
 
         // ✅ Payment Details

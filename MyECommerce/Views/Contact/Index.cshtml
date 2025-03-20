@@ -84,6 +84,7 @@
                     <form id="customZulaForm" class="ct-contact-form">
                         @Html.AntiForgeryToken() <!-- CSRF Protection -->
 
+                        <input type="text" id="fullName" class="theme-input" placeholder="Your Full Name*" required>
                         <input type="text" id="description" class="theme-input" placeholder="Describe your request*" required>
                         <input type="tel" id="contactNo" class="theme-input" placeholder="Your Contact Number*" required>
                         <input type="email" id="email" class="theme-input" placeholder="Your Email (Optional)">
@@ -150,68 +151,57 @@
 <!-- jQuery for AJAX -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    $(document).ready(function () {
+        $(document).ready(function () {
         $("#customZulaForm").submit(function (e) {
             e.preventDefault();
 
-            $.get("/Account/CheckSession", function (data) {
-                if (!data.isAuthenticated) {
+            var formData = new FormData();
+            formData.append("__RequestVerificationToken", $('input[name="__RequestVerificationToken"]').val());
+            formData.append("FullName", $("#fullName").val().trim());
+            formData.append("Description", $("#description").val().trim());
+            formData.append("ContactNo", $("#contactNo").val().trim());
+
+            var email = $("#email").val().trim();
+            if (email) {
+                formData.append("Email", email);
+            }
+
+            var imageFile = $("#imageFile")[0]?.files[0];
+            if (imageFile) {
+                formData.append("imageFile", imageFile);
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "/CustomZula/Create",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
                     $("#responseMessage")
-                        .removeClass("text-success")
-                        .addClass("text-danger")
-                        .text("You must be logged in to submit a request!")
+                        .removeClass("text-danger")
+                        .addClass("text-success")
+                        .text(response.message)
                         .show();
-                    return;
-                }
-
-                var formData = new FormData();
-                formData.append("__RequestVerificationToken", $('input[name="__RequestVerificationToken"]').val());
-                formData.append("Description", $("#description").val().trim());
-                formData.append("ContactNo", $("#contactNo").val().trim());
-
-                var email = $("#email").val().trim();
-                if (email) {
-                    formData.append("Email", email);
-                }
-
-                var imageFile = $("#imageFile")[0]?.files[0];
-                if (imageFile) {
-                    formData.append("imageFile", imageFile);
-                }
-
-                $.ajax({
-                    type: "POST",
-                    url: "/CustomZula/Create",
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    success: function (response) {
+                    $("#customZulaForm")[0].reset();
+                },
+                error: function (xhr) {
+                    var response = xhr.responseJSON;
+                    if (response && response.errors) {
                         $("#responseMessage")
-                            .removeClass("text-danger")
-                            .addClass("text-success")
-                            .text(response.message)
+                            .removeClass("text-success")
+                            .addClass("text-danger")
+                            .html(response.errors.join("<br>")) // Show each error message separately
                             .show();
-                        $("#customZulaForm")[0].reset();
-                    },
-                    error: function (xhr) {
-                        var response = xhr.responseJSON;
-                        if (response && response.errors) {
-                            $("#responseMessage")
-                                .removeClass("text-success")
-                                .addClass("text-danger")
-                                .html(response.errors.join("<br>")) // ✅ Show each error message separately
-                                .show();
-                        } else {
-                            $("#responseMessage")
-                                .removeClass("text-success")
-                                .addClass("text-danger")
-                                .text(response.message || "An error occurred. Please try again.")
-                                .show();
-                        }
+                    } else {
+                        $("#responseMessage")
+                            .removeClass("text-success")
+                            .addClass("text-danger")
+                            .text(response.message || "An error occurred. Please try again.")
+                            .show();
                     }
-                });
+                }
             });
         });
     });
-
 </script>
