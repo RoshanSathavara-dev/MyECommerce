@@ -1,0 +1,88 @@
+﻿@{
+    ViewData["Title"] = "Manage Brands";
+}
+
+<div class="container mt-5">
+    <h3 class="mb-4">Manage Brands</h3>
+
+    <!-- ✅ Add New Brand -->
+    <div class="input-group mb-3">
+        <input type="text" id="brandName" class="form-control" placeholder="Enter brand name">
+        <input type="file" id="brandImage" class="form-control">
+        <button class="btn btn-primary" id="btnAddBrand">Add Brand</button>
+    </div>
+
+    <!-- ✅ Brand List -->
+    <ul id="brandList" class="list-group">
+        <!-- Brands will be dynamically inserted here -->
+    </ul>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        loadBrands(); // ✅ Load brands when the page loads
+
+        // ✅ Load Brands Function
+        function loadBrands() {
+            $.get("/Brand/GetAllBrands", function (brands) {
+                let brandListHtml = "";
+                brands.forEach(brand => {
+                    brandListHtml += `
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <img src="${brand.imageUrl}" alt="${brand.name}" class="img-thumbnail" width="50" height="50">
+                            ${brand.name}
+                            <button class="btn btn-danger btn-sm delete-brand" data-id="${brand.id}">Delete</button>
+                        </li>`;
+                });
+                $("#brandList").html(brandListHtml);
+            });
+        }
+
+        // ✅ Add Brand AJAX
+        $("#btnAddBrand").click(function () {
+            let brandName = $("#brandName").val().trim();
+            let brandImage = $("#brandImage")[0].files[0];
+
+            if (!brandName || !brandImage) {
+                alert("Please enter a brand name and select an image.");
+                return;
+            }
+
+            let formData = new FormData();
+            formData.append("name", brandName);
+            formData.append("image", brandImage);
+
+            $.ajax({
+                url: "/Brand/CreateBrand",
+                type: "POST",
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.success) {
+                        loadBrands(); // Reload list
+                        $("#brandName").val(""); // Clear input
+                        $("#brandImage").val(""); // Clear file input
+                    } else {
+                        alert(response.message);
+                    }
+                }
+            });
+        });
+
+        // ✅ Delete Brand AJAX
+        $(document).on("click", ".delete-brand", function () {
+            let brandId = $(this).data("id");
+            if (!confirm("Are you sure you want to delete this brand?")) return;
+
+            $.post("/Brand/DeleteBrand", { id: brandId }, function (response) {
+                if (response.success) {
+                    loadBrands(); // Reload list
+                } else {
+                    alert(response.message);
+                }
+            });
+        });
+    });
+</script>

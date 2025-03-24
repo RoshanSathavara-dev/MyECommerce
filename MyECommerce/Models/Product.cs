@@ -20,12 +20,14 @@ namespace MyECommerce.Models
         public string ImageUrl { get; set; } = string.Empty;
         [Range(1, int.MaxValue, ErrorMessage = "Stock must be at least 1.")]
         public int Stock { get; set; }
-
         // Foreign Key for Category
         [Required(ErrorMessage = "Category is required.")]
         [ForeignKey("Category")]
         public int CategoryId { get; set; }
         public Category? Category { get; set; }
+
+        // ✅ New Foreign Key for Brand
+
 
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedDate { get; set; }
@@ -38,6 +40,13 @@ namespace MyECommerce.Models
         public bool ShowInHeroSection { get; set; } = false; // ✅ New property for Hero Section
 
         public bool IsFeatured { get; set; }
+
+        [ForeignKey("Brand")]
+        public int BrandId { get; set; }  // If you want it nullable, change it to `int?`
+        public Brand? Brand { get; set; }
+
+
+
 
 
     }

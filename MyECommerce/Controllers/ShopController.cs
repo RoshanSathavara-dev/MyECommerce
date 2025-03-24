@@ -15,11 +15,16 @@ namespace MyECommerce.Controllers
         }
 
         // GET: Shop
-        public async Task<IActionResult> Index(string search, string categoryIds, decimal? minPrice, decimal? maxPrice, int page = 1)
+        public async Task<IActionResult> Index(string search, string categoryIds, string brandIds, decimal? minPrice, decimal? maxPrice, string sort, int page = 1)
         {
+            // Debugger to check the search parameter
+     
+            Console.WriteLine("Search term:", search);
             int pageSize = 12; // ✅ Show 12 products per page
 
             var productsQuery = _context.Products.Include(p => p.Category).AsQueryable();
+
+            ViewBag.Brands = await _context.Brands.ToListAsync();
 
             // ✅ Apply search filter
             if (!string.IsNullOrEmpty(search))
@@ -34,10 +39,37 @@ namespace MyECommerce.Controllers
                 productsQuery = productsQuery.Where(p => categoryIdList.Contains(p.CategoryId));
             }
 
+            // ✅ Apply brand filter (THIS WAS MISSING)
+            if (!string.IsNullOrEmpty(brandIds))
+            {
+                var brandIdList = brandIds.Split(',').Select(int.Parse).ToList();
+                productsQuery = productsQuery.Where(p => brandIdList.Contains(p.BrandId)); // Assuming `BrandId` exists in `Products`
+            }
+
             // ✅ Apply price filter
             if (minPrice.HasValue && maxPrice.HasValue)
             {
                 productsQuery = productsQuery.Where(p => p.Price >= minPrice.Value && p.Price <= maxPrice.Value);
+            }
+
+            if (!string.IsNullOrEmpty(sort))
+            {
+                switch (sort)
+                {
+                    case "price_asc":
+                        productsQuery = productsQuery.OrderBy(p => p.Price); // ✅ Sort by Price (Low to High)
+                        break;
+                    case "price_desc":
+                        productsQuery = productsQuery.OrderByDescending(p => p.Price); // ✅ Sort by Price (High to Low)
+                        break;
+                    default:
+                        productsQuery = productsQuery.OrderByDescending(p => p.Id); // ✅ Default Sorting (Latest First)
+                        break;
+                }
+            }
+            else
+            {
+                productsQuery = productsQuery.OrderByDescending(p => p.Id); // ✅ Default Sorting (Latest First)
             }
 
             // ✅ Fetch category & latest products (Only for normal page load, not for AJAX)
@@ -53,10 +85,15 @@ namespace MyECommerce.Controllers
 
             // ✅ Fetch paginated products
             var products = await productsQuery
-                .OrderByDescending(p => p.Id)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
+
+            // ✅ Store pagination details for the view
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.TotalRecords = totalProducts;
+            ViewBag.PageSize = pageSize; // ✅ Add PageSize for UI calculations
 
             // ✅ Handle AJAX request separately
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
@@ -72,13 +109,15 @@ namespace MyECommerce.Controllers
                         imageUrl = p.ImageUrl,
                         categoryName = p.Category?.Name ?? "Uncategorized"
                     }),
-                    totalPages = totalPages
+                    totalPages = totalPages,
+                    totalRecords = totalProducts, // ✅ Include total records in AJAX response
+                    currentPage = page,
+                     pageSize = pageSize
+
                 });
             }
 
             // ✅ Send pagination details to the view (For normal page load)
-            ViewBag.CurrentPage = page;
-            ViewBag.TotalPages = totalPages;
             return View(products);
         }   
 
@@ -104,6 +143,8 @@ namespace MyECommerce.Controllers
 
             return Json(new { success = true, products });
         }
+
+
 
     }
 }

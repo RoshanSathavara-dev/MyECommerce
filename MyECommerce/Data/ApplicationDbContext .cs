@@ -29,6 +29,7 @@ namespace MyECommerce.Data
         public DbSet<WishlistItem> WishlistItems { get; set; }
 
         public DbSet<GalleryImage> GalleryImages { get; set; }
+        public DbSet<Brand> Brands { get; set; }
 
 
         public static async Task SeedAdminUser(UserManager<User> userManager, RoleManager<IdentityRole> roleManager)

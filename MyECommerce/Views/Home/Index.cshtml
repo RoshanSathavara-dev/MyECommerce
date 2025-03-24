@@ -141,33 +141,26 @@
 
 <!-- Products Filter End -->
 <!--brands section start-->
+<!-- Brands Section Start -->
 <div class="hm2-brand-section ptb-120 position-relative z-1 overflow-hidden">
     <span class="overlay-bg position-absolute start-0 top-0 w-100 h-100 z--1" data-background="assets/images/banner/brand-bg.png"></span>
     <div class="container-1700">
         <div class="hm2-brand-box">
             <div class="hm2-brand-slider slider-spacing">
-                <div class="single-item">
-                    <a href="#"><img src="~/assets/images/brands/brand-1.svg" alt="brand" class="img-fluid"></a>
-                </div>
-                <div class="single-item">
-                    <a href="#"><img src="~/assets/images/brands/brand-2.svg" alt="brand" class="img-fluid"></a>
-                </div>
-                <div class="single-item">
-                    <a href="#"><img src="~/assets/images/brands/brand-3.svg" alt="brand" class="img-fluid"></a>
-                </div>
-                <div class="single-item">
-                    <a href="#"><img src="~/assets/images/brands/brand-1.svg" alt="brand" class="img-fluid"></a>
-                </div>
-                <div class="single-item">
-                    <a href="#"><img src="~/assets/images/brands/brand-5.svg" alt="brand" class="img-fluid"></a>
-                </div>
-                <div class="single-item">
-                    <a href="#"><img src="~/assets/images/brands/brand-3.svg" alt="brand" class="img-fluid"></a>
-                </div>
+                @foreach (var brand in Model.Brands)
+                {
+                    <div class="single-item text-center">
+                        <a href="#">
+                            <img src="@brand.ImageUrl" alt="@brand.Name" class="img-fluid">
+                        </a>
+                        <!-- ✅ Display brand name -->
+                    </div>
+                }
             </div>
         </div>
     </div>
 </div>
+<!-- Brands Section End -->
 <!--brand section end-->
 <!-- Featured Products Section Start -->
 <section class="hm2-featured-section ptb-140">

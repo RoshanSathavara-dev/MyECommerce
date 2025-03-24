@@ -7,5 +7,6 @@
         public List<Product> AllProducts { get; set; } = new();
         public List<Category> Categories { get; set; } = new();
         public List<GalleryImage> GalleryImages { get; set; } = new();
+        public List<Brand> Brands { get; set; } = new();
     }
 }

@@ -88,6 +88,7 @@ namespace MyECommerce.Controllers
             var allProducts = await _context.Products.Include(p => p.Category).ToListAsync();
             var categories = await _context.Categories.ToListAsync();
             var galleryImages = await _context.GalleryImages.ToListAsync();
+            var brands = await _context.Brands.ToListAsync();
 
             var viewModel = new HomeViewModel
             {
@@ -95,7 +96,8 @@ namespace MyECommerce.Controllers
                 FeaturedProducts = featuredProducts,
                 AllProducts = allProducts,
                 Categories = categories,
-                GalleryImages = galleryImages
+                GalleryImages = galleryImages,
+                Brands = brands
             };
 
             return View(viewModel);

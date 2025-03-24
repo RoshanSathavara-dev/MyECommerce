@@ -90,6 +90,7 @@ namespace MyECommerce.Controllers
             if (product == null) return NotFound();
 
             ViewBag.Categories = new SelectList(_context.Categories, "Id", "Name", product.CategoryId);
+            ViewBag.Brands = new SelectList(_context.Brands, "Id", "Name", product.BrandId);
             return View(product);
         }
 
@@ -109,6 +110,7 @@ namespace MyECommerce.Controllers
             existingProduct.Price = product.Price;
             existingProduct.Stock = product.Stock;
             existingProduct.CategoryId = product.CategoryId;
+            existingProduct.BrandId = product.BrandId;
             existingProduct.Color = product.Color;
             existingProduct.Size = product.Size;
 
@@ -149,6 +151,7 @@ namespace MyECommerce.Controllers
                     p.Price,
                     p.Stock,
                     p.CategoryId,
+                    p.BrandId,
                     p.Color,
                     p.Size,
                     p.ImageUrl,

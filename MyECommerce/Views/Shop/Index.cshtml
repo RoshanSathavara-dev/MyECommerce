@@ -24,6 +24,13 @@
                             <input type="text" id="searchInput" placeholder="Search Here..." class="theme-input fw-light">
                         </form>
                     </div>
+                    <!-- ✅ Reset Filters Button (Better Placement) -->
+                    <div class="sidebar-widget text-center mt-40">
+                        <button id="resetFilters" class="btn btn-danger btn-lg w-100">
+                            <i class="fas fa-sync-alt me-2"></i> Reset Filters
+                        </button>
+                    </div>
+
                     <!-- ✅ Categories -->
                     <div class="sidebar-widget categories-widget mt-60">
                         <h4 class="widget-title position-relative fw-normal mb-5">Categories</h4>
@@ -65,11 +72,22 @@
                     <div class="sidebar-widget brand-widget mt-60">
                         <h4 class="widget-title position-relative fw-normal mb-5">Brands</h4>
                         <ul class="sidebar-check-fields">
-                            <li><label><input type="checkbox"> <span>Juliate <span>(09)</span></span></label></li>
-                            <li><label><input type="checkbox"> <span>H&M <span>(50)</span></span></label></li>
-                            <li><label><input type="checkbox"> <span>Macro <span>(08)</span></span></label></li>
-                            <li><label><input type="checkbox"> <span>Harmoni <span>(13)</span></span></label></li>
-                            <li><label><input type="checkbox"> <span>Sowat <span>(03)</span></span></label></li>
+                            @if (ViewBag.Brands is List<MyECommerce.Models.Brand> brands && brands.Any())
+                            {
+                                @foreach (var brand in brands)
+                                {
+                                    <li>
+                                        <label>
+                                            <input type="checkbox" class="brand-filter" value="@brand.Id" checked>
+                                            <span>@brand.Name</span>
+                                        </label>
+                                    </li>
+                                }
+                            }
+                            else
+                            {
+                                <li class="text-center text-muted">No brands available.</li>
+                            }
                         </ul>
                     </div>
                     <div class="sidebar-widget products-widget mt-60">
@@ -108,17 +126,25 @@
             <div class="col-xl-9 order-1 order-xl-2">
                 <div class="shop-grid">
                     <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
-                        <p class="mb-0 fw-light">Showing 1-12 of @Model.Count() results</p>
+                        <p id="pagination-summary" class="mb-0 fw-light">
+                            Showing @(((ViewBag.CurrentPage - 1) * ViewBag.PageSize) + 1)
+                            - @Math.Min(ViewBag.CurrentPage * ViewBag.PageSize, ViewBag.TotalRecords)
+                            of @ViewBag.TotalRecords results
+                            (Page @ViewBag.CurrentPage of @ViewBag.TotalPages)
+                        </p>
+
                         <div class="d-flex align-items-center gap-4">
                             <div class="select-wrapper">
-                                <select class="nice_select">
-                                    <option>Default Sorting</option>
-                                    <option>Sort by Price</option>
-                                    <option>Sort by Popularity</option>
+                                <select id="sortOptions" class="nice_select">
+                                    <option value="">Default Sorting</option>
+                                    <option value="price_asc">Sort by Price (Min to Max)</option>
+                                    <option value="price_desc">Sort by Price (Max to Min)</option>
                                 </select>
                             </div>
                         </div>
                     </div>
+
+
 
                     <div class="products-grid mt-40">
                         <div class="row g-4" id="productList">
@@ -133,9 +159,10 @@
                                                     Add to Cart
                                                 </a>
                                                 <div class="action-btns">
-                                                    <a href="#" class="wishlist-btn">
+                                                    <a href="javascript:void(0)" class="wishlist-btn add-to-wishlist" data-id="@product.Id">
                                                         <i class="fa-regular fa-heart"></i>
                                                     </a>
+
                                                     <!-- ✅ Quick View Button -->
                                                     <a href="#" class="quick-view-btn" data-bs-toggle="modal" data-bs-target="#product_view"
                                                        data-id="@product.Id"
@@ -253,8 +280,10 @@
                                 Add To Cart
                             </button>
                         </form>
-
-                        <a href="#" class="pd-wishlist-btn text-uppercase mt-30"><i class="fa-regular fa-heart"></i> Add to Wishlist</a>
+                        <a href="javascript:void(0)" class="pd-wishlist-btn text-uppercase mt-30 add-to-wishlist-modal"
+                           data-id="">
+                            <i class="fa-regular fa-heart"></i> Add to Wishlist
+                        </a>
                     </div>
                 </div>
             </div>
@@ -264,7 +293,12 @@
 <!-- ✅ JavaScript to Fill Modal -->
 <script>
 
+        let currentPage = 1; // ✅ Set default value
+        let currentSortOption = "";
+
+
     $(document).ready(function () {
+         console.log("✅ Document Ready!");
          $(document).on("click", ".increment", function () {
         let quantityInput = $("#modalProductQuantity");
         let currentValue = parseInt(quantityInput.val());
@@ -300,6 +334,8 @@
         // Reset quantity to 1
         $("#modalProductQuantity").val(1);
         $("#modalProductQuantityHidden").val(1);
+
+         $(".add-to-wishlist-modal").attr("data-id", productId);
 
         // Open the modal
         $("#product_view").modal("show");
@@ -383,6 +419,43 @@
         });
     }
 
+
+    $(document).off("click", ".add-to-wishlist").on("click", ".add-to-wishlist, .add-to-wishlist-modal", function (event) {
+        event.preventDefault();
+        let productId = $(this).data("id");
+        let wishlistButton = $(this);
+
+        $.post("/Wishlist/AddToWishlist", { productId: productId }, function (response) {
+            if (response.success) {
+                alert(response.message);
+                updateWishlistCount();
+
+                // ✅ Change button appearance for both
+                wishlistButton.html('<i class="fa-solid fa-heart text-danger"></i>');
+            } else {
+                alert(response.message);
+            }
+        }).fail(function () {
+            alert("Error adding to wishlist. Please try again.");
+        });
+    });
+
+
+
+
+        function updateWishlistCount() {
+        $.get("/Wishlist/GetWishlistCount", function (response) {
+            if (response.success) {
+                $(".wishlist-count-badge").text(response.count); // ✅ Update the wishlist count in the header
+            }
+        });
+    }
+
+
+
+
+
+
     });
 
     document.addEventListener("DOMContentLoaded", function () {
@@ -404,10 +477,35 @@
 
 
 
+
     document.addEventListener("DOMContentLoaded", function () {
         let searchInput = document.getElementById("searchInput");
+        let applyPriceFilter = false;
 
-        // ✅ Initialize the Price Range Slider (NO automatic filtering)
+             $("#resetFilters").on("click", function () {
+            console.log("🔄 Reset Filters Clicked!");
+
+            // ✅ Clear Search Input
+            $("#searchInput").val("");
+
+            // ✅ Uncheck All Category Filters
+            $(".category-filter").prop("checked", false);
+
+            // ✅ Uncheck All Brand Filters
+            $(".brand-filter").prop("checked", false);
+
+            // ✅ Reset Price Range Slider
+            $(".ur-pricing-range").slider("values", [0, 50000]);
+            $("#amount").val("₹0 - ₹50000");
+
+            // ✅ Reset Sorting Option
+            $("#sortOptions").val(""); // Assuming "" is the default option
+            currentSortOption = ""; // Reset global sort variable
+
+            // ✅ Reload Products with Default Filters
+            filterProducts("", false, 1, "");
+        });
+
         $(".ur-pricing-range").slider({
             range: true,
             min: 0,
@@ -422,152 +520,181 @@
             " - ₹" + $(".ur-pricing-range").slider("values", 1));
 
         // ✅ Attach event listener to Filter button ONLY for price filtering
-        document.querySelector(".submit-btn").addEventListener("click", function (event) {
-            event.preventDefault();
-            filterProducts(true);
-        });
+    $(".submit-btn").on("click", function (event) {
+        event.preventDefault();
+        console.log("💰 Price Filter Button Clicked!");
+        applyPriceFilter = true; // ✅ Enable price filtering only when button is clicked
+        filterProducts($("#searchInput").val().trim(), applyPriceFilter);
+    });
+
 
         // ✅ Attach event listeners for Search & Category Filters
-        searchInput.addEventListener("input", function () {
-            filterProducts(false);
-        });
+    $(document).on("input", "#searchInput", function () {
+        let searchValue = $(this).val().trim();
+        console.log("🔍 Captured Search Value:", searchValue); // ✅ Debugging
 
-        document.querySelectorAll(".category-filter").forEach(checkbox => {
-            checkbox.addEventListener("change", function () {
-                filterProducts(false);
-            });
-        });
+        filterProducts(searchValue, false); // ✅ Pass searchValue correctly
+    });
 
+    $(".brand-filter").change(function () {
+           if ($(".brand-filter:checked").length === 0) {
+               alert("At least one brand must be selected.");
+               $(this).prop("checked", true);
+           } else {
+               filterProducts($("#searchInput").val().trim(), false);
+           }
+       });
+
+
+
+
+    $(".category-filter").on("change", function () {
+        applyPriceFilter = false; // ❌ Prevent price filter from being applied
+        filterProducts($("#searchInput").val().trim(), applyPriceFilter);
+    });
+
+
+    $(document).on("change", "#sortOptions", function () {
+        currentSortOption = $(this).val(); // ✅ Update global sorting option
+        let searchValue = $("#searchInput").val().trim();
+        filterProducts(searchValue, false, 1, currentSortOption); // ✅ Pass sorting option when filtering
+    });
         document.querySelectorAll(".color-filter").forEach(checkbox => {
             checkbox.addEventListener("change", function () {
                 filterProducts(false);
             });
         });
 
-        function filterProducts(applyPriceFilter, page = 1) {
-            let searchValue = searchInput.value.trim();
-            let selectedCategories = [];
-            let selectedColors = [];
-            let selectedSizes = [];
 
-            document.querySelectorAll(".category-filter:checked").forEach(checkbox => {
-                selectedCategories.push(checkbox.value);
-            });
-
-            document.querySelectorAll(".color-filter:checked").forEach(checkbox => {
-                selectedColors.push(checkbox.value);
-            });
-
-            document.querySelectorAll(".size-filter:checked").forEach(checkbox => {
-                selectedSizes.push(checkbox.value);
-            });
-
-            let queryString = `?search=${encodeURIComponent(searchValue)}&page=${page}`;
-            if (selectedCategories.length > 0) queryString += `&categoryIds=${selectedCategories.join(",")}`;
-            if (selectedColors.length > 0) queryString += `&colors=${selectedColors.join(",")}`;
-            if (selectedSizes.length > 0) queryString += `&sizes=${selectedSizes.join(",")}`;
-
-            if (applyPriceFilter) {
-                let minPrice = $(".ur-pricing-range").slider("values", 0);
-                let maxPrice = $(".ur-pricing-range").slider("values", 1);
-                queryString += `&minPrice=${minPrice}&maxPrice=${maxPrice}`;
-            }
-
-            fetch("/Shop/Index" + queryString, { headers: { "X-Requested-With": "XMLHttpRequest" } })
-                .then(response => response.json())
-                .then(data => {
-                    updateProductGrid(data.products, data.totalPages, page);
-                })
-                .catch(error => console.error("Error fetching products:", error));
+       function updatePaginationSummary(currentPage, pageSize, totalRecords) {
+        if (!currentPage || !pageSize || !totalRecords) {
+            console.error("❌ Pagination data missing:", { currentPage, pageSize, totalRecords });
+            return;
         }
 
-        function updateProductGrid(products, totalPages, currentPage) {
-            let productGrid = document.getElementById("productList");
-            let paginationContainer = document.querySelector(".template-pagination");
+        let start = (currentPage - 1) * pageSize + 1;
+        let end = Math.min(currentPage * pageSize, totalRecords);
+        let totalPages = Math.ceil(totalRecords / pageSize);
 
-            productGrid.innerHTML = ""; // ✅ Clear current products
-            paginationContainer.innerHTML = ""; // ✅ Clear pagination
+        $("#pagination-summary").text(`Showing ${start} - ${end} of ${totalRecords} results (Page ${currentPage} of ${totalPages})`);
+    }
 
-            if (!Array.isArray(products) || products.length === 0) {
-                productGrid.innerHTML = "<p class='text-center'>No products found</p>";
-                return;
-            }
 
-            products.forEach(product => {
-                let productHTML = `
-                    <div class="col-lg-4 col-md-6">
-                        <div class="vr5-product-card">
-                            <div class="feature-image position-relative h-300">
-                                <img src="${product.imageUrl || 'default.jpg'}" alt="${product.name || 'No Name'}" class="img-fluid">
-                                <div class="action-box">
-                                    <a href="#" class="cart-btn">Add to Cart</a>
-                                    <div class="action-btns">
-                                        <a href="#" class="wishlist-btn"><i class="fa-regular fa-heart"></i></a>
-                                        <a href="#" class="quick-view-btn" data-bs-toggle="modal" data-bs-target="#product_view"
-                                           data-name="${product.name || 'No Name'}"
-                                           data-image="${product.imageUrl || 'default.jpg'}"
-                                           data-price="${product.price !== null ? product.price : 'N/A'}"
-                                           data-description="${product.description || 'No description'}">
-                                            <i class="fa-solid fa-eye"></i>
-                                        </a>
-                                    </div>
+        function filterProducts(searchValue = "", applyPriceFilter = false, page = 1, sort = currentSortOption) {
+        let selectedCategories = $(".category-filter:checked").map(function () {
+            return $(this).val();
+        }).get().join(",");
+
+        let selectedBrands = $(".brand-filter:checked").map(function () {
+            return $(this).val();
+        }).get().join(",");
+
+        let queryString = `?search=${encodeURIComponent(searchValue)}&page=${page}&sort=${sort}`;
+        if (selectedCategories) queryString += `&categoryIds=${selectedCategories}`;
+        if (selectedBrands) queryString += `&brandIds=${selectedBrands}`;
+
+        if (applyPriceFilter) {
+            let minPrice = $(".ur-pricing-range").slider("values", 0);
+            let maxPrice = $(".ur-pricing-range").slider("values", 1);
+            queryString += `&minPrice=${minPrice}&maxPrice=${maxPrice}`;
+        }
+
+        console.log("🔎 AJAX Request:", queryString);
+
+        fetch("/Shop/Index" + queryString, { headers: { "X-Requested-With": "XMLHttpRequest" } })
+            .then(response => response.json())
+            .then(data => {
+                console.log("🛍️ Products Received:", data.products.length);
+                updateProductGrid(data.products, data.totalPages, page, data.totalRecords, data.pageSize);
+            })
+            .catch(error => console.error("❌ Error fetching products:", error));
+    }
+
+
+
+
+    function updateProductGrid(products, totalPages, currentPage, totalResults, itemsPerPage) {
+        let productGrid = document.getElementById("productList");
+        let paginationContainer = document.querySelector(".template-pagination");
+        let paginationSummary = document.getElementById("pagination-summary");
+
+        productGrid.innerHTML = "";
+        paginationContainer.innerHTML = "";
+
+        if (!Array.isArray(products) || products.length === 0) {
+            productGrid.innerHTML = "<p class='text-center'>No products found</p>";
+            paginationSummary.innerHTML = "";
+            return;
+        }
+
+        // ✅ Update Pagination Summary
+        let startItem = (currentPage - 1) * itemsPerPage + 1;
+        let endItem = Math.min(startItem + itemsPerPage - 1, totalResults);
+        paginationSummary.innerHTML = `Showing ${startItem} - ${endItem} of ${totalResults} results (Page ${currentPage} of ${totalPages})`;
+
+        products.forEach(product => {
+            let productHTML = `
+                <div class="col-lg-4 col-md-6">
+                    <div class="vr5-product-card">
+                        <div class="feature-image position-relative h-300">
+                            <img src="${product.imageUrl || 'default.jpg'}" alt="${product.name || 'No Name'}" class="img-fluid">
+                            <div class="action-box">
+                                <a href="#" class="cart-btn add-to-cart" data-id="${product.id}">Add to Cart</a>
+                                <div class="action-btns">
+                                    <a href="#" class="wishlist-btn"><i class="fa-regular fa-heart"></i></a>
+                                    <a href="#" class="quick-view-btn" data-bs-toggle="modal" data-bs-target="#product_view"
+                                       data-id="${product.id}"
+                                       data-name="${product.name || 'No Name'}"
+                                       data-image="${product.imageUrl || 'default.jpg'}"
+                                       data-price="${product.price !== null ? product.price : 'N/A'}"
+                                       data-description="${product.description || 'No description'}">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </a>
                                 </div>
                             </div>
-                            <div class="product-content">
-                                <span class="fw-semibold subtitle text-uppercase">${product.categoryName || 'Uncategorized'}</span>
-                                <a href="#"><h6 class="fw-semibold mt-3">${product.name || 'No Name'}</h6></a>
-                                <p class="fs-sm mb-4">${product.description || 'No description'}</p>
-                                <span class="text-main-color fw-bold fs-sm">₹${product.price !== null ? product.price : 'N/A'}</span>
-                            </div>
+                        </div>
+                        <div class="product-content">
+                            <span class="fw-semibold subtitle text-uppercase">${product.categoryName || 'Uncategorized'}</span>
+                            <a href="#"><h6 class="fw-semibold mt-3">${product.name || 'No Name'}</h6></a>
+                            <p class="fs-sm mb-4">${product.description || 'No description'}</p>
+                            <span class="text-main-color fw-bold fs-sm">₹${product.price !== null ? product.price : 'N/A'}</span>
                         </div>
                     </div>
-                `;
-
-                productGrid.innerHTML += productHTML;
-            });
-
-            // ✅ Generate Pagination UI
-            for (let i = 1; i <= totalPages; i++) {
-                paginationContainer.innerHTML += `
-                    <li><a href="#" class="pagination-link ${(i === currentPage ? "active" : "")}" data-page="${i}">${i}</a></li>
-                `;
-            }
-
-            document.querySelectorAll(".pagination-link").forEach(link => {
-                link.addEventListener("click", function (event) {
-                    event.preventDefault();
-                    let page = this.getAttribute("data-page");
-                    filterProducts(false, page); // ✅ Now updates page without reloading
-                });
-            });
-
-            attachQuickViewEventListeners();
-        }
-
-        function attachQuickViewEventListeners() {
-            document.querySelectorAll(".quick-view-btn").forEach(button => {
-                button.addEventListener("click", function () {
-                    const name = this.getAttribute("data-name");
-                    const image = this.getAttribute("data-image");
-                    const price = this.getAttribute("data-price");
-                    const description = this.getAttribute("data-description");
-
-                    document.getElementById("modalProductName").textContent = name;
-                    document.getElementById("modalProductImage").src = image;
-                    document.getElementById("modalProductPrice").textContent = "₹" + price;
-                    document.getElementById("modalProductDescription").textContent = description;
-                });
-            });
-        }
-
-        // ✅ Attach event listener to pagination links
-        document.querySelectorAll(".pagination-link").forEach(link => {
-            link.addEventListener("click", function (event) {
-                event.preventDefault();
-                let page = this.getAttribute("data-page");
-                filterProducts(false, page);
-            });
+                </div>
+            `;
+            productGrid.innerHTML += productHTML;
         });
+
+            for (let i = 1; i <= totalPages; i++) {
+        paginationContainer.innerHTML += `
+            <li><a href="#" class="pagination-link ${(i === currentPage ? "active" : "")}" data-page="${i}">${i}</a></li>
+        `;
+    }
+
+        // ✅ Reattach Events after Updating Grid
+        attachPaginationEvent();
+    }
+
+
+
+        function attachPaginationEvent() {
+            $(document).on("click", ".pagination-link", function (event) {
+                event.preventDefault();
+                let page = $(this).data("page");
+                console.log("📄 Pagination Clicked:", page);
+
+                let searchValue = $("#searchInput").val().trim();
+                    filterProducts(searchValue, applyPriceFilter, page,currentSortOption);
+            });
+        }
+
+    
+
+
+
+        // ✅ Ensure Pagination Works on First Load
+        attachPaginationEvent();
+          
     });
 
 
@@ -590,5 +717,5 @@
         object-fit: cover; /* Prevents stretching */
         border-radius: 5px; /* Optional: Adds smooth edges */
     }
+
 </style>
-in this search in not working

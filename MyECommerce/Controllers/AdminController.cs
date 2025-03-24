@@ -127,9 +127,9 @@ namespace MyECommerce.Controllers
         }
 
 
-        public async Task<IActionResult> ManageProducts(string search, int? categoryId)
+        public async Task<IActionResult> ManageProducts(string search, int? categoryId, int? brandId)
         {
-            var products = _context.Products.Include(p => p.Category).AsQueryable();
+            var products = _context.Products.Include(p => p.Category).Include(p => p.Brand).AsQueryable();
 
             if (!string.IsNullOrEmpty(search))
             {
@@ -141,7 +141,13 @@ namespace MyECommerce.Controllers
                 products = products.Where(p => p.CategoryId == categoryId);
             }
 
+            if (brandId.HasValue && brandId > 0)
+            {
+                products = products.Where(p => p.BrandId == brandId);
+            }
+
             ViewBag.Categories = new SelectList(_context.Categories, "Id", "Name");
+            ViewBag.Brands = new SelectList(_context.Brands, "Id", "Name"); 
 
             return View(await products.ToListAsync());
         }
