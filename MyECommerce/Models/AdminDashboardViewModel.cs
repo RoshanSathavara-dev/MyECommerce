@@ -12,5 +12,10 @@
         public List<Review> RecentReviews { get; set; } = new List<Review>();
 
         public int TotalCategories { get; set; }
+
+        public List<Notification> RecentNotifications { get; set; } = new List<Notification>();
+
+
+
     }
 }

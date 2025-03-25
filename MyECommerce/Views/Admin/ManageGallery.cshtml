@@ -1,0 +1,124 @@
+﻿@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Manage Gallery";
+}
+
+<h2 class="mb-4">Manage Gallery</h2>
+
+<!-- ✅ Upload Image Form -->
+<form id="uploadForm" enctype="multipart/form-data">
+    <div class="input-group mb-3">
+        <input type="file" id="imageFile" name="imageFile" class="form-control">
+        <button type="submit" class="btn btn-success">Upload Image</button>
+    </div>
+</form>
+
+<!-- ✅ Gallery Table -->
+<table class="table table-bordered">
+    <thead class="table-dark">
+        <tr>
+            <th>#</th>
+            <th>Image</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="galleryTableBody">
+        <!-- Images will be loaded here via AJAX -->
+    </tbody>
+</table>
+
+<!-- ✅ jQuery for AJAX Calls -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        loadGallery();
+
+        // ✅ Fetch Gallery Images
+        function loadGallery() {
+            $.get("/Gallery/GetImages", function (data) {
+                let tableHtml = "";
+                $.each(data, function (index, image) {
+                    tableHtml += `
+                        <tr data-id="${image.id}">
+                            <td>${index + 1}</td>
+                            <td><img src="${image.imageUrl}" class="img-fluid rounded" width="100" height="100"></td>
+                            <td>
+                                <button class="btn btn-warning btn-sm edit-btn" data-id="${image.id}">Edit</button>
+                                <button class="btn btn-danger btn-sm delete-btn" data-id="${image.id}">Delete</button>
+                                <input type="file" class="edit-input d-none" data-id="${image.id}">
+                            </td>
+                        </tr>
+                    `;
+                });
+                $("#galleryTableBody").html(tableHtml);
+            });
+        }
+
+        // ✅ Upload Image via AJAX
+        $("#uploadForm").submit(function (e) {
+            e.preventDefault();
+            let formData = new FormData();
+            formData.append("imageFile", $("#imageFile")[0].files[0]);
+
+            $.ajax({
+                url: "/Gallery/Upload",
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    alert(response.message);
+                    if (response.success) {
+                        loadGallery();
+                    }
+                }
+            });
+        });
+
+        // ✅ Delete Image via AJAX
+        $(document).on("click", ".delete-btn", function () {
+            let imageId = $(this).data("id");
+            if (confirm("Are you sure you want to delete this image?")) {
+                $.post("/Gallery/Delete", { id: imageId }, function (response) {
+                    alert(response.message);
+                    if (response.success) {
+                        loadGallery();
+                    }
+                });
+            }
+        });
+
+        // ✅ Open File Input When Clicking "Edit"
+        $(document).on("click", ".edit-btn", function () {
+            let imageId = $(this).data("id");
+            $(`input[data-id='${imageId}']`).click(); // Open file input
+        });
+
+        // ✅ Handle Image Selection and Upload
+        $(document).on("change", ".edit-input", function () {
+            let imageId = $(this).data("id");
+            let file = this.files[0];
+
+            if (!file) return;
+
+            let formData = new FormData();
+            formData.append("imageFile", file);
+            formData.append("id", imageId);
+
+            $.ajax({
+                url: "/Gallery/Edit",
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    alert(response.message);
+                    if (response.success) {
+                        loadGallery();
+                    }
+                }
+            });
+        });
+    });
+</script>

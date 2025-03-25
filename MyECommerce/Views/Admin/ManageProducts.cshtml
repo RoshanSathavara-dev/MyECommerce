@@ -11,6 +11,7 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 
+
 <!-- ✅ Separate Add and Edit Buttons -->
 <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addProductModal">Add New Product</button>
 
@@ -74,9 +75,21 @@
                 <td>
                     @if (!string.IsNullOrEmpty(item.ImageUrl))
                     {
-                        <img src="@item.ImageUrl" alt="Product Image" width="50" height="50">
+                        <img src="@item.ImageUrl" alt="Main Image" width="50" height="50" class="me-1">
                     }
                 </td>
+                <td>
+                    @if (item.ProductImages != null && item.ProductImages.Any())
+                    {
+                        <div class="d-flex">
+                            @foreach (var img in item.ProductImages.Take(3))
+                            {
+                                <img src="@img.ImageUrl" alt="Product Image" width="50" height="50" class="me-1">
+                            }
+                        </div>
+                    }
+                </td>
+
                 <td>
                     <button class="btn btn-warning btnEdit" data-id="@item.Id" data-bs-toggle="modal" data-bs-target="#editProductModal">Edit</button>
                     <button class="btn btn-danger btnDelete" data-id="@item.Id">Delete</button>
@@ -160,9 +173,15 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Upload Image</label>
-                        <input type="file" name="ImageFile" id="addImageFile" class="form-control" />
+                        <label>Main Image</label>
+                        <input type="file" name="MainImage" id="addMainImage" class="form-control">
                     </div>
+
+                    <div class="form-group">
+                        <label>Additional Images</label>
+                        <input type="file" name="ImageFiles" id="addImageFiles" class="form-control" multiple>
+                    </div>
+
 
                     <!-- ✅ Checkboxes -->
                     <!-- ✅ Show in Home Hero Section -->
@@ -258,10 +277,26 @@
                         </select>
                     </div>
 
+                    <!-- Show Current Main Image -->
                     <div class="form-group">
-                        <label>Upload New Image</label>
-                        <input type="file" name="ImageFile" id="editImageFile" class="form-control">
+                        <label>Main Image</label>
+                        <div>
+                            <img id="editMainImagePreview" src="" alt="Main Image" width="100" height="100" class="mb-2">
+                        </div>
+                        <input type="file" name="MainImage" id="editMainImage" class="form-control">
                     </div>
+
+                    <!-- Show Current Additional Images -->
+                    <div class="form-group">
+                        <label>Current Additional Images</label>
+                        <div id="editProductImagesPreview" class="d-flex flex-wrap"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Upload New Additional Images</label>
+                        <input type="file" name="ImageFiles" id="editImageFiles" class="form-control" multiple>
+                    </div>
+
 
                     <!-- ✅ Show in Home Hero Section -->
                     <div class="form-group form-check">
@@ -292,12 +327,20 @@
 <script>
     $(document).ready(function () {
         // ✅ Add Product
-            $("#saveProduct").click(function () {
+               $("#saveProduct").click(function () {
         let formData = new FormData($("#addProductForm")[0]);
 
-        // ✅ Ensure checkboxes are included in FormData manually
-        formData.set("ShowInHeroSection", $("#addShowInHero").is(":checked"));
-        formData.set("IsFeatured", $("#addIsFeatured").is(":checked"));
+        // ✅ Attach Main Image
+        let mainImageFile = $("#addMainImage")[0].files[0];
+        if (mainImageFile) {
+            formData.append("MainImage", mainImageFile);
+        }
+
+        // ✅ Attach Multiple Images
+        let imageFiles = $("#addImageFiles")[0].files;
+        for (let i = 0; i < imageFiles.length; i++) {
+            formData.append("ImageFiles", imageFiles[i]);
+        }
 
         $.ajax({
             url: "/Product/Create",
@@ -310,15 +353,15 @@
                     alert("Product added successfully!");
                     location.reload();
                 } else {
-                    alert("Validation Errors: " + response.errors.join(", "));
+                    alert("Error: " + response.errors.join(", "));
                 }
             },
             error: function (xhr) {
-                console.error("Error:", xhr.responseText);
-                alert("Failed to add product. Please try again.");
+                alert("Failed to add product.");
             }
         });
     });
+
 
 
 
@@ -342,18 +385,34 @@
             $("#editShowInHero").prop("checked", product.showInHeroSection);
             $("#editIsFeatured").prop("checked", product.isFeatured);
 
-            // ✅ Show current image
+            // ✅ Show current main image preview
             if (product.imageUrl) {
                 $("#editProductImagePreview").attr("src", product.imageUrl).removeClass("d-none");
             } else {
                 $("#editProductImagePreview").addClass("d-none");
             }
+
+            // ✅ Show existing additional images
+            let imagesHtml = "";
+            if (product.productImages && product.productImages.length > 0) {
+                product.productImages.forEach(img => {
+                    imagesHtml += `<img src="${img.imageUrl}" width="50" height="50" class="me-2">`;
+                });
+            }
+            $("#editProductImagesPreview").html(imagesHtml);
         });
     });
 
 
-     $("#updateProduct").click(function () {
+
+    $("#updateProduct").click(function () {
         let formData = new FormData($("#editProductForm")[0]);
+
+        // ✅ Attach Main Image (if a new one is selected)
+        let mainImageFile = $("#editMainImage")[0].files[0];
+        if (mainImageFile) {
+            formData.append("MainImage", mainImageFile);
+        }
 
         // ✅ Ensure checkboxes are included in FormData manually
         formData.set("ShowInHeroSection", $("#editShowInHero").is(":checked"));
@@ -379,6 +438,7 @@
             }
         });
     });
+
 
 
         // ✅ Delete Product

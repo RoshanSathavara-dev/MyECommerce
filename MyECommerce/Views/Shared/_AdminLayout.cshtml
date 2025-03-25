@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="~/css/admin.css"> <!-- Custom CSS for extra styling -->
     <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
 <body>
 
@@ -52,6 +54,11 @@
                     </a>
                 </li>
                 <li class="list-group-item bg-dark">
+                    <a class="nav-link text-white" asp-controller="Admin" asp-action="ManageGallery">
+                        <i class="fas fa-tags me-2"></i> Manage Gallery
+                    </a>
+                </li>
+                <li class="list-group-item bg-dark">
                     <form asp-controller="Admin" asp-action="Logout" method="post">
                         @Html.AntiForgeryToken()
                         <button type="submit" class="btn btn-danger w-100 text-start">
@@ -81,6 +88,16 @@
                                         <button type="submit" class="dropdown-item text-danger">Logout</button>
                                     </form>
                                 </li>
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link position-relative" href="#" id="notificationDropdown" data-bs-toggle="dropdown">
+                                        <i class="fas fa-bell"></i>
+                                        <span id="notificationBadge" class="badge bg-danger position-absolute top-0 start-100 translate-middle">0</span>
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationDropdown" id="notificationList">
+                                        <li><a class="dropdown-item text-center text-muted">No new notifications</a></li>
+                                    </ul>
+                                </li>
+
                             </ul>
                         </div>
                     </div>

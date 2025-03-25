@@ -17,7 +17,7 @@ namespace MyECommerce.Models
 
         [Range(0.01, double.MaxValue, ErrorMessage = "Price must be greater than zero.")]
         public decimal Price { get; set; }
-        public string ImageUrl { get; set; } = string.Empty;
+        public string ImageUrl { get; set; } = string.Empty; // Main Image
         [Range(1, int.MaxValue, ErrorMessage = "Stock must be at least 1.")]
         public int Stock { get; set; }
         // Foreign Key for Category
@@ -45,6 +45,7 @@ namespace MyECommerce.Models
         public int BrandId { get; set; }  // If you want it nullable, change it to `int?`
         public Brand? Brand { get; set; }
 
+        public List<ProductImage> ProductImages { get; set; } = new List<ProductImage>();
 
 
 

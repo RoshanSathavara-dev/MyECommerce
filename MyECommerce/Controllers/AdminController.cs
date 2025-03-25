@@ -44,9 +44,13 @@ namespace MyECommerce.Controllers
                     .Take(5)
                     .ToList(),
                 RecentCustomZulas = _context.CustomZulas
-            .Include(c => c.User)
-            .OrderByDescending(c => c.CreatedDate)
-            .Take(3)
+                    .Include(c => c.User)
+                    .OrderByDescending(c => c.CreatedDate)
+                    .Take(3)
+                    .ToList(),
+                RecentNotifications = _context.Notifications
+            .OrderByDescending(n => n.CreatedAt)
+            .Take(5)
             .ToList()
             };
 
@@ -129,7 +133,7 @@ namespace MyECommerce.Controllers
 
         public async Task<IActionResult> ManageProducts(string search, int? categoryId, int? brandId)
         {
-            var products = _context.Products.Include(p => p.Category).Include(p => p.Brand).AsQueryable();
+            var products = _context.Products.Include(p => p.Category).Include(p => p.Brand).Include(p => p.ProductImages).AsQueryable();
 
             if (!string.IsNullOrEmpty(search))
             {
@@ -321,6 +325,40 @@ namespace MyECommerce.Controllers
         {
             return View();
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetNotifications()
+        {
+            var notifications = await _context.Notifications
+                .Where(n => !n.IsRead)
+                .OrderByDescending(n => n.CreatedAt)
+                .Take(5)
+                .ToListAsync();
+
+            return Json(notifications);
+        }
+
+        [HttpPost]
+        public IActionResult MarkNotificationAsRead(int id)
+        {
+            var notification = _context.Notifications.FirstOrDefault(n => n.Id == id);
+            if (notification == null)
+            {
+                return NotFound(new { success = false, message = "Notification not found" });
+            }
+
+            notification.IsRead = true; // ✅ Mark as read
+            _context.SaveChanges();
+
+            return Ok(new { success = true });
+        }
+
+
+        public IActionResult ManageGallery()
+        {
+            return View();
+        }
+
 
 
 

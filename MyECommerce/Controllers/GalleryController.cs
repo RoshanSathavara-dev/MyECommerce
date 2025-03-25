@@ -31,6 +31,18 @@ namespace MyECommerce.Controllers
             return View(galleryImages);
         }
 
+        public IActionResult ManageGallery()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetImages()
+        {
+            var images = await _context.GalleryImages.ToListAsync();
+            return Json(images);
+        }
+
         // ✅ Upload Image (GET)
         public IActionResult Upload()
         {
@@ -43,14 +55,14 @@ namespace MyECommerce.Controllers
         {
             if (imageFile != null && imageFile.Length > 0)
             {
-                string uploadFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads/gallery");
-                if (!Directory.Exists(uploadFolder))
+                string uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads/gallery");
+                if (!Directory.Exists(uploadsFolder))
                 {
-                    Directory.CreateDirectory(uploadFolder);
+                    Directory.CreateDirectory(uploadsFolder);
                 }
 
                 string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
-                string filePath = Path.Combine(uploadFolder, uniqueFileName);
+                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
                 using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
@@ -65,11 +77,10 @@ namespace MyECommerce.Controllers
                 _context.GalleryImages.Add(newImage);
                 await _context.SaveChangesAsync();
 
-                return RedirectToAction("Index");
+                return Json(new { success = true, message = "Image uploaded successfully!", image = newImage });
             }
 
-            ViewBag.Message = "Please select an image.";
-            return View();
+            return Json(new { success = false, message = "Please select an image." });
         }
 
         // ✅ Delete Image
@@ -90,24 +101,21 @@ namespace MyECommerce.Controllers
             var galleryImage = await _context.GalleryImages.FindAsync(id);
             if (galleryImage == null)
             {
-                return NotFound();
+                return Json(new { success = false, message = "Image not found!" });
             }
 
             if (imageFile != null && imageFile.Length > 0)
             {
                 // Delete the old image
-                if (!string.IsNullOrEmpty(galleryImage.ImageUrl))
+                string oldFilePath = Path.Combine(_environment.WebRootPath, galleryImage.ImageUrl.TrimStart('/'));
+                if (System.IO.File.Exists(oldFilePath))
                 {
-                    string oldFilePath = Path.Combine(_environment.WebRootPath, galleryImage.ImageUrl.TrimStart('/'));
-                    if (System.IO.File.Exists(oldFilePath))
-                    {
-                        System.IO.File.Delete(oldFilePath);
-                    }
+                    System.IO.File.Delete(oldFilePath);
                 }
 
                 // Save new image
                 string uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads/gallery");
-                string uniqueFileName = Guid.NewGuid().ToString() + "_" + imageFile.FileName;
+                string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
                 string filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
                 using (var fileStream = new FileStream(filePath, FileMode.Create))
@@ -117,37 +125,35 @@ namespace MyECommerce.Controllers
 
                 galleryImage.ImageUrl = "/uploads/gallery/" + uniqueFileName;
                 await _context.SaveChangesAsync();
-                TempData["Success"] = "Image updated successfully!";
+
+                return Json(new { success = true, message = "Image updated successfully!", image = galleryImage });
             }
 
-            return RedirectToAction("Index");
+            return Json(new { success = false, message = "No image selected." });
         }
+
 
         // ✅ 5. Delete Image
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
-            var galleryImage = await _context.GalleryImages.FindAsync(id);
-            if (galleryImage == null)
+            var image = await _context.GalleryImages.FindAsync(id);
+            if (image == null)
             {
-                return NotFound();
+                return Json(new { success = false, message = "Image not found!" });
             }
 
-            // Delete image from server
-            if (!string.IsNullOrEmpty(galleryImage.ImageUrl))
+            // Delete file from server
+            string filePath = Path.Combine(_environment.WebRootPath, image.ImageUrl.TrimStart('/'));
+            if (System.IO.File.Exists(filePath))
             {
-                string filePath = Path.Combine(_environment.WebRootPath, galleryImage.ImageUrl.TrimStart('/'));
-                if (System.IO.File.Exists(filePath))
-                {
-                    System.IO.File.Delete(filePath);
-                }
+                System.IO.File.Delete(filePath);
             }
 
-            _context.GalleryImages.Remove(galleryImage);
+            _context.GalleryImages.Remove(image);
             await _context.SaveChangesAsync();
-            TempData["Success"] = "Image deleted successfully!";
 
-            return RedirectToAction("Index");
+            return Json(new { success = true, message = "Image deleted successfully!" });
         }
     }
 }

@@ -50,34 +50,82 @@ namespace MyECommerce.Controllers
 
         // POST: Product/Create
         [HttpPost]
-        public async Task<IActionResult> Create(Product product, IFormFile? ImageFile)
+        public async Task<IActionResult> Create(Product product, IFormFile? MainImage, List<IFormFile>? ImageFiles)
         {
             if (!ModelState.IsValid)
                 return Json(new { success = false, errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
 
-            // ✅ Ensure boolean values are correctly assigned
             product.ShowInHeroSection = Request.Form["ShowInHeroSection"] == "true";
             product.IsFeatured = Request.Form["IsFeatured"] == "true";
 
-            if (ImageFile != null)
+            string uploadsFolder = Path.Combine(_hostEnvironment.WebRootPath, "images");
+            if (!Directory.Exists(uploadsFolder))
             {
-                string uploadsFolder = Path.Combine(_hostEnvironment.WebRootPath, "images");
-                string uniqueFileName = Guid.NewGuid().ToString() + "_" + ImageFile.FileName;
-                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                Directory.CreateDirectory(uploadsFolder);
+            }
 
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
+            // ✅ Process Main Image Upload
+            if (MainImage != null && MainImage.Length > 0)
+            {
+                string mainImageFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(MainImage.FileName);
+                string mainImagePath = Path.Combine(uploadsFolder, mainImageFileName);
+
+                using (var fileStream = new FileStream(mainImagePath, FileMode.Create))
                 {
-                    await ImageFile.CopyToAsync(fileStream);
+                    await MainImage.CopyToAsync(fileStream);
                 }
 
-                product.ImageUrl = "/images/" + uniqueFileName;
+                product.ImageUrl = "/images/" + mainImageFileName;
             }
 
             _context.Products.Add(product);
+            await _context.SaveChangesAsync(); // ✅ Save Product First
+
+            // ✅ Process Multiple Images (Remove Duplicates)
+            if (ImageFiles != null && ImageFiles.Count > 0)
+            {
+                // ✅ Remove duplicate images based on file names
+                var uniqueImages = ImageFiles
+                    .GroupBy(img => img.FileName.ToLower()) // Group by filename (case-insensitive)
+                    .Select(group => group.First()) // Take only unique images
+                    .ToList();
+
+                foreach (var image in uniqueImages)
+                {
+                    if (image.Length > 0)
+                    {
+                        string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(image.FileName);
+                        string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                        using (var fileStream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await image.CopyToAsync(fileStream);
+                        }
+
+                        string savedImagePath = "/images/" + uniqueFileName;
+
+                        // ✅ Ensure image is not already in the database
+                        bool exists = _context.ProductImages.Any(img => img.ProductId == product.Id && img.ImageUrl == savedImagePath);
+                        if (!exists)
+                        {
+                            _context.ProductImages.Add(new ProductImage
+                            {
+                                ProductId = product.Id,
+                                ImageUrl = savedImagePath
+                            });
+                        }
+                    }
+                }
+            }
+
             await _context.SaveChangesAsync();
 
             return Json(new { success = true, message = "Product added successfully!" });
         }
+
+
+
+
 
 
 
@@ -96,15 +144,18 @@ namespace MyECommerce.Controllers
 
         // POST: Product/Edit/5
         [HttpPost]
-        public async Task<IActionResult> Edit(Product product, IFormFile? ImageFile)
+        public async Task<IActionResult> Edit(Product product, IFormFile? MainImage, List<IFormFile>? ImageFiles)
         {
             if (!ModelState.IsValid)
                 return Json(new { success = false, errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
 
-            var existingProduct = await _context.Products.FindAsync(product.Id);
+            var existingProduct = await _context.Products.Include(p => p.ProductImages)
+                                                         .FirstOrDefaultAsync(p => p.Id == product.Id);
+
             if (existingProduct == null)
                 return Json(new { success = false, message = "Product not found." });
 
+            // ✅ Update basic product details
             existingProduct.Name = product.Name;
             existingProduct.Description = product.Description;
             existingProduct.Price = product.Price;
@@ -113,30 +164,54 @@ namespace MyECommerce.Controllers
             existingProduct.BrandId = product.BrandId;
             existingProduct.Color = product.Color;
             existingProduct.Size = product.Size;
+            existingProduct.ShowInHeroSection = product.ShowInHeroSection;
+            existingProduct.IsFeatured = product.IsFeatured;
 
-            // ✅ Ensure boolean values are correctly assigned
-            existingProduct.ShowInHeroSection = Request.Form["ShowInHeroSection"] == "true";
-            existingProduct.IsFeatured = Request.Form["IsFeatured"] == "true";
+            string uploadsFolder = Path.Combine(_hostEnvironment.WebRootPath, "images");
 
-            if (ImageFile != null)
+            // ✅ Update Main Image if a new one is uploaded
+            if (MainImage != null && MainImage.Length > 0)
             {
-                string uploadsFolder = Path.Combine(_hostEnvironment.WebRootPath, "images");
-                string uniqueFileName = Guid.NewGuid().ToString() + "_" + ImageFile.FileName;
-                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                string mainImageFileName = Guid.NewGuid() + "_" + Path.GetFileName(MainImage.FileName);
+                string mainImagePath = Path.Combine(uploadsFolder, mainImageFileName);
 
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                using (var fileStream = new FileStream(mainImagePath, FileMode.Create))
                 {
-                    await ImageFile.CopyToAsync(fileStream);
+                    await MainImage.CopyToAsync(fileStream);
                 }
 
-                existingProduct.ImageUrl = "/images/" + uniqueFileName;
+                existingProduct.ImageUrl = "/images/" + mainImageFileName;
             }
 
-            _context.Products.Update(existingProduct);
-            await _context.SaveChangesAsync();
+            // ✅ Update Additional Images (if new ones are uploaded)
+            if (ImageFiles != null && ImageFiles.Count > 0)
+            {
+                foreach (var image in ImageFiles)
+                {
+                    if (image.Length > 0)
+                    {
+                        string fileName = Guid.NewGuid() + "_" + Path.GetFileName(image.FileName);
+                        string filePath = Path.Combine(uploadsFolder, fileName);
 
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await image.CopyToAsync(stream);
+                        }
+
+                        _context.ProductImages.Add(new ProductImage
+                        {
+                            ProductId = existingProduct.Id,
+                            ImageUrl = "/images/" + fileName
+                        });
+                    }
+                }
+            }
+
+            await _context.SaveChangesAsync();
             return Json(new { success = true, message = "Product updated successfully!" });
         }
+
+
 
         [HttpGet]
         public async Task<IActionResult> GetProduct(int id)
@@ -217,6 +292,7 @@ namespace MyECommerce.Controllers
         {
             var product = await _context.Products
                 .Include(p => p.Category)
+                .Include(p => p.ProductImages)
                 .FirstOrDefaultAsync(p => p.Id == id);
                 
             if (product == null)
@@ -264,34 +340,6 @@ namespace MyECommerce.Controllers
             return Json(products);
         }
 
-
-
-
-
-
-
-
-        //public async Task<IActionResult> LoadMoreProducts(int page)
-        //{
-        //    int pageSize = 6; // Number of products to load per page
-        //    var products = await _context.Products
-        //        .Include(p => p.Category)
-        //        .OrderBy(p => p.Id)
-        //        .Skip((page - 1) * pageSize)
-        //        .Take(pageSize)
-        //        .Select(p => new
-        //        {
-        //            id = p.Id,
-        //            name = p.Name,
-        //            description = p.Description,
-        //            price = p.Price,
-        //            imageUrl = p.ImageUrl,
-        //            category = p.Category != null ? p.Category.Name : null
-        //        })
-        //        .ToListAsync();
-
-        //    return Json(products);
-        //}
 
     }
 }

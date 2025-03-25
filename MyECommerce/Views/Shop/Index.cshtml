@@ -5,13 +5,7 @@
 }
 
 
-<!--breadcrumb section start-->
-<div class="breadcrumb-section pt-40 pb-40">
-    <div class="container-1700">
-        <p class="breadcrumb-text mb-0"><a href="index.html">Home</a> / <span class="text-main-color">Shop</span></p>
-    </div>
-</div>
-<!--breadcrumb section end-->
+
 <!--shop section start-->
 <section class="shop-section bg-white ptb-120">
     <div class="container">
@@ -60,13 +54,13 @@
                     </div>
 
                     <div class="sidebar-widget color-select-widget mt-40">
-                        <h4 class="widget-title position-relative mb-5">Select Color</h4>
+                        <h4 class="widget-title position-relative mb-5">Available Color</h4>
                         <ul class="color-select">
-                            <li><label><input type="checkbox" class="color-filter" value="Soft Gold"><span class="bg-soft-gold">Soft Gold <span>(12)</span></span></label></li>
-                            <li><label><input type="checkbox" class="color-filter" value="Light Pink"><span class="bg-light-pink">Light Pink <span>(05)</span></span></label></li>
-                            <li><label><input type="checkbox" class="color-filter" value="Green Touch"><span class="bg-green-touch">Green Touch <span>(02)</span></span></label></li>
-                            <li><label><input type="checkbox" class="color-filter" value="Navy Blue"><span class="bg-navy-blue">Navy Blue <span>(05)</span></span></label></li>
-                            <li><label><input type="checkbox" class="color-filter" value="Gray White"><span class="bg-gray-white">Gray White <span>(16)</span></span></label></li>
+                            <li><label><input  class="color-filter" value="Soft Gold"><span class="bg-soft-gold">Soft Gold <span></span></span></label></li>
+                            <li><label><input  class="color-filter" value="Light Pink"><span class="bg-light-pink">Light Pink <span></span></span></label></li>
+                            <li><label><input  class="color-filter" value="Green Touch"><span class="bg-green-touch">Green Touch <span></span></span></label></li>
+                            <li><label><input  class="color-filter" value="Navy Blue"><span class="bg-navy-blue">Navy Blue <span></span></span></label></li>
+                            <li><label><input  class="color-filter" value="Gray White"><span class="bg-gray-white">Gray White <span></span></span></label></li>
                         </ul>
                     </div>
                     <div class="sidebar-widget brand-widget mt-60">
@@ -641,7 +635,9 @@
                             <div class="action-box">
                                 <a href="#" class="cart-btn add-to-cart" data-id="${product.id}">Add to Cart</a>
                                 <div class="action-btns">
-                                    <a href="#" class="wishlist-btn"><i class="fa-regular fa-heart"></i></a>
+                                    <a href="javascript:void(0)" class="wishlist-btn add-to-wishlist" data-id="${product.id}">
+                                        <i class="fa-regular fa-heart"></i>
+                                    </a>
                                     <a href="#" class="quick-view-btn" data-bs-toggle="modal" data-bs-target="#product_view"
                                        data-id="${product.id}"
                                        data-name="${product.name || 'No Name'}"
@@ -653,12 +649,18 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="product-content">
-                            <span class="fw-semibold subtitle text-uppercase">${product.categoryName || 'Uncategorized'}</span>
-                            <a href="#"><h6 class="fw-semibold mt-3">${product.name || 'No Name'}</h6></a>
-                            <p class="fs-sm mb-4">${product.description || 'No description'}</p>
-                            <span class="text-main-color fw-bold fs-sm">₹${product.price !== null ? product.price : 'N/A'}</span>
-                        </div>
+    <div class="product-content">
+        <span class="fw-semibold subtitle text-uppercase">${product.categoryName || 'Uncategorized'}</span>
+
+        <!-- ✅ Updated product name link -->
+        <a href="javascript:void(0);" class="product-name" data-id="${product.id}">
+            <h6 class="fw-semibold mt-3">${product.name || 'No Name'}</h6>
+        </a>
+
+        <p class="fs-sm mb-4">${product.description || 'No description'}</p>
+        <span class="text-main-color fw-bold fs-sm">₹${product.price !== null ? product.price : 'N/A'}</span>
+    </div>
+
                     </div>
                 </div>
             `;
@@ -673,6 +675,7 @@
 
         // ✅ Reattach Events after Updating Grid
         attachPaginationEvent();
+            attachWishlistEvent();
     }
 
 
@@ -688,7 +691,60 @@
             });
         }
 
-    
+
+            // ✅ Function to Attach Wishlist Event Dynamically
+    function attachWishlistEvent() {
+        $(document).off("click", ".add-to-wishlist").on("click", ".product-grid", ".add-to-wishlist", function (event) {
+            event.preventDefault();
+
+            let productId = $(this).data("id");
+            let wishlistButton = $(this);
+
+            // ✅ Prevent multiple clicks by temporarily disabling the button
+            if (wishlistButton.hasClass("processing")) {
+                return; // Prevent duplicate requests
+            }
+            wishlistButton.addClass("processing"); // Mark as processing
+
+            console.log("🖤 Add to Wishlist Clicked! Product ID:", productId);
+
+            $.post("/Wishlist/AddToWishlist", { productId: productId }, function (response) {
+                if (response.success) {
+                    alert(response.message);
+                    updateWishlistCount();
+
+                    // ✅ Prevent duplicate updates
+                    if (!wishlistButton.hasClass("added")) {
+                        wishlistButton.addClass("added");
+                        wishlistButton.html('<i class="fa-solid fa-heart text-danger"></i>');
+                    }
+                } else {
+                    alert(response.message);
+                }
+            }).fail(function () {
+                alert("Error adding to wishlist. Please try again.");
+            }).always(function () {
+                wishlistButton.removeClass("processing"); // ✅ Re-enable after response
+            });
+        });
+    }
+        $(document).on("click", ".product-name", function () {
+        let productId = $(this).data("id");
+
+        if (!productId) {
+            console.error("❌ Product ID not found.");
+            return;
+        }
+
+        console.log("🔗 Redirecting to product detail. Product ID:", productId);
+
+        // ✅ Redirect to product details page
+        window.location.href = "/Product/Details/" + productId;
+    });
+
+
+
+
 
 
 

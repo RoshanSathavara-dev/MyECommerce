@@ -105,6 +105,18 @@ namespace MyECommerce.Controllers
 
             _context.Orders.Add(order);
             _context.ShoppingCartItems.RemoveRange(cartItems);
+
+
+            // ✅ Add Notification for Admin
+            var notification = new Notification
+            {
+                Message = $"New Order #{order.Id} placed by {order.FullName}",
+                Type = "Order",
+                IsRead = false,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.Notifications.Add(notification);
             await _context.SaveChangesAsync();
 
             TempData["Success"] = "Your order has been placed successfully!";

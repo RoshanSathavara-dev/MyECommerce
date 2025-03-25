@@ -6,66 +6,128 @@
 
 <h2>@Model.Name</h2>
 
-<!--breadcrumb section start-->
-<div class="breadcrumb-section pt-40 pb-40">
-    <div class="container-1700">
-        <p class="breadcrumb-text mb-0"><a href="index.html">Home</a> / <span class="text-main-color">Product Details</span></p>
-    </div>
-</div>
-<!--breadcrumb section end-->
-<!--product details start-->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Product Details Start -->
 <section class="vr-prodcuct-details ptb-140">
     <div class="container">
         <div class="row">
             <div class="col-xl-6">
                 <div class="vr-product-double-slider">
                     <div class="vr-product-thumb position-relative">
-                        <span class="badge sale-badge">Sale</span>
+                        <span class="badge sale-badge" style="display:@(Model.IsLimitedEdition ? "inline-block" : "none")">Sale</span>
                         <div class="vr-poroduct-single-slider">
+                            <!-- ✅ Show Main Image First -->
                             <div class="single-item text-center">
                                 <span class="zoom-on-hover d-inline-block">
-                                    <img src="@Model.ImageUrl" alt="@Model.Name" class="img-fluid" style="width: 442px; height: 370px; object-fit: cover;">
+                                    <img src="@Model.ImageUrl" alt="@Model.Name" class="img-fluid mood-multiply d-inline-block"
+                                         style="width: 442px; height: 370px; object-fit: cover;">
+
                                 </span>
                             </div>
+
+                            <!-- ✅ Show Additional Images -->
+                            @foreach (var image in Model.ProductImages)
+                            {
+                                <div class="single-item text-center">
+                                    <span class="zoom-on-hover d-inline-block">
+                                        <img src="@image.ImageUrl" alt="@Model.Name" class="img-fluid mood-multiply d-inline-block"
+                                             style="width: 442px; height: 370px; object-fit: cover;">
+                                    </span>
+                                </div>
+                            }
                         </div>
+                    </div>
+
+                    <div class="vr-product-thumb-control mt-4">
+                        <!-- ✅ Show Main Image First in Thumbnails -->
+                        <div class="single-item text-center">
+                            <img src="@Model.ImageUrl" alt="@Model.Name" class="img-fluid mood-multiply thumb-image">
+                        </div>
+
+                        <!-- ✅ Show Additional Images in Thumbnails -->
+                        @foreach (var image in Model.ProductImages)
+                        {
+                            <div class="single-item text-center">
+                                <img src="@image.ImageUrl" alt="@Model.Name" class="img-fluid mood-multiply thumb-image">
+                            </div>
+                        }
                     </div>
                 </div>
             </div>
+
+
+            <!-- Product Details Content -->
             <div class="col-xl-6">
                 <div class="vr-product-details-content mt-5 mt-xl-0">
                     <h3 class="mb-4 fw-semibold">@Model.Name</h3>
-                    <h5 class="mb-0 mt-30 text-success">$@Model.Price</h5>
-                    <p class="mb-40 mt-30">@Model.Description</p>
-                    <p><strong>Category:</strong> @Model.Category?.Name</p>
-                    <p><strong>Stock:</strong> @Model.Stock</p>
-                    <!-- ✅ Add to Cart Form with AJAX -->
-                    <div class="d-flex align-items-center mt-30 gap-3">
-                        <form id="addToCartForm">
-                            <input type="hidden" name="productId" value="@Model.Id" />
-                            <div class="quantity-box">
-                                <button type="button" class="decrement"><i class="fa-solid fa-minus"></i></button>
-                                <input type="number" id="productQuantity" name="quantity" value="1" min="1" class="form-control" readonly/>
-                                <button type="button" class="increment"><i class="fa-solid fa-plus"></i></button>
-                            </div>
-                            <button type="submit" class="template-btn primary-btn fs-sm text-uppercase h-40 mt-3">
-                                ADD TO CART
-                            </button>
-                        </form>
+
+                    <!-- Product Rating -->
+                    <div class="product-rating">
+                        <ul class="rating-star d-inline-flex">
+                            <li><i class="fas fa-star"></i></li>
+                            <li><i class="fas fa-star"></i></li>
+                            <li><i class="fas fa-star"></i></li>
+                            <li><i class="fas fa-star"></i></li>
+                            <li><i class="fas fa-star-half-alt"></i></li>
+                        </ul>
+                        <span class="fs-sm">(4.5/5 - 12 Reviews)</span>
                     </div>
 
+                    <!-- Price with Discount -->
+                    <h5 class="mb-0 mt-30">
+                        ₹@Model.Price
+                        @if (Model.IsLimitedEdition)
+                        {
+                            <del class="ms-1 text-color">₹@(@Model.Price)</del>
+                        }
+                    </h5>
 
-                  
+                    <p class="mb-40 mt-30">@Model.Description</p>
 
+                    <!-- Product Meta -->
+                    <p><strong>Brand:</strong> @Model.Brand?.Name</p>
+                    <p><strong>Category:</strong> @Model.Category?.Name</p>
+                    <p><strong>Stock:</strong> @Model.Stock</p>
 
+                    <!-- Color Variants -->
+                    <div class="color-variant">
+                        <span class="fs-sm text-uppercase text-main-color fw-medium">Color</span>
+                        <ul class="color-list mt-20">
+                            @foreach (var color in Model.Color.Split(','))
+                            {
+                                <li class="@color.Trim().ToLower()"><a href="#"></a></li>
+                            }
+                        </ul>
+                    </div>
 
+                    <!-- Add to Cart -->
+                    <div class="d-flex align-items-center mt-30 gap-3">
+                        <div class="quantity-box">
+                            <button type="button" class="decrement"><i class="fa-solid fa-minus"></i></button>
+                            <input type="number" id="productQuantity" value="1" min="1" class="form-control">
+                            <button type="button" class="increment"><i class="fa-solid fa-plus"></i></button>
+                        </div>
+                        <button class="template-btn primary-btn fs-sm text-uppercase h-40" onclick="addToCart(@Model.Id)">ADD TO CART</button>
+                    </div>
 
+                    <!-- Wishlist Button -->
+                    <a href="javascript:void(0)" class="pd-wishlist-btn text-uppercase mt-30" onclick="addToWishlist(@Model.Id)">
+                        <i class="fa-regular fa-heart"></i> ADD TO WISHLIST
+                    </a>
 
+                    <!-- Product Meta Info -->
+                    <ul class="product-meta mt-32">
+                        <li>SKU: @Model.Id</li>
+                        <li>Category: @Model.Category?.Name</li>
+                        <li>Tags: Trending, BestSeller</li>
+                    </ul>
                 </div>
             </div>
         </div>
     </div>
 </section>
-<!--product details end-->
+<!-- Product Details End -->
 <!--product single tab start-->
 <section class="single-products-info pb-140">
     <div class="container">
@@ -191,72 +253,48 @@
 <!--hm2 feature section end-->
 
 
+
+
 <script>
 
-
-        $(document).ready(function () {
-                   let productId = "@Model.Id";
-                      loadReviews();
-           
-           $("#addToCartForm").on("submit", function (event) {
-        event.preventDefault();
-
-        var productId = $("input[name='productId']").val();
-        var quantity = $("#productQuantity").val();
+            function addToCart(productId) {
+        let quantity = $("#productQuantity").val(); // ✅ Get selected quantity
 
         $.post("/ShoppingCart/AddToCart", { productId: productId, quantity: quantity }, function (response) {
             if (response.success) {
-                alert(response.message);
-                updateCartCount(); // ✅ Update cart icon count
-                updateCartDrawer(response.cartItems, response.totalPrice); // ✅ Update cart drawer items
+                alert("✅ " + response.message);
+                updateCartCount(); // ✅ Update cart count
+                updateCartDrawer(response.cartItems, response.totalPrice); // ✅ Update cart UI
             } else {
-                alert(response.message || "Something went wrong!");
+                alert("❌ " + (response.message || "Something went wrong!"));
             }
         }).fail(function () {
             alert("❌ Error adding product to cart. Please try again!");
         });
-    });
-      $(".increment").click(function () {
-        let quantityInput = $("#productQuantity");
-        let currentValue = parseInt(quantityInput.val()) || 1; // Ensure at least 1
-        quantityInput.val(currentValue + 1);
-    });
+    }
 
-    // ✅ Decrement Quantity
-    $(".decrement").click(function () {
-        let quantityInput = $("#productQuantity");
-        let currentValue = parseInt(quantityInput.val()) || 1; // Ensure at least 1
-        if (currentValue > 1) {
-            quantityInput.val(currentValue - 1);
-        }
-    });
+        function checkIfUserCanReview(productId) {
+        $.get(`/Review/CanReview?productId=${productId}`, function (response) {
+            if (response.success) {
+                $("#writeReviewSection").show();
+                $("#loginMessage").hide();
+            } else {
+                $("#writeReviewSection").hide();
+                $("#loginMessage").html(`❌ ${response.message}`).show();
+            }
+        }).fail(function () {
+            console.error("❌ Error checking review eligibility.");
+        });
+    }
 
-    // ✅ Ensure the quantity input has a default value of 1
-    $("#productQuantity").val(1);
-
-        $(document).on("click", ".quick-view-btn", function () {
-        let productId = $(this).data("id");
-        let productName = $(this).data("name");
-        let productPrice = $(this).data("price");
-        let productImage = $(this).data("image");
-        let productDescription = $(this).data("description");
-
-        // ✅ Populate modal with product data
-        $("#modalProductId").val(productId);
-        $("#modalProductName").text(productName);
-        $("#modalProductPrice").text("$" + productPrice);
-        $("#modalProductImage").attr("src", productImage);
-        $("#modalProductDescription").text(productDescription);
-
-        // ✅ Force quantity input to display "1"
-        $("#modalProductQuantity").val(1).trigger("change");
-        $("#modalProductQuantityHidden").val(1);
-
-        // Open the modal
-        $("#product_view").modal("show");
+    $(document).ready(function () {
+        let productId = "@Model.Id";
+        checkIfUserCanReview(productId); // ✅ Check if user can review
     });
 
-        function updateCartCount() {
+
+
+            function updateCartCount() {
         $.get("/ShoppingCart/GetCartSummary", function (response) {
             if (response.success) {
                 $(".cart-item").text(response.count); // ✅ Update cart icon count
@@ -269,8 +307,7 @@
         });
     }
 
-
-        function updateCartDrawer(cartItems, totalPrice) {
+            function updateCartDrawer(cartItems, totalPrice) {
         let cartList = $(".cart-list");
         let cartCount = $(".cart-item"); // ✅ Cart Count Icon
         let totalAmount = $(".cart-amount"); // ✅ Total Price in Header
@@ -312,6 +349,7 @@
             cartList.append(cartItemHTML);
         });
     }
+
            $.get("/Account/CheckSession", function (response) {
            if (response.isAuthenticated) {
                console.log("✅ User is logged in:", response.userId); // Debugging
@@ -323,6 +361,93 @@
                $("#loginMessage").show();
            }
        });
+
+
+             $(".increment").click(function () {
+        let quantityInput = $("#productQuantity");
+        let currentValue = parseInt(quantityInput.val()) || 1; // Ensure at least 1
+        quantityInput.val(currentValue + 1);
+    });
+
+    // ✅ Decrement Quantity
+    $(".decrement").click(function () {
+        let quantityInput = $("#productQuantity");
+        let currentValue = parseInt(quantityInput.val()) || 1; // Ensure at least 1
+        if (currentValue > 1) {
+            quantityInput.val(currentValue - 1);
+        }
+    });
+
+        // ✅ Declare function globally
+    function updateWishlistCount() {
+        $.get("/Wishlist/GetWishlistCount", function (response) {
+            if (response.success) {
+                $(".wishlist-item-count").text(response.count); // ✅ Update wishlist count in header
+                console.log("✅ Wishlist count updated:", response.count);
+            } else {
+                console.error("❌ Failed to update wishlist count.");
+            }
+        }).fail(function () {
+            console.error("❌ Error fetching wishlist summary.");
+        });
+    }
+
+
+    function addToWishlist(productId) {
+        $.post("/Wishlist/AddToWishlist", { productId: productId }, function (response) {
+            if (response.success) {
+                alert("✅ " + response.message);
+                updateWishlistCount(); // ✅ Update count after adding to wishlist
+            } else {
+                alert("❌ " + (response.message || "Something went wrong!"));
+            }
+        }).fail(function () {
+            alert("❌ Error adding product to wishlist. Please try again!");
+        });
+    }
+
+
+    // ✅ Function to Update Wishlist Count
+
+
+        $(document).ready(function () {
+                   let productId = "@Model.Id";
+                      loadReviews();
+                      updateCartCount();
+                      updateWishlistCount();
+
+
+
+
+    // ✅ Ensure the quantity input has a default value of 1
+    $("#productQuantity").val(1);
+
+        $(document).on("click", ".quick-view-btn", function () {
+        let productId = $(this).data("id");
+        let productName = $(this).data("name");
+        let productPrice = $(this).data("price");
+        let productImage = $(this).data("image");
+        let productDescription = $(this).data("description");
+
+        // ✅ Populate modal with product data
+        $("#modalProductId").val(productId);
+        $("#modalProductName").text(productName);
+        $("#modalProductPrice").text("$" + productPrice);
+        $("#modalProductImage").attr("src", productImage);
+        $("#modalProductDescription").text(productDescription);
+
+        // ✅ Force quantity input to display "1"
+        $("#modalProductQuantity").val(1).trigger("change");
+        $("#modalProductQuantityHidden").val(1);
+
+        // Open the modal
+        $("#product_view").modal("show");
+    });
+
+
+
+
+
 
        // ✅ Submit Review
        $("#submitReview").click(function () {
@@ -416,12 +541,21 @@
 
 
 
-    
+
+
+
+
     });
 
-       
-  
+
+
+
+
+
+
+
 </script>
+
 
 <style>
     /* Hide default number input arrows */
